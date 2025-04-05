@@ -3,17 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home page</title>
+    <title>Home Page</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <nav>
-        <a href="index.html">home</a>
-        <a href="contact/index.html">contact</a>
-        <a href="projects/index.html">projects</a>
+    <nav class="nav">
+        <a href="index.html">Home</a>
+        <a href="contact/index.html">Contact</a>
+        <a href="projects/index.html">Projects</a>
         <a href="https://github.com/JACK-coder0315" target="_blank">GitHub</a>
     </nav>
-    <h1>home</h1>
-    <img src="/portfolio/images/my photo.jpg" alt="个人头像" width="300">
+    <div class="main-content clearfix">
+        <h1>Home</h1>
+        <div class="profile-section">
+            <img src="/portfolio/images/my photo.jpg" alt="个人头像" class="profile-pic">
+            <div class="intro-text">
+                <p>Hi, I'm a passionate developer with a love for creating innovative solutions.</p>
+                <p>I specialize in web development and enjoy working on projects that challenge my skills.</p>
+                <p>Outside of coding, I enjoy hiking, reading, and exploring new technologies.</p>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

@@ -1,46 +1,60 @@
 /* 设置页面的基本样式 */
 body {
-    font-family: Arial, sans-serif; /* 设置字体为Arial，若无则使用sans-serif */
-    margin: 0; /* 移除默认的外边距 */
-    padding: 0; /* 移除默认的内边距 */
-    background-color: #f4f4f4; /* 设置背景颜色为浅灰色 */
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
 }
 
 /* 设置导航栏的样式 */
 .nav {
-    background-color: #333; /* 设置背景颜色为深灰色 */
-    overflow: hidden; /* 清除浮动 */
-    padding: 10px 20px; /* 设置内边距 */
+    background-color: #333;
+    overflow: hidden;
+    padding: 10px 20px;
+    text-align: center; /* 使链接居中 */
 }
 
 .nav a {
-    float: left; /* 链接浮动到左侧 */
-    color: white; /* 设置文字颜色为白色 */
-    text-align: center; /* 文字居中对齐 */
-    padding: 14px 16px; /* 设置内边距 */
-    text-decoration: none; /* 移除下划线 */
-    font-size: 17px; /* 设置字体大小 */
+    display: inline-block; /* 使链接为内联块元素，以便设置宽度和高度 */
+    color: white;
+    text-align: center;
+    padding: 14px 20px; /* 增加水平内边距以放大链接 */
+    text-decoration: none;
+    font-size: 20px; /* 放大字体 */
+    margin: 0 10px; /* 增加链接之间的间距 */
 }
 
 .nav a:hover {
-    background-color: #ddd; /* 鼠标悬停时背景颜色变为浅灰色 */
-    color: black; /* 鼠标悬停时文字颜色变为黑色 */
+    background-color: #ddd;
+    color: black;
 }
 
 /* 设置主内容的样式 */
 .main-content {
-    padding: 20px; /* 设置内边距 */
-    background-color: white; /* 设置背景颜色为白色 */
-    margin: 20px; /* 设置外边距 */
-    border-radius: 8px; /* 设置圆角 */
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* 添加阴影效果 */
+    padding: 20px;
+    background-color: white;
+    margin: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
 /* 设置图片的样式 */
 .profile-pic {
-    float: left; /* 图片浮动到左侧 */
-    margin-right: 20px; /* 图片右侧添加外边距，以便与文本保持一定距离 */
-    border-radius: 8px; /* 设置圆角 */
+    display: block;
+    margin: 0 auto 20px; /* 图片居中，并在底部添加外边距 */
+    border-radius: 8px;
+    width: 300px; /* 设置固定宽度 */
+}
+
+/* 设置个人简介部分的样式 */
+.profile-section {
+    text-align: center; /* 使内容居中 */
+}
+
+.intro-text p {
+    margin: 10px 0; /* 设置段落之间的间距 */
+    font-size: 16px;
+    line-height: 1.5;
 }
 
 /* 清除浮动 */
@@ -52,6 +66,22 @@ body {
 
 /* 设置标题的样式 */
 h1 {
-    font-size: 2em; /* 设置字体大小 */
-    margin-bottom: 20px; /* 设置底部外边距 */
+    font-size: 2em;
+    margin-bottom: 20px;
+    text-align: center; /* 使标题居中 */
+}
+
+/* 为导航栏添加蓝色条纹背景（通过伪元素实现） */
+.nav {
+    position: relative;
+}
+
+.nav::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px; /* 条纹高度 */
+    background-color: blue; /* 条纹颜色 */
 }
