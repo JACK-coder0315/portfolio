@@ -7,20 +7,38 @@
     <style>
         body {
             display: flex;
-            flex-direction: column; /* 修改为列方向以支持导航栏和轮播图垂直排列 */
+            flex-direction: column; 
             align-items: center;
             height: 100vh;
             margin: 0;
             background-color: #f0f0f0;
         }
         .nav {
-            margin-bottom: 20px; /* 添加一些间距以分隔导航栏和轮播图 */
-        }
-        .nav a {
-            margin: 0 10px;
-            text-decoration: none;
-            color: #333;
-        }
+    background-color: #4fa1fe;
+    overflow: hidden;
+    padding: 10px 20px;
+    text-align: center;
+    margin: 0; 
+    position: relative; 
+    top: 0; 
+    z-index: 1000; 
+}
+
+
+.nav a {
+    display: inline-block;
+    color: white;
+    text-align: center;
+    padding: 14px 20px;
+    text-decoration: none;
+    font-size: 20px;
+    margin: 0 10px;
+}
+
+.nav a:hover {
+    background-color: #ddd;
+    color: black;
+}
         .carousel {
             width: 600px;
             height: 400px;
@@ -31,13 +49,13 @@
         }
         .carousel-images {
             display: flex;
-            width: calc(600px * 7); /* 确保宽度足够大以容纳所有图片 */
+            width: calc(600px * 7);
             transition: transform 0.5s ease-in-out;
         }
         .carousel-images img {
             width: 600px;
             height: 400px;
-            flex-shrink: 0; /* 防止图片在容器宽度变化时缩小 */
+            flex-shrink: 0; 
         }
         .carousel-buttons {
             position: absolute;
