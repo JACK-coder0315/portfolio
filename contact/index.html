@@ -1,60 +1,57 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Us</title>
+    <link rel="stylesheet" href="contact.css">
 </head>
 <body>
-    <nav class="nav">
-        <a href="/portfolio/index.html">Home</a>
-        <a href="resume/index.html">Resume</a>
-        <a href="contact/index.html">Contact</a>
-        <a href="projects/index.html">Projects</a>
-        <a href="https://github.com/JACK-coder0315" target="_blank">GitHub</a>
-    </nav>
-        <div class="contact-form">
-            <h2>Contact Us</h2>
-            <form id="contact-form" novalidate>
-                <label for="email">Email:</label><br>
-                <input type="email" id="email" name="email" required><br>
-                <div id="emailError" class="error"></div><br><br>
-                
-                <label for="subject">Subject:</label><br>
-                <input type="text" id="subject" name="subject" required><br><br>
-                
-                <label for="message">Message:</label><br>
-                <textarea id="message" name="message" required></textarea><br><br>
-                
-                <button type="submit">Submit</button>
-            </form>
-            <div id="response" class="response"></div>
-        </div>
-     
-        <script>
-            document.getElementById('contact-form').addEventListener('submit', function(event) {
-                event.preventDefault();
-                const email = document.getElementById('email').value;
-                const subject = document.getElementById('subject').value;
-                const message = document.getElementById('message').value;
-                const emailError = document.getElementById('emailError');
-                const responseDiv = document.getElementById('response');
-     
-                emailError.textContent = ''; // Clear previous error message
-     
-                // Validate email address
-                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                if (!emailRegex.test(email)) {
-                    emailError.textContent = 'Please enter a valid email address.';
-                    return;
-                }
-     
-                // Simulate form submission processing
-                setTimeout(() => {
-                    // Assume server returns a successful response
-                    responseDiv.textContent = 'Form submitted successfully!';
-                    responseDiv.style.color = '#008000';
-                    // Optionally, clear form fields here
-                    // document.getElementById('contact-form').reset();
-                }, 1000); // Simulate network delay, use AJAX in a real scenario
-            });
-        </script>
-    </body>
+    <div class="contact-form">
+        <h2>Contact Us</h2>
+        <form id="contact-form" novalidate>
+            <label for="email">Email:</label><br>
+            <input type="email" id="email" name="email" required><br>
+            <div id="emailError" class="error"></div><br><br>
+            
+            <label for="subject">Subject:</label><br>
+            <input type="text" id="subject" name="subject" required><br><br>
+            
+            <label for="message">Message:</label><br>
+            <textarea id="message" name="message" required></textarea><br><br>
+            
+            <button type="submit">Submit</button>
+        </form>
+        <div id="response" class="response"></div>
+    </div>
+
+    <script>
+        document.getElementById('contact-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const email = document.getElementById('email').value;
+            const subject = document.getElementById('subject').value;
+            const message = document.getElementById('message').value;
+            const emailError = document.getElementById('emailError');
+            const responseDiv = document.getElementById('response');
+
+            emailError.textContent = ''; // Clear previous error message
+
+            // Validate email address
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                emailError.textContent = 'Please enter a valid email address.';
+                return;
+            }
+
+            // Simulate form submission processing
+            setTimeout(() => {
+                // Assume server returns a successful response
+                responseDiv.textContent = 'Form submitted successfully!';
+                responseDiv.style.color = '#008000';
+                // Optionally, clear form fields here
+                // document.getElementById('contact-form').reset();
+            }, 1000); // Simulate network delay, use AJAX in a real scenario
+        });
+    </script>
+</body>
 </html>
