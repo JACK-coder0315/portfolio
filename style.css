@@ -8,6 +8,7 @@ body {
 
 /* 设置导航栏的样式 */
 .nav {
+    background-color: #2427b8;
     overflow: hidden;
     padding: 10px 20px;
     text-align: center; /* 使链接居中 */
