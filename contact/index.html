@@ -1,18 +1,53 @@
-<nav>
-    <a href="index.html">home</a>
-    <a href="/projects/">projects</a>
-    <a href="/contact/">contact</a>
-    <a href="https://github.com/JACK-coder0315" target="_blank">GitHub</a>
-</nav>
-<form action="mailto:YOUR_EMAIL_ADDRESS" method="POST" enctype="text/plain">
-    <label for="email">email:</label>
-    <input type="email" id="email" name="email" required>
-    <br>
-    <label for="subject">subject:</label>
-    <input type="text" id="subject" name="subject" required>
-    <br>
-    <label for="body">body:</label>
-    <textarea id="body" name="body" required></textarea>
-    <br>
-    <button type="submit">submit</button>
-</form>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+</head>
+<body>
+    <nav class="nav">
+        <a href="/portfolio/index.html">Home</a>
+        <a href="resume/index.html">Resume</a>
+        <a href="contact/index.html">Contact</a>
+        <a href="projects/index.html">Projects</a>
+        <a href="https://github.com/JACK-coder0315" target="_blank">GitHub</a>
+    </nav>
+    <div class="contact-form">
+        <h2>contact me</h2>
+        <form id="contact-form">
+            <button type="submit">submit</button>
+        </form>
+        <div id="response" class="response"></div>
+    </div>
+
+    <script>
+        document.getElementById('contact-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const email = document.getElementById('email').value;
+            const subject = document.getElementById('subject').value;
+            const message = document.getElementById('message').value;
+            const responseDiv = document.getElementById('response');
+
+            // 这里可以添加更多的验证逻辑
+            if (!validateEmail(email)) {
+                responseDiv.textContent = 'wrong email format';
+                responseDiv.style.color = '#ff0000';
+                return;
+            }
+
+            // 模拟表单提交处理
+            setTimeout(() => {
+                // 假设服务器返回成功响应
+                responseDiv.textContent = 'successfully submit！';
+                responseDiv.style.color = '#008000';
+                // 如果需要，可以在这里清空表单字段
+                // document.getElementById('contact-form').reset();
+            }, 1000); // 模拟网络延迟，实际使用时应该发送AJAX请求到服务器
+        });
+
+        function validateEmail(email) {
+            // 简单的邮箱格式验证正则表达式
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
+        }
+    </script>
+</body>
+</html>
