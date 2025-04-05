@@ -43,7 +43,7 @@ body {
     display: block;
     margin: 0 auto 20px; /* 图片居中，并在底部添加外边距 */
     border-radius: 8px;
-    width: 300px; /* 设置固定宽度 */
+    width: 200px; /* 设置固定宽度 */
 }
 
 /* 设置个人简介部分的样式 */
