@@ -41,23 +41,21 @@
             const emailError = document.getElementById('emailError');
             const responseDiv = document.getElementById('response');
 
-            emailError.textContent = ''; // Clear previous error message
+            emailError.textContent = ''; 
 
-            // Validate email address
+           
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             if (!emailRegex.test(email)) {
                 emailError.textContent = 'Please enter a valid email address.';
                 return;
             }
 
-            // Simulate form submission processing
+            
             setTimeout(() => {
-                // Assume server returns a successful response
+                
                 responseDiv.textContent = 'Form submitted successfully!';
                 responseDiv.style.color = '#008000';
-                // Optionally, clear form fields here
-                // document.getElementById('contact-form').reset();
-            }, 1000); // Simulate network delay, use AJAX in a real scenario
+            }, 1000); 
         });
     </script>
 </body>
