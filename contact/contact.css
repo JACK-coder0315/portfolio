@@ -1,9 +1,10 @@
 /* 通用样式 */
+/* 通用样式 */
 body {
     font-family: Arial, sans-serif;
     background-color: #f4f4f4;
     margin: 0;
-    padding:10px;
+    padding: 0; /* 移除padding以确保内容紧贴顶部 */
 }
 
 .nav {
@@ -11,8 +12,13 @@ body {
     overflow: hidden;
     padding: 10px 20px;
     text-align: center;
+    margin: 0; /* 明确设置margin为0，确保没有额外的顶部间距 */
+    position: relative; /* 可选：确保导航栏相对于视口定位，通常不是必需的，但有助于理解布局 */
+    top: 0; /* 可选：通常不需要，因为块级元素默认从顶部开始，但有助于明确意图 */
+    z-index: 1000; /* 可选：确保导航栏在其他内容之上，通常用于固定导航栏场景 */
 }
 
+/* 其余样式保持不变 */
 .nav a {
     display: inline-block;
     color: white;
