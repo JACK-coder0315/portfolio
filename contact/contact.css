@@ -3,7 +3,7 @@ body {
     font-family: Arial, sans-serif;
     background-color: #f4f4f4;
     margin: 0;
-    padding: 20px;
+    padding: 0;
 }
 
 .nav {
@@ -11,11 +11,6 @@ body {
     overflow: hidden;
     padding: 10px 20px;
     text-align: center;
-    position: fixed;         /* 关键：固定顶部 */
-    top: 0;
-    left: 0;
-    right: 0;
-    z-index: 1000;          
 }
 
 .nav a {
