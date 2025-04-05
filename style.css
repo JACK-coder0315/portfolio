@@ -1,0 +1,57 @@
+/* 设置页面的基本样式 */
+body {
+    font-family: Arial, sans-serif; /* 设置字体为Arial，若无则使用sans-serif */
+    margin: 0; /* 移除默认的外边距 */
+    padding: 0; /* 移除默认的内边距 */
+    background-color: #f4f4f4; /* 设置背景颜色为浅灰色 */
+}
+
+/* 设置导航栏的样式 */
+.nav {
+    background-color: #333; /* 设置背景颜色为深灰色 */
+    overflow: hidden; /* 清除浮动 */
+    padding: 10px 20px; /* 设置内边距 */
+}
+
+.nav a {
+    float: left; /* 链接浮动到左侧 */
+    color: white; /* 设置文字颜色为白色 */
+    text-align: center; /* 文字居中对齐 */
+    padding: 14px 16px; /* 设置内边距 */
+    text-decoration: none; /* 移除下划线 */
+    font-size: 17px; /* 设置字体大小 */
+}
+
+.nav a:hover {
+    background-color: #ddd; /* 鼠标悬停时背景颜色变为浅灰色 */
+    color: black; /* 鼠标悬停时文字颜色变为黑色 */
+}
+
+/* 设置主内容的样式 */
+.main-content {
+    padding: 20px; /* 设置内边距 */
+    background-color: white; /* 设置背景颜色为白色 */
+    margin: 20px; /* 设置外边距 */
+    border-radius: 8px; /* 设置圆角 */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* 添加阴影效果 */
+}
+
+/* 设置图片的样式 */
+.profile-pic {
+    float: left; /* 图片浮动到左侧 */
+    margin-right: 20px; /* 图片右侧添加外边距，以便与文本保持一定距离 */
+    border-radius: 8px; /* 设置圆角 */
+}
+
+/* 清除浮动 */
+.clearfix::after {
+    content: "";
+    clear: both;
+    display: table;
+}
+
+/* 设置标题的样式 */
+h1 {
+    font-size: 2em; /* 设置字体大小 */
+    margin-bottom: 20px; /* 设置底部外边距 */
+}
