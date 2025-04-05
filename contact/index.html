@@ -17,17 +17,11 @@
     <div class="contact-form">
         <h2>What would you like to tell me</h2>
         <form action="https://formsubmit.co/jingxuans124@gmail.com" method="POST">
-            <label for="email">Email:</label><br>
-            <input type="email" id="email" name="email" required><br><br>
-            
-            <label for="subject">Subject:</label><br>
-            <input type="text" id="subject" name="subject" required><br><br>
-            
-            <label for="message">Message:</label><br>
-            <textarea id="message" name="message" required></textarea><br><br>
-            
-            <button type="submit">Submit</button>
-        </form>
+            <input type="email" name="email" placeholder="Your email" required />
+            <input type="text" name="subject" placeholder="Subject" />
+            <textarea name="message" rows="6" placeholder="Your message here..."></textarea>
+            <button type="submit">Send</button>
+      </form>
         <div id="response" class="response"></div>
     </div>
 
@@ -42,7 +36,7 @@
 
             emailError.textContent = ''; 
 
-           
+            
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             if (!emailRegex.test(email)) {
                 emailError.textContent = 'Please enter a valid email address.';
