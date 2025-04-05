@@ -30,10 +30,15 @@
             border-radius: 5px;
         }
         .nav {
-    background-color: #4fa1fe;
+            background-color: #4fa1fe;
     overflow: hidden;
     padding: 10px 20px;
     text-align: center;
+    position: fixed;         /* 关键：固定顶部 */
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;          
 }
 
 .nav a {
