@@ -8,7 +8,7 @@ body {
 
 /* 设置导航栏的样式 */
 .nav {
-    background-color: #1bd1d7;
+    background-color: #4fa1fe;
     overflow: hidden;
     padding: 10px 20px;
     text-align: center; /* 使链接居中 */
@@ -43,7 +43,7 @@ body {
     display: block;
     margin: 0 auto 20px; /* 图片居中，并在底部添加外边距 */
     border-radius: 8px;
-    width: 200px; /* 设置固定宽度 */
+    width: 300px; /* 设置固定宽度 */
 }
 
 /* 设置个人简介部分的样式 */
