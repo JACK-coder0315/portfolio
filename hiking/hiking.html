@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hiking</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        .carousel {
+            width: 600px;
+            height: 400px;
+            overflow: hidden;
+            position: relative;
+            border: 2px solid #ccc;
+            border-radius: 10px;
+        }
+        .carousel-images {
+            display: flex;
+            transition: transform 0.5s ease-in-out;
+        }
+        .carousel-images img {
+            width: 600px;
+            height: 400px;
+        }
+        .carousel-buttons {
+            position: absolute;
+            top: 50%;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            transform: translateY(-50%);
+        }
+        .carousel-button {
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+            border-radius: 50%;
+        }
+        .carousel-button:hover {
+            background-color: rgba(0, 0, 0, 0.7);
+        }
+    </style>
+</head>
+<body>
+    <nav class="nav">
+        <a href="/portfolio/index.html">Home</a>
+        <a href="https://jack-coder0315.github.io/portfolio/resume/index.html">Resume</a>
+        <a href="https://jack-coder0315.github.io/portfolio/contact/index.html">Contact</a>
+        <a href="https://jack-coder0315.github.io/portfolio/projects/index.html">Projects</a>
+        <a href="https://github.com/JACK-coder0315" target="_blank">GitHub</a>
+    </nav>
+    <div class="carousel">
+        <div class="carousel-images">
+            <img src="1.jpg" alt="Image 1">
+            <img src="2.jpg" alt="Image 2">
+            <img src="3.jpg" alt="Image 3">
+            <img src="4.jpg" alt="Image 4">
+            <img src="5.jpg" alt="Image 5">
+            <img src="6.jpg" alt="Image 6">
+            <img src="7.jpg" alt="Image 7">
+        </div>
+        <div class="carousel-buttons">
+            <button class="carousel-button" onclick="prevSlide()">&#10094;</button>
+            <button class="carousel-button" onclick="nextSlide()">&#10095;</button>
+        </div>
+    </div>
+
+    <script>
+        let currentIndex = 0;
+        const images = document.querySelector('.carousel-images');
+        const totalImages = document.querySelectorAll('.carousel-images img').length;
+
+        function showSlide(index) {
+            if (index >= totalImages) {
+                currentIndex = 0;
+            } else if (index < 0) {
+                currentIndex = totalImages - 1;
+            } else {
+                currentIndex = index;
+            }
+            const offset = -currentIndex * 600; 
+            images.style.transform = `translateX(${offset}px)`;
+        }
+
+        function nextSlide() {
+            showSlide(currentIndex + 1);
+        }
+
+        function prevSlide() {
+            showSlide(currentIndex - 1);
+        }
+        setInterval(nextSlide, 3000);
+    </script>
+</body>
+</html>
