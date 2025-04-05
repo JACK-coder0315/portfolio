@@ -10,23 +10,39 @@ body {
     background-color: #4fa1fe;
     overflow: hidden;
     padding: 10px 20px;
-    text-align: center; /* 使链接居中 */
+    text-align: center;
 }
 
 .nav a {
-    display: inline-block; /* 使链接为内联块元素，以便设置宽度和高度 */
+    display: inline-block;
     color: white;
     text-align: center;
-    padding: 14px 20px; /* 增加水平内边距以放大链接 */
+    padding: 14px 20px;
     text-decoration: none;
-    font-size: 20px; /* 放大字体 */
-    margin: 0 10px; /* 增加链接之间的间距 */
+    font-size: 20px;
+    margin: 0 10px;
 }
 
 .nav a:hover {
     background-color: #ddd;
     color: black;
 }
+
+.contact-form {
+    max-width: 400px;
+    margin: 0 auto;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.contact-form h2 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+/* 其他样式保持不变 */
 
 .contact-form {
     max-width: 400px;
