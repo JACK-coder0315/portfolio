@@ -63,5 +63,3 @@ select.addEventListener("input", (e) => {
   localStorage.colorScheme = e.target.value;
   setColorScheme(e.target.value);
 });
-
-document.getElementById("nav-container")?.insertAdjacentHTML("beforeend", navHTML);
