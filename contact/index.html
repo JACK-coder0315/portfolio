@@ -1,34 +1,29 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Email</title>
     <link rel="stylesheet" href="contact.css">
-    <script type="module" src="global.js"></script>
+    <script type="module" src="/portfolio/global.js"></script>
 </head>
+
 <body>
-    <nav class="nav">
-        <a href="/portfolio/index.html">Home</a>
-        <a href="https://jack-coder0315.github.io/portfolio/resume/index.html">Resume</a>
-        <a href="https://jack-coder0315.github.io/portfolio/contact/index.html">Contact</a>
-        <a href="https://jack-coder0315.github.io/portfolio/projects/index.html">Projects</a>
-        <a href="https://github.com/JACK-coder0315" target="_blank">GitHub</a>
-        <a href="https://jack-coder0315.github.io/portfolio/hiking/hiking.html">Hiking</a>
-    </nav>
+    <div id="nav-container"></div>
     <div class="contact-form">
         <h2>What would you like to tell me</h2>
-        <form action="https://formsubmit.co/jingxuans124@gmail.com" >
+        <form action="https://formsubmit.co/jingxuans124@gmail.com">
             <input type="email" name="email" placeholder="Your email" required />
-            <input type="text" name="subject" placeholder="Subject" />
-            <textarea name="message" rows="6" placeholder="Your message here..."></textarea>
-            <button type="submit">Send</button>
-      </form>
+            <input type="text" name="subject" placeholder="Subject" />
+            <textarea name="message" rows="6" placeholder="Your message here..."></textarea>
+            <button type="submit">Send</button>
+        </form>
         <div id="response" class="response"></div>
     </div>
 
     <script>
-        document.getElementById('contact-form').addEventListener('submit', function(event) {
+        document.getElementById('contact-form').addEventListener('submit', function (event) {
             event.preventDefault();
             const email = document.getElementById('email').value;
             const subject = document.getElementById('subject').value;
@@ -36,22 +31,23 @@
             const emailError = document.getElementById('emailError');
             const responseDiv = document.getElementById('response');
 
-            emailError.textContent = ''; 
+            emailError.textContent = '';
 
-            
+
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             if (!emailRegex.test(email)) {
                 emailError.textContent = 'Please enter a valid email address.';
                 return;
             }
 
-            
+
             setTimeout(() => {
-                
+
                 responseDiv.textContent = 'Form submitted successfully!';
                 responseDiv.style.color = '#008000';
-            }, 1000); 
+            }, 1000);
         });
     </script>
 </body>
+
 </html>
