@@ -13,7 +13,7 @@
         body {
             display: flex;
             flex-direction: column;
-            align-items: center;
+            align-items: stretch;
             height: 100vh;
             margin: 0;
             background-color: #f0f0f0;
@@ -32,6 +32,7 @@
             box-sizing: border-box;
             --border-color: oklch(50% 10% 200 / 40%);
             border-bottom: 1px solid var(--border-color);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
 
         .nav a {
