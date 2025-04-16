@@ -108,29 +108,38 @@
             margin-top: 8px;
             margin-right: 20px;
         }
+
+        .hiking-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin-top: 20px;
+        }
     </style>
     <script type="module" src="/portfolio/global.js"></script>
 </head>
 
 <body>
     <div id="nav-container"></div>
-    <h3>All works and no play makes Jack a dull boy</h3>
-    <div class="carousel">
-        <div class="carousel-images">
-            <img src="1.jpg" alt="Image 1">
-            <img src="2.jpg" alt="Image 2">
-            <img src="3.jpg" alt="Image 3">
-            <img src="4.jpg" alt="Image 4">
-            <img src="5.jpg" alt="Image 5">
-            <img src="6.jpg" alt="Image 6">
-            <img src="7.jpg" alt="Image 7">
-        </div>
-        <div class="carousel-buttons">
-            <button class="carousel-button" onclick="prevSlide()">&#10094;</button>
-            <button class="carousel-button" onclick="nextSlide()">&#10095;</button>
+    <div class="hiking-content">
+        <h3>All works and no play makes Jack a dull boy</h3>
+        <div class="carousel">
+            <div class="carousel-images">
+                <img src="1.jpg" alt="Image 1">
+                <img src="2.jpg" alt="Image 2">
+                <img src="3.jpg" alt="Image 3">
+                <img src="4.jpg" alt="Image 4">
+                <img src="5.jpg" alt="Image 5">
+                <img src="6.jpg" alt="Image 6">
+                <img src="7.jpg" alt="Image 7">
+            </div>
+            <div class="carousel-buttons">
+                <button class="carousel-button" onclick="prevSlide()">&#10094;</button>
+                <button class="carousel-button" onclick="nextSlide()">&#10095;</button>
+            </div>
         </div>
     </div>
-
     <script>
         let currentIndex = 0;
         const images = document.querySelector('.carousel-images');
