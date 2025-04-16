@@ -1,7 +1,7 @@
 html {
     color-scheme: light dark;
-  }
-  
+}
+
 body {
     font-family: Arial, sans-serif;
     background-color: #f4f4f4;
@@ -30,6 +30,10 @@ body {
     text-decoration: none;
     font-size: 20px;
     margin: 0 10px;
+}
+
+.nav a.current {
+    border-bottom: 2px solid white;
 }
 
 .nav a:hover {
@@ -128,5 +132,4 @@ body {
     right: 1rem;
     font-size: 0.8rem;
     font-family: inherit;
-  }
-  
+}
