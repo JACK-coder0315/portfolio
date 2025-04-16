@@ -26,8 +26,8 @@ document.querySelectorAll(".nav a").forEach((a) => {
   }
 });
 
-document.body.insertAdjacentHTML("afterbegin", `
-  <label class="color-scheme" style="position:absolute;top:1rem;right:1rem;font-size:0.8rem;font-family:inherit;">
+let themeHTML = `
+  <label class="color-scheme">
     Theme:
     <select>
       <option value="light">Light</option>
@@ -35,7 +35,9 @@ document.body.insertAdjacentHTML("afterbegin", `
       <option value="normal">Auto</option>
     </select>
   </label>
-`);
+`;
+
+document.getElementById("nav-container")?.insertAdjacentHTML("beforeend", navHTML + themeHTML);
 
 let select = document.querySelector("select");
 function setColorScheme(scheme) {
