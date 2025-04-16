@@ -1,7 +1,7 @@
 html {
     color-scheme: light dark;
-  }
-  
+}
+
 body {
     font-family: Arial, sans-serif;
     margin: 0;
@@ -13,17 +13,19 @@ body {
     background-color: #4fa1fe;
     overflow: hidden;
     padding: 10px 20px;
-    text-align: center; 
+    text-align: center;
+    --border-color: oklch(50% 10% 200 / 40%);
+    border-bottom: 1px solid var(--border-color);
 }
 
 .nav a {
     display: inline-block;
     color: white;
     text-align: center;
-    padding: 14px 20px; 
+    padding: 14px 20px;
     text-decoration: none;
-    font-size: 20px; 
-    margin: 0 10px; 
+    font-size: 20px;
+    margin: 0 10px;
 }
 
 .nav a:hover {
@@ -43,18 +45,18 @@ body {
 
 .profile-pic {
     display: block;
-    margin: 0 auto 20px; 
+    margin: 0 auto 20px;
     border-radius: 8px;
-    width: 300px; 
+    width: 300px;
 }
 
 
 .profile-section {
-    text-align: center; 
+    text-align: center;
 }
 
 .intro-text p {
-    margin: 10px 0; 
+    margin: 10px 0;
     font-size: 16px;
     line-height: 1.5;
 }
@@ -70,9 +72,17 @@ body {
 h1 {
     font-size: 2em;
     margin-bottom: 20px;
-    text-align: center; 
+    text-align: center;
 }
 
 .nav {
     position: relative;
+}
+
+.color-scheme {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    font-size: 0.8rem;
+    font-family: inherit;
 }

@@ -18,6 +18,8 @@ body {
     position: relative;
     top: 0;
     z-index: 1000;
+    --border-color: oklch(50% 10% 200 / 40%);
+    border-bottom: 1px solid var(--border-color);
 }
 
 .nav a {
@@ -119,3 +121,12 @@ body {
     text-align: center;
     font-size: 1em;
 }
+
+.color-scheme {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    font-size: 0.8rem;
+    font-family: inherit;
+  }
+  

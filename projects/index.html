@@ -1,28 +1,34 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MCM Essay Innovations and Key Methodologies</title>
     <style>
         html {
-  color-scheme: light dark;
-}
+            color-scheme: light dark;
+        }
 
-         body {
+        body {
             font-family: Arial, sans-serif;
             margin: 0;
-            padding-top: 70px; 
+            padding-top: 70px;
         }
-        h1, h2 {
+
+        h1,
+        h2 {
             color: #333;
         }
+
         .section {
             margin-bottom: 20px;
         }
+
         .key-point {
             font-weight: bold;
         }
+
         .nav {
             background-color: #4fa1fe;
             overflow: hidden;
@@ -30,9 +36,12 @@
             text-align: center;
             position: fixed;
             top: 0;
-            width: 100%; 
-            z-index: 1000; 
+            width: 100%;
+            z-index: 1000;
+            --border-color: oklch(50% 10% 200 / 40%);
+            border-bottom: 1px solid var(--border-color);
         }
+
         .nav a {
             display: inline-block;
             color: white;
@@ -42,13 +51,23 @@
             font-size: 20px;
             margin: 0 10px;
         }
+
         .nav a:hover {
             background-color: #ddd;
             color: black;
         }
+
+        .color-scheme {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            font-size: 0.8rem;
+            font-family: inherit;
+        }
     </style>
     <script type="module" src="global.js"></script>
 </head>
+
 <body>
     <nav class="nav">
         <a href="/portfolio/index.html">Home</a>
@@ -64,26 +83,36 @@
         <h2>MCM 2025 Essay: Navigating the Future: Transformative Traffic Solution for Baltimore</h2>
         <h3>Innovations</h3>
         <ul>
-            <li>Established multiple mathematical models (such as the Bridge-Collapsed Effect Model, Bus Stop Optimization Model, Kruskal-Edmonds Traffic Revitalization Model) to comprehensively optimize the transportation network in Baltimore.</li>
-            <li>Utilized various algorithms (such as Dijkstra's algorithm, Particle Swarm Optimization algorithm, Kruskal's algorithm, Edmonds-Karp algorithm) to simulate and optimize traffic flow.</li>
-            <li>Proposed a bus stop optimization strategy based on community division to improve the efficiency and fairness of the public transportation system.</li>
+            <li>Established multiple mathematical models (such as the Bridge-Collapsed Effect Model, Bus Stop
+                Optimization Model, Kruskal-Edmonds Traffic Revitalization Model) to comprehensively optimize the
+                transportation network in Baltimore.</li>
+            <li>Utilized various algorithms (such as Dijkstra's algorithm, Particle Swarm Optimization algorithm,
+                Kruskal's algorithm, Edmonds-Karp algorithm) to simulate and optimize traffic flow.</li>
+            <li>Proposed a bus stop optimization strategy based on community division to improve the efficiency and
+                fairness of the public transportation system.</li>
         </ul>
 
         <h3>Key Methodologies</h3>
         <ul>
-            <li><strong>Data Preprocessing</strong>: Removed redundant data and visualized key data for better analysis.</li>
+            <li><strong>Data Preprocessing</strong>: Removed redundant data and visualized key data for better analysis.
+            </li>
             <li><strong>Model I: Bridge-Collapsed Effect Model</strong>
                 <ul>
-                    <li>Used the BPR algorithm to simulate traffic flow and determine the relationship between road capacity and width.</li>
-                    <li>Used Dijkstra's algorithm to simulate the shortest travel time before and after the bridge collapse.</li>
+                    <li>Used the BPR algorithm to simulate traffic flow and determine the relationship between road
+                        capacity and width.</li>
+                    <li>Used Dijkstra's algorithm to simulate the shortest travel time before and after the bridge
+                        collapse.</li>
                 </ul>
             </li>
             <li><strong>Model II: Bus Stop Optimization Model</strong>
                 <ul>
                     <li>Used the Haversine formula to convert latitude and longitude to distance.</li>
-                    <li>Used Dijkstra's algorithm to simulate the shortest paths between current transportation nodes.</li>
-                    <li>Used the Particle Swarm Optimization (PSO) algorithm to simulate the geographical location of new bus stops.</li>
-                    <li>Used the K-mean clustering method to divide Baltimore into three neighborhoods and control the variance of bus stop distances within each neighborhood.</li>
+                    <li>Used Dijkstra's algorithm to simulate the shortest paths between current transportation nodes.
+                    </li>
+                    <li>Used the Particle Swarm Optimization (PSO) algorithm to simulate the geographical location of
+                        new bus stops.</li>
+                    <li>Used the K-mean clustering method to divide Baltimore into three neighborhoods and control the
+                        variance of bus stop distances within each neighborhood.</li>
                 </ul>
             </li>
             <li><strong>Model III: Kruskal-Edmonds Traffic Revitalization Model</strong>
@@ -99,8 +128,11 @@
         <h2>MCM 2024 Essay: How On Earth Does The Momentum Control The Match?</h2>
         <h3>Innovations</h3>
         <ul>
-            <li>Proposed using the Entropy Weighting Method (EWM) and Analytic Hierarchy Process (AHP) to quantify momentum in tennis matches and established a correlation model between momentum fluctuations and player success.</li>
-            <li>Used the K-means clustering method to divide momentum into five phases and used Mahalanobis distance to predict momentum fluctuations in real-time during matches.</li>
+            <li>Proposed using the Entropy Weighting Method (EWM) and Analytic Hierarchy Process (AHP) to quantify
+                momentum in tennis matches and established a correlation model between momentum fluctuations and player
+                success.</li>
+            <li>Used the K-means clustering method to divide momentum into five phases and used Mahalanobis distance to
+                predict momentum fluctuations in real-time during matches.</li>
             <li>Provided strategic advice to players based on momentum fluctuations to improve their performance.</li>
         </ul>
 
@@ -119,15 +151,18 @@
                     <li>Used Python to fit the quantified success model and momentum model.</li>
                 </ul>
             </li>
-            <li><strong>Problem 3: Determine the most significant factors influencing momentum fluctuations and predict momentum fluctuations in matches</strong>
+            <li><strong>Problem 3: Determine the most significant factors influencing momentum fluctuations and predict
+                    momentum fluctuations in matches</strong>
                 <ul>
                     <li>Used EWM to calculate weights.</li>
-                    <li>Identified the most relevant factors for momentum fluctuations (such as ACEs, untouchable shots, break points).</li>
+                    <li>Identified the most relevant factors for momentum fluctuations (such as ACEs, untouchable shots,
+                        break points).</li>
                     <li>Used the K-means clustering method to group sample data into five momentum phases.</li>
                     <li>Used Mahalanobis distance to predict momentum fluctuations during matches.</li>
                 </ul>
             </li>
-            <li><strong>Problem 4: Test the predictive ability of the established model and evaluate its generality</strong>
+            <li><strong>Problem 4: Test the predictive ability of the established model and evaluate its
+                    generality</strong>
                 <ul>
                     <li>Input the test dataset into the K-means clustering model.</li>
                     <li>Used 0-1 normalization to standardize the data.</li>
@@ -144,4 +179,5 @@
         </ul>
     </div>
 </body>
+
 </html>

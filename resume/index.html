@@ -1,45 +1,52 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JACK SUN's CV</title>
     <style>
         html {
-  color-scheme: light dark;
-}
+            color-scheme: light dark;
+        }
 
         body {
             font-family: Arial, sans-serif;
             line-height: 1.6;
             margin: 0;
-            padding: 40px ;
+            padding: 40px;
             background-color: #f4f4f4;
         }
+
         .nav {
-    background-color: #4fa1fe;
-    overflow: hidden;
-    padding: 10px 20px;
-    text-align: center;
-}
+            background-color: #4fa1fe;
+            overflow: hidden;
+            padding: 10px 20px;
+            text-align: center;
+            --border-color: oklch(50% 10% 200 / 40%);
+            border-bottom: 1px solid var(--border-color);
+        }
 
-.nav a {
-    display: inline-block;
-    color: white;
-    text-align: center;
-    padding: 14px 20px;
-    text-decoration: none;
-    font-size: 20px;
-    margin: 0 10px;
-}
+        .nav a {
+            display: inline-block;
+            color: white;
+            text-align: center;
+            padding: 14px 20px;
+            text-decoration: none;
+            font-size: 20px;
+            margin: 0 10px;
+        }
 
-.nav a:hover {
-    background-color: #ddd;
-    color: black;
-}
-        h1, h2 {
+        .nav a:hover {
+            background-color: #ddd;
+            color: black;
+        }
+
+        h1,
+        h2 {
             color: #333;
         }
+
         .container {
             width: 80%;
             margin: 0 auto;
@@ -48,61 +55,80 @@
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
+
         .section-title {
             background-color: #3498db;
             color: #fff;
             padding: 10px;
             border-radius: 5px;
         }
+
         .nav {
             background-color: #4fa1fe;
-    overflow: hidden;
-    padding: 0 0 ;
-    text-align: center;
-    position: fixed;         
-    top: 0;
-    left: 0;
-    right: 0;
-    z-index: 1000;          
-}
+            overflow: hidden;
+            padding: 0 0;
+            text-align: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
 
-.nav a {
-    display: inline-block;
-    color: white;
-    text-align: center;
-    padding: 14px 20px;
-    text-decoration: none;
-    font-size: 20px;
-    margin: 0 10px;
-}
+        .nav a {
+            display: inline-block;
+            color: white;
+            text-align: center;
+            padding: 14px 20px;
+            text-decoration: none;
+            font-size: 20px;
+            margin: 0 10px;
+        }
 
-.nav a:hover {
-    background-color: #ddd;
-    color: black;
-}
+        .nav a:hover {
+            background-color: #ddd;
+            color: black;
+        }
+
         ul {
             list-style-type: none;
             padding-left: 0;
         }
+
         li {
             padding: 5px 0;
         }
+
         .contact-info {
             font-size: 16px;
             color: #555;
         }
-        .skills, .awards, .languages, .projects {
+
+        .skills,
+        .awards,
+        .languages,
+        .projects {
             padding-left: 20px;
         }
+
         .footer {
             text-align: center;
             font-size: 14px;
             color: #777;
             margin-top: 20px;
         }
+
+        .color-scheme {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            font-size: 0.8rem;
+            font-family: inherit;
+        }
     </style>
     <script type="module" src="global.js"></script>
 </head>
+
 <body>
     <nav class="nav">
         <a href="/portfolio/index.html">Home</a>
@@ -115,7 +141,8 @@
     <div class="container">
         <h1>JACK SUN</h1>
         <p class="contact-info">
-            Email: <a href="mailto:jingxuans124@gmail.com">jingxuans124@gmail.com</a> | Phone: +1 (626) 786-3237 | GitHub: <a href="https://github.com/JACK-coder0315" target="_blank">https://github.com/JACK-coder0315</a>
+            Email: <a href="mailto:jingxuans124@gmail.com">jingxuans124@gmail.com</a> | Phone: +1 (626) 786-3237 |
+            GitHub: <a href="https://github.com/JACK-coder0315" target="_blank">https://github.com/JACK-coder0315</a>
         </p>
 
         <div class="section-title">
@@ -188,11 +215,15 @@
         <div class="section-title">
             <h2>Personal Statement</h2>
         </div>
-        <p>Driven by curiosity and passion, I am focused on advancing data processing capabilities through machine learning, especially in the fields of economics and biomedical data analysis. My future goal is to develop more efficient algorithms for data search, filtering, and processing during my Ph.D. studies, with the aim of benefiting industries and humanity.</p>
+        <p>Driven by curiosity and passion, I am focused on advancing data processing capabilities through machine
+            learning, especially in the fields of economics and biomedical data analysis. My future goal is to develop
+            more efficient algorithms for data search, filtering, and processing during my Ph.D. studies, with the aim
+            of benefiting industries and humanity.</p>
 
         <div class="footer">
             <p>CV updated on April 2025</p>
         </div>
     </div>
 </body>
+
 </html>
