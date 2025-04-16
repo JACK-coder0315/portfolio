@@ -1,3 +1,7 @@
+html {
+    color-scheme: light dark;
+  }
+  
 body {
     font-family: Arial, sans-serif;
     margin: 0;
