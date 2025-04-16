@@ -3,12 +3,13 @@ console.log("IT’S ALIVE!");
 const BASE_PATH = location.hostname.includes("localhost") ? "/" : "/portfolio/";
 
 let pages = [
-  { url: "", title: "Home" },
-  { url: "projects/", title: "Projects" },
-  { url: "contact/", title: "Contact" },
-  { url: "resume/", title: "Resume" },
-  { url: "https://github.com/JACK-coder0315", title: "GitHub" }
-];
+    { url: "", title: "Home" },
+    { url: "projects/", title: "Projects" },
+    { url: "contact/", title: "Contact" },
+    { url: "resume/", title: "Resume" },
+    { url: "hiking/hiking.html", title: "Hiking" },
+    { url: "https://github.com/JACK-coder0315", title: "GitHub" }
+  ];
 
 let navHTML = `<nav class="nav">\n`;
 for (let p of pages) {
