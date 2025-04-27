@@ -47,14 +47,12 @@ html {
   .container {
     display: flex;
     align-items: center;
-    justify-content: center; /* ✨ 确保整体居中 */
+    justify-content: center;
     gap: 4em;
     flex-wrap: wrap;
-    margin-top: 2em; /* ✨ 往下拉一点，别紧挨着标题 */
+    margin-top: 2em; 
   }
   
-  
-  /* 饼图设置固定尺寸 */
   #projects-pie-plot {
     flex: 0 0 auto;
     width: 250px;
@@ -64,8 +62,8 @@ html {
   
   .legend {
     display: flex;
-    flex-wrap: wrap; /* ✨ 超出一行就换行 */
-    gap: 1em 2em; /* ✨ 行内和行间的间距 */
+    flex-wrap: wrap;
+    gap: 1em 2em; 
     list-style: none;
     padding: 1em;
     border: 1px solid #ccc;
@@ -81,7 +79,6 @@ html {
     gap: 0.5em;
   }
   
-  /* 小圆圈 */
   .swatch {
     width: 0.8em;
     height: 0.8em;
@@ -90,7 +87,6 @@ html {
     display: inline-block;
   }
   
-  /* 饼图鼠标悬停 */
   #projects-pie-plot path {
     cursor: pointer;
     transition: 300ms;
@@ -100,7 +96,6 @@ html {
     opacity: 0.5;
   }
   
-  /* 点击选中状态 */
   .selected {
     --color: oklch(60% 45% 0) !important;
   }
@@ -114,7 +109,6 @@ html {
     color: oklch(60% 45% 0);
   }
   
-  /* 搜索栏 */
   .search-bar-container {
     display: flex;
     justify-content: center;
@@ -129,7 +123,6 @@ html {
     border-radius: 8px;
   }
   
-  /* 项目卡片网格 */
   .projects-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));

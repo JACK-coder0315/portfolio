@@ -1,6 +1,5 @@
 import * as d3 from 'https://cdn.jsdelivr.net/npm/d3@7.9.0/+esm';
 
-// 原始数据
 let originalData = [
   { value: 1, label: 'Apples' },
   { value: 2, label: 'Oranges' },
@@ -10,17 +9,14 @@ let originalData = [
   { value: 5, label: 'Cherries' }
 ];
 
-// 配色方案
 let colors = d3.scaleOrdinal(d3.schemeTableau10);
 
-// 当前状态
 let selectedIndex = -1;
 let currentQuery = '';
 let filteredData = [...originalData];
 
 let searchInput = document.querySelector('.searchBar');
 
-// 渲染饼图 + 图例
 function renderPieChart(dataGiven) {
   let svg = d3.select('#projects-pie-plot');
   svg.selectAll('path').remove();
@@ -63,7 +59,6 @@ function renderPieChart(dataGiven) {
   updateProjects();
 }
 
-// 更新高亮状态
 function updateSelection() {
   let paths = d3.selectAll('#projects-pie-plot path');
   let legendItems = d3.selectAll('.legend li');
@@ -72,7 +67,6 @@ function updateSelection() {
   legendItems.attr('class', (_, idx) => (idx === selectedIndex ? 'selected' : ''));
 }
 
-// 渲染项目列表
 function renderProjects(projectsToRender) {
   let projectsContainer = document.querySelector('.projects-grid');
   projectsContainer.innerHTML = '';
@@ -89,7 +83,6 @@ function renderProjects(projectsToRender) {
   });
 }
 
-// 更新可见项目（✅ 修复了搜索+点击bug）
 function updateProjects() {
   let visibleData = originalData.filter(d => 
     d.label.toLowerCase().includes(currentQuery)
@@ -103,10 +96,8 @@ function updateProjects() {
   renderProjects(visibleData);
 }
 
-// 初始渲染
 renderPieChart(filteredData);
 
-// 搜索栏监听器
 searchInput.addEventListener('input', (event) => {
   currentQuery = event.target.value.toLowerCase();
   filteredData = originalData.filter(d => 
