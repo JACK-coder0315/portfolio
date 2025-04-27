@@ -44,14 +44,15 @@ html {
     margin-top: 1em;
   }
   
-  /* 饼图+图例水平并排 */
   .container {
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: center; /* ✨ 确保整体居中 */
     gap: 4em;
     flex-wrap: wrap;
+    margin-top: 2em; /* ✨ 往下拉一点，别紧挨着标题 */
   }
+  
   
   /* 饼图设置固定尺寸 */
   #projects-pie-plot {
@@ -61,17 +62,18 @@ html {
     overflow: visible;
   }
   
-  /* 图例布局 */
   .legend {
     display: flex;
-    flex-direction: column;
-    gap: 1em;
+    flex-wrap: wrap; /* ✨ 超出一行就换行 */
+    gap: 1em 2em; /* ✨ 行内和行间的间距 */
     list-style: none;
     padding: 1em;
     border: 1px solid #ccc;
     border-radius: 8px;
     background: white;
+    align-items: center;
   }
+  
   
   .legend li {
     display: flex;
