@@ -102,7 +102,7 @@ html {
   
   #projects-pie-plot {
     flex: 0 0 auto;
-    width: 300px;
+    width: 250px;
     height: 300px;
     margin-block: 2em;
     overflow: visible;
