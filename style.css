@@ -91,63 +91,56 @@ h1 {
     color: white;
   }
 
-  .legend {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(9em, 1fr));
-    gap: 1em;
-    padding: 1em;
+  .page-title {
+    text-align: center;
+    font-size: 2.5rem;
+    margin-top: 1em;
+  }
+  
+  .search-bar-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 1em;
+  }
+  
+  .searchBar {
+    width: 50%;
+    padding: 0.5em;
+    font-size: 1rem;
     border: 1px solid #ccc;
+    border-radius: 8px;
   }
   
-  
-  .legend li {
-    display: flex;
-    align-items: center;
-    gap: 0.5em;
-  }
-  
-  .swatch {
-    width: 1em;
-    height: 1em;
-    background-color: var(--color);
-    display: inline-block;
-    border-radius: 3px;
-  }
-
-  .container {
-    display: flex;
-    align-items: flex-start;
+  .projects-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
     gap: 2em;
-    flex-wrap: wrap;
-  }
-
-  #projects-pie-plot {
-    flex: 0 0 auto; 
-    width: 600px; 
-    height: 300px;
-    margin-block: 2em;
-    overflow: visible;
+    padding: 2em;
   }
   
-
-  #projects-pie-plot path {
-    cursor: pointer;
-    transition: 300ms;
+  .project-card {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    padding: 1em;
+    text-align: center;
   }
   
-  #projects-pie-plot:has(path:hover) path:not(:hover) {
-    opacity: 0.5;
+  .project-card img {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 8px;
+    background: #ddd;
   }
   
-  .selected {
-    --color: oklch(60% 45% 0) !important;
+  .project-card h2 {
+    font-size: 1.2rem;
+    margin: 0.5em 0;
   }
   
-  .selected:is(path) {
-    fill: var(--color);
+  .project-card p {
+    font-size: 0.9rem;
+    color: #666;
   }
   
-  .selected:is(li) {
-    font-weight: bold;
-    color: oklch(60% 45% 0);
-  }

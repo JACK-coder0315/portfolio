@@ -64,16 +64,32 @@ function updateSelection() {
   legendItems.attr('class', (_, idx) => (idx === selectedIndex ? 'selected' : ''));
 }
 
+function renderProjects(projectsToRender) {
+  let projectsContainer = document.querySelector('.projects-grid');
+  projectsContainer.innerHTML = '';
+
+  projectsToRender.forEach(proj => {
+    let card = document.createElement('div');
+    card.className = 'project-card';
+    card.innerHTML = `
+      <img src="https://via.placeholder.com/300x150?text=Coming+Soon" alt="Project Image">
+      <h2>${proj.label}</h2>
+      <p>Sample project description.</p>
+    `;
+    projectsContainer.appendChild(card);
+  });
+}
+
 function updateProjects() {
   let visibleData;
 
   if (selectedIndex === -1) {
     visibleData = filteredData; 
   } else {
-    visibleData = [filteredData[selectedIndex]];
+    visibleData = [filteredData[selectedIndex]]; 
   }
 
-  console.log("当前可见数据：", visibleData); 
+  renderProjects(visibleData);
 }
 
 renderPieChart(filteredData);
@@ -88,4 +104,5 @@ searchInput.addEventListener('input', (event) => {
 
   renderPieChart(filteredData);
 });
+
 
