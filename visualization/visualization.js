@@ -1,4 +1,3 @@
-// 引入 D3
 import * as d3 from 'https://cdn.jsdelivr.net/npm/d3@7.9.0/+esm';
 
 // 原始数据
@@ -14,20 +13,20 @@ let originalData = [
 // 配色方案
 let colors = d3.scaleOrdinal(d3.schemeTableau10);
 
-// 当前状态变量
+// 当前状态
 let selectedIndex = -1;
 let currentQuery = '';
-let filteredData = [...originalData];  // 初始就是全部数据
+let filteredData = [...originalData];
 
-// 只声明一次 searchInput
 let searchInput = document.querySelector('.searchBar');
 
-// 画饼图和图例
+// 渲染饼图 + 图例
 function renderPieChart(dataGiven) {
   let svg = d3.select('#projects-pie-plot');
-  svg.selectAll('path').remove();  // 清空之前的扇形
+  svg.selectAll('path').remove();
+
   let legend = d3.select('.legend');
-  legend.selectAll('li').remove(); // 清空之前的图例
+  legend.selectAll('li').remove();
 
   let arcGenerator = d3.arc()
     .innerRadius(0)
@@ -36,7 +35,6 @@ function renderPieChart(dataGiven) {
   let sliceGenerator = d3.pie().value(d => d.value);
   let arcData = sliceGenerator(dataGiven);
 
-  // 画饼图的每一块
   arcData.forEach((d, idx) => {
     svg.append('path')
       .attr('d', arcGenerator(d))
@@ -49,7 +47,6 @@ function renderPieChart(dataGiven) {
       });
   });
 
-  // 画图例
   dataGiven.forEach((d, idx) => {
     legend.append('li')
       .attr('style', `--color:${colors(idx)}`)
@@ -66,7 +63,7 @@ function renderPieChart(dataGiven) {
   updateProjects();
 }
 
-// 更新高亮（点击后高亮某块）
+// 更新高亮状态
 function updateSelection() {
   let paths = d3.selectAll('#projects-pie-plot path');
   let legendItems = d3.selectAll('.legend li');
@@ -75,7 +72,7 @@ function updateSelection() {
   legendItems.attr('class', (_, idx) => (idx === selectedIndex ? 'selected' : ''));
 }
 
-// 渲染项目卡片
+// 渲染项目列表
 function renderProjects(projectsToRender) {
   let projectsContainer = document.querySelector('.projects-grid');
   projectsContainer.innerHTML = '';
@@ -92,14 +89,15 @@ function renderProjects(projectsToRender) {
   });
 }
 
-// 更新项目区内容（根据点击、搜索变化）
+// 更新可见项目（✅ 修复了搜索+点击bug）
 function updateProjects() {
-  let visibleData;
+  let visibleData = originalData.filter(d => 
+    d.label.toLowerCase().includes(currentQuery)
+  );
 
-  if (selectedIndex === -1) {
-    visibleData = filteredData;
-  } else {
-    visibleData = [filteredData[selectedIndex]];
+  if (selectedIndex !== -1) {
+    const selectedLabel = filteredData[selectedIndex]?.label;
+    visibleData = visibleData.filter(d => d.label === selectedLabel);
   }
 
   renderProjects(visibleData);
@@ -108,12 +106,12 @@ function updateProjects() {
 // 初始渲染
 renderPieChart(filteredData);
 
-// 搜索框监听
+// 搜索栏监听器
 searchInput.addEventListener('input', (event) => {
   currentQuery = event.target.value.toLowerCase();
-
-  filteredData = originalData.filter(d => d.label.toLowerCase().includes(currentQuery));
+  filteredData = originalData.filter(d => 
+    d.label.toLowerCase().includes(currentQuery)
+  );
   selectedIndex = -1;
-
   renderPieChart(filteredData);
 });
