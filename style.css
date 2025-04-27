@@ -37,83 +37,40 @@ html {
     border-bottom: 2px solid white;
   }
   
-  .main-content {
-    padding: 20px;
-    background-color: white;
-    margin: 20px;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  }
-  
-  .profile-pic {
-    display: block;
-    margin: 0 auto 20px;
-    border-radius: 8px;
-    width: 300px;
-  }
-  
-  .profile-section {
-    text-align: center;
-  }
-  
-  .intro-text p {
-    margin: 10px 0;
-    font-size: 16px;
-    line-height: 1.5;
-  }
-  
-  .clearfix::after {
-    content: "";
-    clear: both;
-    display: table;
-  }
-  
-  h1 {
-    font-size: 2em;
-    margin-bottom: 20px;
-    text-align: center;
-  }
-  
-  .nav {
-    position: relative;
-  }
-  
-  .color-scheme {
-    float: right;
-    margin-right: 20px;
-    margin-top: 10px;
-    font-size: 0.8rem;
-    font-family: inherit;
-    color: white;
-  }
-  
+  /* 标题 */
   .page-title {
     text-align: center;
     font-size: 2.5rem;
     margin-top: 1em;
   }
   
+  /* 饼图+图例水平并排 */
   .container {
     display: flex;
-    align-items: flex-start;
-    gap: 2em;
+    align-items: center;
+    justify-content: center;
+    gap: 4em;
     flex-wrap: wrap;
   }
   
+  /* 饼图设置固定尺寸 */
   #projects-pie-plot {
     flex: 0 0 auto;
     width: 250px;
-    height: 300px;
-    margin-block: 2em;
+    height: 250px;
     overflow: visible;
   }
   
+  /* 图例布局 */
   .legend {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(9em, 1fr));
+    display: flex;
+    flex-direction: column;
     gap: 1em;
+    list-style: none;
     padding: 1em;
     border: 1px solid #ccc;
+    border-radius: 8px;
+    background: white;
   }
   
   .legend li {
@@ -122,14 +79,16 @@ html {
     gap: 0.5em;
   }
   
+  /* 小圆圈 */
   .swatch {
-    width: 1em;
-    height: 1em;
+    width: 0.8em;
+    height: 0.8em;
     background-color: var(--color);
+    border-radius: 50%;
     display: inline-block;
-    border-radius: 3px;
   }
   
+  /* 饼图鼠标悬停 */
   #projects-pie-plot path {
     cursor: pointer;
     transition: 300ms;
@@ -139,6 +98,7 @@ html {
     opacity: 0.5;
   }
   
+  /* 点击选中状态 */
   .selected {
     --color: oklch(60% 45% 0) !important;
   }
@@ -152,6 +112,7 @@ html {
     color: oklch(60% 45% 0);
   }
   
+  /* 搜索栏 */
   .search-bar-container {
     display: flex;
     justify-content: center;
@@ -166,6 +127,7 @@ html {
     border-radius: 8px;
   }
   
+  /* 项目卡片网格 */
   .projects-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));

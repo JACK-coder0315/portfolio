@@ -1,5 +1,7 @@
+// 引入 D3
 import * as d3 from 'https://cdn.jsdelivr.net/npm/d3@7.9.0/+esm';
 
+// 原始数据
 let originalData = [
   { value: 1, label: 'Apples' },
   { value: 2, label: 'Oranges' },
@@ -9,17 +11,23 @@ let originalData = [
   { value: 5, label: 'Cherries' }
 ];
 
+// 配色方案
 let colors = d3.scaleOrdinal(d3.schemeTableau10);
 
+// 当前状态变量
 let selectedIndex = -1;
 let currentQuery = '';
-let filteredData = [...originalData];
+let filteredData = [...originalData];  // 初始就是全部数据
 
+// 只声明一次 searchInput
+let searchInput = document.querySelector('.searchBar');
+
+// 画饼图和图例
 function renderPieChart(dataGiven) {
   let svg = d3.select('#projects-pie-plot');
-  svg.selectAll('path').remove();
+  svg.selectAll('path').remove();  // 清空之前的扇形
   let legend = d3.select('.legend');
-  legend.selectAll('li').remove();
+  legend.selectAll('li').remove(); // 清空之前的图例
 
   let arcGenerator = d3.arc()
     .innerRadius(0)
@@ -28,6 +36,7 @@ function renderPieChart(dataGiven) {
   let sliceGenerator = d3.pie().value(d => d.value);
   let arcData = sliceGenerator(dataGiven);
 
+  // 画饼图的每一块
   arcData.forEach((d, idx) => {
     svg.append('path')
       .attr('d', arcGenerator(d))
@@ -40,6 +49,7 @@ function renderPieChart(dataGiven) {
       });
   });
 
+  // 画图例
   dataGiven.forEach((d, idx) => {
     legend.append('li')
       .attr('style', `--color:${colors(idx)}`)
@@ -56,6 +66,7 @@ function renderPieChart(dataGiven) {
   updateProjects();
 }
 
+// 更新高亮（点击后高亮某块）
 function updateSelection() {
   let paths = d3.selectAll('#projects-pie-plot path');
   let legendItems = d3.selectAll('.legend li');
@@ -64,6 +75,7 @@ function updateSelection() {
   legendItems.attr('class', (_, idx) => (idx === selectedIndex ? 'selected' : ''));
 }
 
+// 渲染项目卡片
 function renderProjects(projectsToRender) {
   let projectsContainer = document.querySelector('.projects-grid');
   projectsContainer.innerHTML = '';
@@ -80,6 +92,7 @@ function renderProjects(projectsToRender) {
   });
 }
 
+// 更新项目区内容（根据点击、搜索变化）
 function updateProjects() {
   let visibleData;
 
@@ -92,10 +105,10 @@ function updateProjects() {
   renderProjects(visibleData);
 }
 
+// 初始渲染
 renderPieChart(filteredData);
 
-let searchInput = document.querySelector('.searchBar');
-
+// 搜索框监听
 searchInput.addEventListener('input', (event) => {
   currentQuery = event.target.value.toLowerCase();
 
@@ -104,4 +117,3 @@ searchInput.addEventListener('input', (event) => {
 
   renderPieChart(filteredData);
 });
-
