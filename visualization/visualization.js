@@ -13,7 +13,7 @@ let colors = d3.scaleOrdinal(d3.schemeTableau10);
 
 let selectedIndex = -1;
 let currentQuery = '';
-let filteredData = [...originalData]; 
+let filteredData = [...originalData];
 
 function renderPieChart(dataGiven) {
   let svg = d3.select('#projects-pie-plot');
@@ -84,9 +84,9 @@ function updateProjects() {
   let visibleData;
 
   if (selectedIndex === -1) {
-    visibleData = filteredData; 
+    visibleData = filteredData;
   } else {
-    visibleData = [filteredData[selectedIndex]]; 
+    visibleData = [filteredData[selectedIndex]];
   }
 
   renderProjects(visibleData);
@@ -100,9 +100,8 @@ searchInput.addEventListener('input', (event) => {
   currentQuery = event.target.value.toLowerCase();
 
   filteredData = originalData.filter(d => d.label.toLowerCase().includes(currentQuery));
-  selectedIndex = -1; 
+  selectedIndex = -1;
 
   renderPieChart(filteredData);
 });
-
 
