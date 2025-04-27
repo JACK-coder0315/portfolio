@@ -11,23 +11,62 @@ let data = [
 
 let colors = d3.scaleOrdinal(d3.schemeTableau10);
 
-let arcGenerator = d3.arc()
-  .innerRadius(0)
-  .outerRadius(50);
+let selectedIndex = -1;
 
-let sliceGenerator = d3.pie().value(d => d.value);
-let arcData = sliceGenerator(data);
+function renderPieChart(dataGiven) {
+  let svg = d3.select('#projects-pie-plot');
+  svg.selectAll('path').remove();
+  let legend = d3.select('.legend');
+  legend.selectAll('li').remove();
 
-arcData.forEach((d, idx) => {
-  d3.select('#projects-pie-plot')
-    .append('path')
-    .attr('d', arcGenerator(d))
-    .attr('fill', colors(idx));
-});
+  let arcGenerator = d3.arc()
+    .innerRadius(0)
+    .outerRadius(50);
 
-let legend = d3.select('.legend');
-data.forEach((d, idx) => {
-  legend.append('li')
-    .attr('style', `--color:${colors(idx)}`)
-    .html(`<span class="swatch"></span> ${d.label} <em>(${d.value})</em>`);
+  let sliceGenerator = d3.pie().value(d => d.value);
+  let arcData = sliceGenerator(dataGiven);
+
+  arcData.forEach((d, idx) => {
+    svg.append('path')
+      .attr('d', arcGenerator(d))
+      .attr('fill', colors(idx))
+      .attr('data-idx', idx)
+      .on('click', () => {
+        selectedIndex = selectedIndex === idx ? -1 : idx;
+        updateSelection();
+      });
+  });
+
+  dataGiven.forEach((d, idx) => {
+    legend.append('li')
+      .attr('style', `--color:${colors(idx)}`)
+      .attr('data-idx', idx)
+      .html(`<span class="swatch"></span> ${d.label} <em>(${d.value})</em>`)
+      .on('click', () => {
+        selectedIndex = selectedIndex === idx ? -1 : idx;
+        updateSelection();
+      });
+  });
+
+  updateSelection();
+}
+
+function updateSelection() {
+  let paths = d3.selectAll('#projects-pie-plot path');
+  let legendItems = d3.selectAll('.legend li');
+
+  paths.attr('class', (_, idx) => (idx === selectedIndex ? 'selected' : ''));
+  legendItems.attr('class', (_, idx) => (idx === selectedIndex ? 'selected' : ''));
+}
+
+renderPieChart(data);
+
+let searchInput = document.querySelector('.searchBar');
+
+searchInput.addEventListener('input', (event) => {
+  let query = event.target.value.toLowerCase();
+
+  let filteredData = data.filter(d => d.label.toLowerCase().includes(query));
+
+  renderPieChart(filteredData);
 });

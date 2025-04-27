@@ -112,4 +112,31 @@ h1 {
     display: inline-block;
     border-radius: 3px;
   }
+
+.container {
+    display: flex;
+    align-items: flex-start; 
+    gap: 2em;                
+    flex-wrap: wrap;       
+  }
+  #projects-pie-plot path {
+    cursor: pointer;
+    transition: 300ms;
+  }
   
+  #projects-pie-plot:has(path:hover) path:not(:hover) {
+    opacity: 0.5;
+  }
+  
+  .selected {
+    --color: oklch(60% 45% 0) !important;
+  }
+  
+  .selected:is(path) {
+    fill: var(--color);
+  }
+  
+  .selected:is(li) {
+    font-weight: bold;
+    color: oklch(60% 45% 0);
+  }
