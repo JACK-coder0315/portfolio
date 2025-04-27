@@ -91,13 +91,14 @@ h1 {
     color: white;
   }
 
-.legend {
+  .legend {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(9em, 1fr));
     gap: 1em;
     padding: 1em;
     border: 1px solid #ccc;
   }
+  
   
   .legend li {
     display: flex;
@@ -121,10 +122,13 @@ h1 {
   }
 
   #projects-pie-plot {
-    max-width: 20em;
+    flex: 0 0 auto; 
+    width: 300px; 
+    height: 300px;
     margin-block: 2em;
     overflow: visible;
   }
+  
 
   #projects-pie-plot path {
     cursor: pointer;
