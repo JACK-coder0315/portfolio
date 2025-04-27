@@ -113,12 +113,19 @@ h1 {
     border-radius: 3px;
   }
 
-.container {
+  .container {
     display: flex;
-    align-items: flex-start; 
-    gap: 2em;                
-    flex-wrap: wrap;       
+    align-items: flex-start;
+    gap: 2em;
+    flex-wrap: wrap;
   }
+
+  #projects-pie-plot {
+    max-width: 20em;
+    margin-block: 2em;
+    overflow: visible;
+  }
+
   #projects-pie-plot path {
     cursor: pointer;
     transition: 300ms;

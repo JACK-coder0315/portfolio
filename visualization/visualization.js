@@ -1,6 +1,6 @@
 import * as d3 from 'https://cdn.jsdelivr.net/npm/d3@7.9.0/+esm';
 
-let data = [
+let originalData = [
   { value: 1, label: 'Apples' },
   { value: 2, label: 'Oranges' },
   { value: 3, label: 'Mangoes' },
@@ -12,6 +12,8 @@ let data = [
 let colors = d3.scaleOrdinal(d3.schemeTableau10);
 
 let selectedIndex = -1;
+let currentQuery = '';
+let filteredData = [...originalData]; 
 
 function renderPieChart(dataGiven) {
   let svg = d3.select('#projects-pie-plot');
@@ -34,6 +36,7 @@ function renderPieChart(dataGiven) {
       .on('click', () => {
         selectedIndex = selectedIndex === idx ? -1 : idx;
         updateSelection();
+        updateProjects();
       });
   });
 
@@ -45,10 +48,12 @@ function renderPieChart(dataGiven) {
       .on('click', () => {
         selectedIndex = selectedIndex === idx ? -1 : idx;
         updateSelection();
+        updateProjects();
       });
   });
 
   updateSelection();
+  updateProjects();
 }
 
 function updateSelection() {
@@ -59,14 +64,28 @@ function updateSelection() {
   legendItems.attr('class', (_, idx) => (idx === selectedIndex ? 'selected' : ''));
 }
 
-renderPieChart(data);
+function updateProjects() {
+  let visibleData;
+
+  if (selectedIndex === -1) {
+    visibleData = filteredData; 
+  } else {
+    visibleData = [filteredData[selectedIndex]];
+  }
+
+  console.log("当前可见数据：", visibleData); 
+}
+
+renderPieChart(filteredData);
 
 let searchInput = document.querySelector('.searchBar');
 
 searchInput.addEventListener('input', (event) => {
-  let query = event.target.value.toLowerCase();
+  currentQuery = event.target.value.toLowerCase();
 
-  let filteredData = data.filter(d => d.label.toLowerCase().includes(query));
+  filteredData = originalData.filter(d => d.label.toLowerCase().includes(currentQuery));
+  selectedIndex = -1; 
 
   renderPieChart(filteredData);
 });
+
