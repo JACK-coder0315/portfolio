@@ -151,7 +151,7 @@ function renderProjects(visibleData) {
     } else if (item.label === 'Machine Learning') {
       img.src = '../images/machine learning.jpg';
     } else if (item.label === 'Cybersecurity') {
-      img.src = 'https://source.unsplash.com/400x300/?cybersecurity'; // 没有本地图，用网络图代替
+      img.src = '../images/cybersecurity.jpg'; 
     } else if (item.label === 'Artificial Intelligence') {
       img.src = '../images/artificial intelligence.jpg';
     } else if (item.label === 'Big Data') {
