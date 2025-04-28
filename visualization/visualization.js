@@ -30,8 +30,7 @@ function generateNavbar() {
         <option value="normal">Auto</option>
       </select>
     </label>
-  </nav>
-  `;
+  </nav>`;
 
   document.getElementById("nav-container")?.insertAdjacentHTML("beforeend", navHTML);
 
@@ -122,7 +121,7 @@ function renderPieChart(dataGiven) {
   });
 
   updateSelection();
-  updateProjects();
+  renderProjects(dataGiven);
 }
 
 // == 更新选中状态 ==
@@ -144,26 +143,29 @@ function renderProjects(visibleData) {
     card.className = 'project-card';
 
     let img = document.createElement('img');
+
     if (item.label === 'Data Science') {
       img.src = '../images/data%20science.jpg';
     } else if (item.label === 'Web Development') {
       img.src = '../images/web%20development.png';
     } else if (item.label === 'Machine Learning') {
       img.src = '../images/machine%20learning.jpg';
+    } else if (item.label === 'Cybersecurity') {
+      img.src = '../images/cybersecurity.jpg';
     } else if (item.label === 'Artificial Intelligence') {
       img.src = '../images/artificial%20intelligence.jpg';
     } else if (item.label === 'Big Data') {
       img.src = '../images/big%20data.jpg';
     } else {
-      img.src = 'https://source.unsplash.com/400x300/?cybersecurity';
+      img.src = 'https://via.placeholder.com/400x300?text=Project';
     }
 
     img.onerror = () => {
-      img.src = 'https://via.placeholder.com/400x300?text=Project';
+      img.src = 'https://via.placeholder.com/400x300?text=Image+Not+Found';
     };
 
     let title = document.createElement('h2');
-    title.textContent = item.label + ` (${item.year})`;
+    title.textContent = `${item.label} (${item.year})`;
 
     let desc = document.createElement('p');
     desc.textContent = getDescription(item.label);
@@ -175,36 +177,33 @@ function renderProjects(visibleData) {
   });
 }
 
-// == 获取描述文本 ==
 function getDescription(label) {
   if (label === 'Data Science') {
     return 'Data science combines programming, statistics, and domain expertise to gain actionable insights from data.';
   } else if (label === 'Web Development') {
     return 'Web development involves building and maintaining websites and web applications.';
   } else if (label === 'Machine Learning') {
-    return 'Machine learning is about creating algorithms that can learn and make predictions from data.';
+    return 'Machine learning creates algorithms that can learn patterns from data and make predictions.';
   } else if (label === 'Cybersecurity') {
-    return 'Cybersecurity focuses on protecting systems and data from cyber attacks.';
+    return 'Cybersecurity protects systems and networks from malicious attacks and data breaches.';
   } else if (label === 'Artificial Intelligence') {
-    return 'Artificial Intelligence simulates human intelligence processes through machines.';
+    return 'Artificial Intelligence simulates human thinking to perform tasks like decision-making and problem-solving.';
   } else if (label === 'Big Data') {
-    return 'Big Data analyzes massive datasets to uncover patterns, trends, and associations.';
+    return 'Big data analyzes huge datasets to reveal insights, trends, and relationships for better decision-making.';
   } else {
     return 'A wonderful project category!';
   }
 }
 
-// == 搜索框处理 ==
 let searchInput = document.querySelector('.searchBar');
 
 searchInput.addEventListener('input', (event) => {
   currentQuery = event.target.value.toLowerCase();
-  filteredData = originalData.filter(d => 
+  filteredData = originalData.filter(d =>
     d.label.toLowerCase().includes(currentQuery) || d.year.toString().includes(currentQuery)
   );
   selectedIndex = -1;
   renderPieChart(filteredData);
 });
 
-updateSelection();
-renderProjects(dataGiven);
+renderPieChart(filteredData);
