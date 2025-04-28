@@ -206,5 +206,5 @@ searchInput.addEventListener('input', (event) => {
   renderPieChart(filteredData);
 });
 
-// == 页面加载初始化 ==
-renderPieChart(filteredData);
+updateSelection();
+renderProjects(dataGiven);
