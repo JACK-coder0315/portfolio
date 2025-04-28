@@ -77,7 +77,7 @@ let originalData = [
   { value: 3, label: 'Machine Learning' },
   { value: 4, label: 'Cybersecurity' },
   { value: 5, label: 'Artificial Intelligence' },
-  { value: 5, label: 'Big Data' }
+  { value: 6, label: 'Big Data' }
 ];
 
 let colors = d3.scaleOrdinal(d3.schemeTableau10);
