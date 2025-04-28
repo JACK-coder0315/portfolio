@@ -62,20 +62,20 @@ function generateNavbar() {
   });
 }
 
-// 生成导航栏
+// 调用生成导航栏
 generateNavbar();
 
 // == 导入 D3.js ==
 import * as d3 from 'https://cdn.jsdelivr.net/npm/d3@7.9.0/+esm';
 
-// == 原始数据 ==
+// == 原始数据（带年份）==
 let originalData = [
-  { value: 1, label: 'Data Science' },
-  { value: 2, label: 'Web Development' },
-  { value: 3, label: 'Machine Learning' },
-  { value: 4, label: 'Cybersecurity' },
-  { value: 5, label: 'Artificial Intelligence' },
-  { value: 6, label: 'Big Data' }
+  { value: 1, label: 'Data Science', year: 2025 },
+  { value: 2, label: 'Web Development', year: 2024 },
+  { value: 3, label: 'Machine Learning', year: 2023 },
+  { value: 4, label: 'Cybersecurity', year: 2022 },
+  { value: 5, label: 'Artificial Intelligence', year: 2021 },
+  { value: 6, label: 'Big Data', year: 2020 }
 ];
 
 let colors = d3.scaleOrdinal(d3.schemeTableau10);
@@ -122,7 +122,7 @@ function renderPieChart(dataGiven) {
   updateSelection();
 }
 
-// == 更新饼图扇区和图例选中状态 ==
+// == 更新选中状态 ==
 function updateSelection() {
   let paths = d3.selectAll('#projects-pie-plot path');
   let legendItems = d3.selectAll('.legend li');
@@ -158,9 +158,15 @@ function updateProjects() {
     let desc = document.createElement('p');
     desc.textContent = getDescription(item.label);
 
+    let year = document.createElement('p');
+    year.textContent = `Year: ${item.year}`;
+    year.style.fontSize = '0.9rem';
+    year.style.color = '#999';
+
     card.appendChild(img);
     card.appendChild(title);
     card.appendChild(desc);
+    card.appendChild(year);
     grid.appendChild(card);
   });
 }
