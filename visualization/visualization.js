@@ -145,20 +145,22 @@ function renderProjects(visibleData) {
 
     let img = document.createElement('img');
     if (item.label === 'Data Science') {
-      img.src = '../images/data science.jpg';
+      img.src = '../images/data%20science.jpg';
     } else if (item.label === 'Web Development') {
-      img.src = '../images/web development.png';
+      img.src = '../images/web%20development.png';
     } else if (item.label === 'Machine Learning') {
-      img.src = '../images/machine learning.jpg';
-    } else if (item.label === 'Cybersecurity') {
-      img.src = '../images/cybersecurity.jpg'; 
+      img.src = '../images/machine%20learning.jpg';
     } else if (item.label === 'Artificial Intelligence') {
-      img.src = '../images/artificial intelligence.jpg';
+      img.src = '../images/artificial%20intelligence.jpg';
     } else if (item.label === 'Big Data') {
-      img.src = '../images/big data.jpg';
+      img.src = '../images/big%20data.jpg';
     } else {
-      img.src = 'https://via.placeholder.com/400x300?text=Project';
+      img.src = 'https://source.unsplash.com/400x300/?cybersecurity';
     }
+
+    img.onerror = () => {
+      img.src = 'https://via.placeholder.com/400x300?text=Project';
+    };
 
     let title = document.createElement('h2');
     title.textContent = item.label + ` (${item.year})`;
@@ -173,19 +175,20 @@ function renderProjects(visibleData) {
   });
 }
 
+// == 获取描述文本 ==
 function getDescription(label) {
   if (label === 'Data Science') {
     return 'Data science combines programming, statistics, and domain expertise to gain actionable insights from data.';
   } else if (label === 'Web Development') {
-    return 'Web development involves creating websites and applications, focusing on layout, design, and interactivity.';
+    return 'Web development involves building and maintaining websites and web applications.';
   } else if (label === 'Machine Learning') {
-    return 'Machine learning empowers computers to learn patterns from data and make predictions or decisions.';
+    return 'Machine learning is about creating algorithms that can learn and make predictions from data.';
   } else if (label === 'Cybersecurity') {
-    return 'Cybersecurity focuses on protecting systems, networks, and programs from digital attacks and unauthorized access.';
+    return 'Cybersecurity focuses on protecting systems and data from cyber attacks.';
   } else if (label === 'Artificial Intelligence') {
-    return 'AI simulates human intelligence in machines capable of learning, problem-solving, and decision-making.';
+    return 'Artificial Intelligence simulates human intelligence processes through machines.';
   } else if (label === 'Big Data') {
-    return 'Big data analyzes extremely large datasets to uncover hidden patterns, correlations, and market trends.';
+    return 'Big Data analyzes massive datasets to uncover patterns, trends, and associations.';
   } else {
     return 'A wonderful project category!';
   }
