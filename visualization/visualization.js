@@ -1,6 +1,76 @@
+// == 自动生成蓝色导航栏 ==
+console.log("Generating Navigation Bar...");
+
+const BASE_PATH = location.hostname.includes("localhost") ? "/" : "/portfolio/";
+
+let pages = [
+  { url: "", title: "Home" },
+  { url: "projects/", title: "Projects" },
+  { url: "contact/", title: "Contact" },
+  { url: "resume/", title: "Resume" },
+  { url: "hiking/hiking.html", title: "Hiking" },
+  { url: "visualization/", title: "Visualization" },
+  { url: "https://github.com/JACK-coder0315", title: "GitHub" }
+];
+
+function generateNavbar() {
+  let navHTML = `<nav class="nav">\n`;
+
+  for (let p of pages) {
+    let url = p.url.startsWith("http") ? p.url : BASE_PATH + p.url;
+    navHTML += `<a href="${url}"${url.startsWith("http") ? ' target="_blank"' : ''}>${p.title}</a>\n`;
+  }
+
+  navHTML += `
+    <label class="color-scheme">
+      Theme:
+      <select>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+        <option value="normal">Auto</option>
+      </select>
+    </label>
+  </nav>
+  `;
+
+  document.getElementById("nav-container")?.insertAdjacentHTML("beforeend", navHTML);
+
+  document.querySelectorAll(".nav a").forEach((a) => {
+    if (a.host === location.host && a.pathname === location.pathname) {
+      a.classList.add("current");
+    }
+  });
+
+  let select = document.querySelector("select");
+
+  function setColorScheme(scheme) {
+    if (scheme === "normal") {
+      document.documentElement.style.removeProperty("color-scheme");
+    } else {
+      document.documentElement.style.setProperty("color-scheme", scheme);
+    }
+    select.value = scheme;
+  }
+
+  if ("colorScheme" in localStorage) {
+    setColorScheme(localStorage.colorScheme);
+  } else {
+    setColorScheme("normal");
+  }
+
+  select.addEventListener("input", (e) => {
+    localStorage.colorScheme = e.target.value;
+    setColorScheme(e.target.value);
+  });
+}
+
+// 生成导航栏
+generateNavbar();
+
+// == 导入 D3.js ==
 import * as d3 from 'https://cdn.jsdelivr.net/npm/d3@7.9.0/+esm';
 
-// 定义原始数据
+// == 原始数据 ==
 let originalData = [
   { value: 1, label: 'Data Science' },
   { value: 2, label: 'Web Development' },
@@ -16,20 +86,15 @@ let selectedIndex = -1;
 let currentQuery = '';
 let filteredData = [...originalData];
 
-// ----------- 绘制饼图 + 图例 -----------
+// == 绘制饼图和图例 ==
 function renderPieChart(dataGiven) {
   let svg = d3.select('#projects-pie-plot');
   svg.selectAll('path').remove();
   let legend = d3.select('.legend');
   legend.selectAll('li').remove();
 
-  let arcGenerator = d3.arc()
-    .innerRadius(0)
-    .outerRadius(50);
-
-  let sliceGenerator = d3.pie()
-    .value(d => d.value);
-
+  let arcGenerator = d3.arc().innerRadius(0).outerRadius(50);
+  let sliceGenerator = d3.pie().value(d => d.value);
   let arcData = sliceGenerator(dataGiven);
 
   arcData.forEach((d, idx) => {
@@ -60,7 +125,7 @@ function renderPieChart(dataGiven) {
   updateProjects();
 }
 
-// ----------- 更新选中状态 -----------
+// == 更新选中状态 ==
 function updateSelection() {
   let paths = d3.selectAll('#projects-pie-plot path');
   let legendItems = d3.selectAll('.legend li');
@@ -69,7 +134,7 @@ function updateSelection() {
   legendItems.attr('class', (_, idx) => (idx === selectedIndex ? 'selected' : ''));
 }
 
-// ----------- 渲染项目卡片 -----------
+// == 渲染项目卡片 ==
 function renderProjects(visibleData) {
   let grid = document.querySelector('.projects-grid');
   grid.innerHTML = '';
@@ -122,6 +187,7 @@ function renderProjects(visibleData) {
   });
 }
 
+// == 搜索框处理 ==
 let searchInput = document.querySelector('.searchBar');
 
 searchInput.addEventListener('input', (event) => {
@@ -131,5 +197,5 @@ searchInput.addEventListener('input', (event) => {
   renderPieChart(filteredData);
 });
 
-// ----------- 页面初始渲染 -----------
+// == 页面加载初始化 ==
 renderPieChart(filteredData);
