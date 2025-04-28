@@ -70,12 +70,12 @@ import * as d3 from 'https://cdn.jsdelivr.net/npm/d3@7.9.0/+esm';
 
 // == 原始数据（带年份）==
 let originalData = [
-  { value: 1, label: 'Data Science', year: 2025 },
-  { value: 2, label: 'Web Development', year: 2024 },
-  { value: 3, label: 'Machine Learning', year: 2023 },
-  { value: 4, label: 'Cybersecurity', year: 2022 },
-  { value: 5, label: 'Artificial Intelligence', year: 2021 },
-  { value: 6, label: 'Big Data', year: 2020 }
+  { value: 2025, label: 'Data Science', year: 2025 },
+  { value: 2024, label: 'Web Development', year: 2024 },
+  { value: 2023, label: 'Machine Learning', year: 2023 },
+  { value: 2022, label: 'Cybersecurity', year: 2022 },
+  { value: 2021, label: 'Artificial Intelligence', year: 2021 },
+  { value: 2020, label: 'Big Data', year: 2020 }
 ];
 
 let colors = d3.scaleOrdinal(d3.schemeTableau10);
