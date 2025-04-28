@@ -172,10 +172,9 @@ html {
   }
   
   .profile-pic {
-    width: 200px;
-    height: 200px;
-    object-fit: cover;
-    border-radius: 50%;
+    width: 250px;       /* 可以根据你想要的大小微调 */
+    height: auto;       /* 保持原比例，不要强制拉伸 */
+    object-fit: cover;  /* 图片裁切，保持满框 */
     margin: 1em 0;
   }
   
