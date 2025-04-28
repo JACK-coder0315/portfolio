@@ -199,3 +199,4 @@ searchInput.addEventListener('input', (event) => {
 
 // == 页面加载初始化 ==
 renderPieChart(filteredData);
+renderProjects(filteredData);
