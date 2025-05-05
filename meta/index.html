@@ -4,30 +4,31 @@
   <meta charset="UTF-8" />
   <title>Code Statistics</title>
   <link rel="stylesheet" href="../style.css" />
-  <script type="module" src="https://cdn.jsdelivr.net/npm/d3@7.9.0/+esm"></script>
-  <script type="module" src="main.js"></script>
+  <script type="module" src="https://cdn.jsdelivr.net/npm/d3@7.9.0/+esm" defer></script>
+  <script type="module" src="main.js" defer></script>
 </head>
 <body>
-
   <div id="nav-container"></div>
   <script src="../global.js"></script>
 
-  <!-- 页面主体内容容器 -->
-    <h1>Code Statistics</h1>
+  <h1>Code Statistics</h1>
+  <section id="stats"></section>
+  <div id="chart"></div>
 
-    <!-- 摘要统计区域 -->
-    <section id="stats"></section>
+  <dl id="commit-tooltip" class="info tooltip" hidden>
+    <dt>Commit</dt>
+    <dd><a id="commit-link" target="_blank"></a></dd>
+    <dt>Date</dt>
+    <dd id="commit-date"></dd>
+    <dt>Author</dt>
+    <dd id="commit-author"></dd>
+    <dt>Lines edited</dt>
+    <dd id="commit-lines"></dd>
+  </dl>
 
-    <!-- 散点图与说明 -->
-    <figure>
-      <section id="chart"></section>
-      <figcaption>Figure 4: Final output</figcaption>
-    </figure>
-
-    <!-- 刷选结果和语言细分 -->
-    <div id="selection-summary" style="text-align:center; margin-top:1em;">
-      <p id="selection-count">No commits selected</p>
-      <div id="language-breakdown" class="breakdown"></div>
-    </div>
+  <div id="selection-summary">
+    <p id="selection-count">No commits selected</p>
+    <div id="language-breakdown"></div>
+  </div>
 </body>
 </html>
