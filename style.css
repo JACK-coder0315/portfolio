@@ -10,13 +10,16 @@ body {
 }
 
 .nav {
-  background-color: #4fa1fe;
-  overflow: hidden;
-  padding: 10px 20px;
-  text-align: center;
-  --border-color: oklch(50% 10% 200 / 40%);
-  border-bottom: 1px solid var(--border-color);
-}
+    background-color: #4fa1fe;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 8px 20px;
+    position: sticky;
+    top: 0;
+    width: 100%;
+    z-index: 1000;
+  }
 
 .nav a {
   display: inline-block;
