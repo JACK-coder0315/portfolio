@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Code Statistics</title>
-  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="../style.css" />
   <script type="module" src="https://cdn.jsdelivr.net/npm/d3@7.9.0/+esm"></script>
   <script type="module" src="main.js"></script>
 </head>
@@ -11,14 +11,16 @@
   <h1>Code Statistics</h1>
   <nav><script src="../global.js"></script></nav>
 
-  <!-- 摘要统计展示区 -->
+  <!-- 摘要统计 -->
   <section id="stats"></section>
 
-  <!-- 散点图展示区 -->
+  <!-- 散点图 -->
   <section id="chart"></section>
 
   <!-- 工具提示 -->
   <dl id="commit-tooltip" class="info tooltip" hidden></dl>
+
+  <!-- 刷选结果 -->
   <p id="selection-count">No commits selected</p>
   <dl id="language-breakdown" class="stats"></dl>
 </body>
