@@ -189,3 +189,23 @@ body {
   font-size: 1.1rem;
   color: #333;
 }
+
+.stats { display:grid; grid-template-columns:auto 1fr; gap:0.5em 1em; margin:1em 0; }
+stats dt { font-weight:bold; }
+stats dd { margin:0; }
+
+/* 散点图网格线 */
+.gridlines line { stroke:#ddd; stroke-opacity:0.7; }
+.gridlines path { display:none; }
+
+/* 刷选框 */
+.selection { fill-opacity:0.1; stroke:#333; stroke-dasharray:5 3; animation:marching-ants 2s linear infinite; }
+@keyframes marching-ants { to { stroke-dashoffset:-8; }}
+
+/* 工具提示 */
+dl.info.tooltip { position:fixed; top:1em; left:1em; background:rgba(255,255,255,0.9); box-shadow:0 2px 6px rgba(0,0,0,0.2); padding:0.5em; border-radius:4px; transition:opacity 0.2s; font-size:0.9em; }
+dl.info.tooltip[hidden] { opacity:0; visibility:hidden; }
+
+/* 圆点交互 */
+.dots circle { transition:transform 0.2s; transform-origin:center; transform-box:fill-box; }
+.dots circle.selected { stroke:#f66; stroke-width:2px; }
