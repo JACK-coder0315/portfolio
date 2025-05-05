@@ -12,23 +12,24 @@
   <nav class="nav"></nav>
   <script src="../global.js"></script>
 
-  <div class="main-content"></nav>
+  <!-- 页面主体内容容器 -->
+  <div class="main-content">
+    <h1>Code Statistics</h1>
 
-  <h1>Code Statistics</h1>
+    <!-- 摘要统计区域 -->
+    <section id="stats"></section>
 
-  <!-- 摘要统计区域 -->
-  <section id="stats"></section>
+    <!-- 散点图与说明 -->
+    <figure>
+      <section id="chart"></section>
+      <figcaption>Figure 4: Final output</figcaption>
+    </figure>
 
-  <!-- 散点图及说明 -->
-  <figure>
-    <section id="chart"></section>
-    <figcaption>Figure 4: Final output</figcaption>
-  </figure>
-
-  <!-- 刷选结果和语言细分 -->
-  <div id="selection-summary" style="text-align:center; margin-top:1em;">
-    <p id="selection-count">No commits selected</p>
-    <div id="language-breakdown" class="breakdown"></div>
+    <!-- 刷选结果和语言细分 -->
+    <div id="selection-summary" style="text-align:center; margin-top:1em;">
+      <p id="selection-count">No commits selected</p>
+      <div id="language-breakdown" class="breakdown"></div>
+    </div>
   </div>
 </body>
 </html>
