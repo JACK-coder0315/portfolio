@@ -202,10 +202,18 @@ stats dd { margin:0; }
 .selection { fill-opacity:0.1; stroke:#333; stroke-dasharray:5 3; animation:marching-ants 2s linear infinite; }
 @keyframes marching-ants { to { stroke-dashoffset:-8; }}
 
-/* 工具提示 */
-#commit-tooltip {
-  display: block; /* 覆盖 hidden 导致的 display:none */
+/* 工具提示覆盖 hidden */
+#commit-tooltip[hidden] {
+  display: block !important; /* 强制覆盖浏览器 default hidden */
+  opacity: 0;
+  visibility: hidden;
 }
+#commit-tooltip:not([hidden]) {
+  display: block !important;
+  opacity: 1;
+  visibility: visible;
+}
+
 dl.info.tooltip {
   position: fixed;
   top: 1em;
@@ -217,10 +225,8 @@ dl.info.tooltip {
   transition: opacity 0.2s;
   font-size: 0.9em;
   z-index: 1001; /* 提示框置顶 */
-  display: block;
 }
-dl.info.tooltip[hidden] {
-  visibility: hidden;
-  opacity: 0;
-  /* 不再依赖 display:none */
-}
+
+/* 圆点交互 */
+.dots circle { transition: transform 0.2s; transform-origin: center; transform-box: fill-box; }
+.dots circle.selected { stroke: #f66; stroke-width: 2px; }
