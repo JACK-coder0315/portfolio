@@ -10,7 +10,7 @@ let pages = [
   { url: "hiking/hiking.html", title: "Hiking" },
   { url: "visualization/", title: "Visualization" }, 
   { url: "https://github.com/JACK-coder0315", title: "GitHub" },
-  { url: "../meta/index.html", title: "Meta"     }
+  { url: "meta/index.html", title: "Meta"     }
 ];
 
 let navHTML = `<nav class="nav">\n`;
