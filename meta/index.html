@@ -1,23 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Code Statistics</title>
-  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="../style.css" />
   <script type="module" src="https://cdn.jsdelivr.net/npm/d3@7.9.0/+esm"></script>
   <script type="module" src="main.js"></script>
 </head>
 <body>
+  <!-- 全局导航 -->
+  <nav class="nav"></nav>
+  <script src="../global.js"></script>
+
   <h1>Code Statistics</h1>
-  <nav><script src="../global.js"></script></nav>
 
   <!-- 摘要统计区域 -->
   <section id="stats"></section>
 
-  <!-- 散点图与标题 -->
+  <!-- 散点图及说明 -->
   <figure>
     <section id="chart"></section>
-    <figcaption>Figure 4: final output</figcaption>
+    <figcaption>Figure 4: Final output</figcaption>
   </figure>
 
   <!-- 刷选结果和语言细分 -->
