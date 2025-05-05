@@ -204,3 +204,24 @@ circle.selected {
 @keyframes marching-ants {
   to { stroke-dashoffset: -8; }
 }
+
+dl.info.tooltip {
+  position: fixed;
+  top: 1em; left: 1em;
+  background: rgba(255,255,255,0.9);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  border-radius: 4px;
+  padding: 0.5em;
+  transition: opacity .3s, visibility .3s;
+}
+dl.info.tooltip[hidden] {
+  opacity: 0; visibility: hidden;
+}
+circle.selected {
+  stroke: #ff6b6b; stroke-width: 2px;
+}
+.selection {
+  fill-opacity: 0.1; stroke: black; stroke-opacity: 0.7;
+  stroke-dasharray: 5 3;
+  animation: marching-ants 2s linear infinite;
+}
