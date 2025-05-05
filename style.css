@@ -203,9 +203,24 @@ stats dd { margin:0; }
 @keyframes marching-ants { to { stroke-dashoffset:-8; }}
 
 /* 工具提示 */
-dl.info.tooltip { position:fixed; top:1em; left:1em; background:rgba(255,255,255,0.9); box-shadow:0 2px 6px rgba(0,0,0,0.2); padding:0.5em; border-radius:4px; transition:opacity 0.2s; font-size:0.9em;   z-index: 1001; /* 提示框置顶 */}
-dl.info.tooltip[hidden] { opacity:0; visibility:hidden; }
-
-/* 圆点交互 */
-.dots circle { transition:transform 0.2s; transform-origin:center; transform-box:fill-box; }
-.dots circle.selected { stroke:#f66; stroke-width:2px; }
+#commit-tooltip {
+  display: block; /* 覆盖 hidden 导致的 display:none */
+}
+dl.info.tooltip {
+  position: fixed;
+  top: 1em;
+  left: 1em;
+  background: rgba(255,255,255,0.9);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  padding: 0.5em;
+  border-radius: 4px;
+  transition: opacity 0.2s;
+  font-size: 0.9em;
+  z-index: 1001; /* 提示框置顶 */
+  display: block;
+}
+dl.info.tooltip[hidden] {
+  visibility: hidden;
+  opacity: 0;
+  /* 不再依赖 display:none */
+}
