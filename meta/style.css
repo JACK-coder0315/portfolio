@@ -4,7 +4,7 @@
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-    padding: 10px 20px !important;           /* 去掉所有 nav 自带内边距 */
+    padding: 4px 20px !important;           /* 去掉所有 nav 自带内边距 */
     background-color: #4fa1fe;
     position: sticky;
     top: 0;
@@ -14,7 +14,7 @@
   
   /* 缩减按钮上下内边距，确保可见 */
   .nav a {
-    padding: 10px 20px !important;    /* 上下仅 4px 内边距 */
+    padding: 4px 20px !important;    /* 上下仅 4px 内边距 */
     margin: 0 10px !important;
     font-size: 20px;
     line-height: 1.2;
