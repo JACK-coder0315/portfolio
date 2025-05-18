@@ -235,6 +235,7 @@ dl.info.tooltip {
 #time-slider{
   /* 通用属性 */
   width:100%;
+  max-width:640px;
   height:6px;             /* 轨道高度 */
   margin:0;
   padding:0;              /* 避免 Firefox 默认内边距 */
