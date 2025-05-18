@@ -231,61 +231,60 @@ dl.info.tooltip {
 .dots circle { transition: transform 0.2s; transform-origin: center; transform-box: fill-box; }
 .dots circle.selected { stroke: #f66; stroke-width: 2px; }
 
-/* ===== 时间滑块美化（只作用于 #time-slider） ===== */
+/* === 时间滑块：宽度 & 双色轨道 ==================================== */
+#time-filter{                 /* 整块容器 */
+  max-width:800px;            /* 想再长就调大，例如 900px */
+  margin:0 auto;              /* 居中，可按需改成 left/right 对齐 */
+  display:flex;
+  align-items:baseline;
+}
+
+#time-filter label{           /* 让 label 保持最小宽度 */
+  white-space:nowrap;
+}
+
 #time-slider{
-  /* 通用属性 */
-  width:100%;
-  max-width:640px;
-  height:6px;             /* 轨道高度 */
-  margin:0;
-  padding:0;              /* 避免 Firefox 默认内边距 */
-  appearance:none;        /* 去掉系统默认样式 */
-  background:transparent; /* 背景用渐变来画 */
+  /* 布局——占据 label 与 time 之间所有剩余空间 */
+  flex:1 1 auto;
+  margin:0 0.75rem;           /* 左右各留 12px */
+
+  /* 去系统默认样式 */
+  appearance:none;
+  height:6px;
+  background:transparent;     /* 轨道由渐变生成 */
   cursor:pointer;
+  border-radius:3px;
 
-  /* 下面 3 个变量：由 JS 动态更新进度条宽度 -------------------------------- */
-  --min:   0;
-  --max:   100;
-  --value: 100;           /* 初始值，与 value 同步即可 */
-  /* ------------------------------------------------------------------------ */
+  /* CSS 变量：min max value 用来算蓝色比例 */
+  --min:0; --max:100; --value:100;
 
-  /* “灰底 + 蓝色已选” 一条线的做法：先灰，再覆盖蓝 */
+  /* 双色轨道。第一条蓝，第二条灰，靠 background-size 控制覆盖宽度 */
   background-image:
-    linear-gradient(#1e74ff, #1e74ff),      /* 已选部分 */
-    linear-gradient(#d0d0d0, #d0d0d0);      /* 未选部分 */
+    linear-gradient(#1e74ff, #1e74ff),
+    linear-gradient(#d3d3d3, #d3d3d3);
   background-size:
-    calc((var(--value) - var(--min)) / (var(--max) - var(--min)) * 100%) 100%,
+    calc((var(--value) - var(--min))/(var(--max) - var(--min))*100%) 100%,
     100% 100%;
   background-repeat:no-repeat;
-  border-radius:3px;
 }
 
-/* Chrome / Safari / Edge 轨道 */
+/* WebKit（Chrome/Edge/Safari）轨道 */
 #time-slider::-webkit-slider-runnable-track{
   height:6px;
-  appearance:none;
 }
+
 /* Firefox 轨道 */
 #time-slider::-moz-range-track{
   height:6px;
   background:transparent;
 }
 
-/* 滑块（thumb）——统一做成 12×12 的纯蓝圆点 */
-#time-slider::-webkit-slider-thumb{
+/* Thumb（滑块柄）统一蓝色小圆点 */
+#time-slider::-webkit-slider-thumb,
+#time-slider::-moz-range-thumb{
   appearance:none;
   width:12px; height:12px;
   border-radius:50%;
   background:#1e74ff;
   border:none;
-  box-shadow:0 0 0 2px #fff inset; /* 留白边，视觉更清晰 */
-  cursor:pointer;
-}
-#time-slider::-moz-range-thumb{
-  width:12px; height:12px;
-  border-radius:50%;
-  background:#1e74ff;
-  border:none;
-  box-shadow:0 0 0 2px #fff inset;
-  cursor:pointer;
 }

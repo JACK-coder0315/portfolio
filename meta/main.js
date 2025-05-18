@@ -174,9 +174,8 @@ function filterCommitsByTime(allCommits) {
 /* 先删旧 SVG，再重绘 */
 function updateScatterPlot(data) {
   d3.select('#chart svg').remove();   // chart 容器只有一个 SVG
-  renderScatterPlot(data);            // 复用你原来的绘图函数
+  renderScatterPlot(data);            // 复用绘图函数
 }
-
 
 // 启动
 (async () => {
@@ -192,8 +191,8 @@ function updateScatterPlot(data) {
 
   /* ---------- 过滤 + 首次绘图 ---------- */
   filterCommitsByTime(commits);        // ➜ filteredCommits
-  renderCommitInfo(data, commits);     // 你的原函数，不动
-  renderScatterPlot(filteredCommits);  // 只画符合时间的提交
+  renderCommitInfo(data, commits);
+  renderScatterPlot(filteredCommits);
 
   /* ---------- 更新 <time> 显示 ---------- */
   const selectedTimeEl = document.getElementById('selectedTime');
@@ -203,14 +202,19 @@ function updateScatterPlot(data) {
 
   /* ---------- 绑定滑块事件 ---------- */
   const timeSlider = document.getElementById('time-slider');
-  timeSlider.value = commitProgress;   // 同步初始值
+  timeSlider.value = commitProgress;                             // 初始值同步
+  timeSlider.style.setProperty('--value', timeSlider.value);     // ★ 同步 CSS 变量
+
   timeSlider.addEventListener('input', () => {
-    commitProgress = +timeSlider.value;           // 1 更新百分比
-    commitMaxTime  = timeScale.invert(commitProgress); // 2 算日期
+    timeSlider.style.setProperty('--value', timeSlider.value);   // ★ 实时同步 CSS 变量
+    commitProgress = +timeSlider.value;                          // 更新百分比
+    commitMaxTime  = timeScale.invert(commitProgress);           // 算日期
+
     selectedTimeEl.textContent = commitMaxTime.toLocaleString(
       'en-US', { dateStyle: 'long', timeStyle: 'short' }
     );
-    filterCommitsByTime(commits);      // 3 重算过滤
-    updateScatterPlot(filteredCommits); // 4 重绘
+
+    filterCommitsByTime(commits);      // 重算过滤
+    updateScatterPlot(filteredCommits); // 重绘
   });
 })();
