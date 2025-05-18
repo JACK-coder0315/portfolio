@@ -1,14 +1,8 @@
 import * as d3 from 'https://cdn.jsdelivr.net/npm/d3@7.9.0/+esm';
 
-// === Lab8 Step1 变量声明 ===
-let commitProgress = 100;
-let timeScale;
-// commits 数组由 loadData() 填充
-let commits = [];
-
 // 读取并解析 CSV
 async function loadData() {
-  const data = await d3.csv('loc.csv', row => ({
+  return d3.csv('loc.csv', row => ({
     ...row,
     line: +row.line,
     depth: +row.depth,
@@ -16,48 +10,28 @@ async function loadData() {
     date: new Date(row.date + 'T00:00' + row.timezone),
     datetime: new Date(row.datetime)
   }));
-
-  // 聚合到提交层面
-  commits = d3.groups(data, d => d.commit).map(([id, lines]) => ({
-    id,
-    author: lines[0].author,
-    datetime: lines[0].datetime,
-    hourFrac: lines[0].datetime.getHours() + lines[0].datetime.getMinutes() / 60,
-    totalLines: lines.length,
-    url: `https://github.com/JACK-coder0315/portfolio/commit/${id}`,
-    lines
-  })).sort((a, b) => a.datetime - b.datetime);
-
-  init();
 }
 
-// 初始化函数
-function init() {
-  // 1. 初始化时间比例尺
-  timeScale = d3.scaleTime()
-    .domain(d3.extent(commits, d => d.datetime))
-    .range([0, 100]);
-
-  // 2. 初始化滑块 UI
-  const display = document.getElementById('time-display');
-  display.textContent = timeScale.invert(commitProgress).toLocaleString();
-
-  const slider = document.getElementById('time-slider');
-  slider.addEventListener('input', () => {
-    commitProgress = +slider.value;
-    const cutoffDate = timeScale.invert(commitProgress);
-    display.textContent = cutoffDate.toLocaleString();
-    // 3. 根据 cutoffDate 过滤并更新散点图
-    const filtered = commits.filter(c => c.datetime <= cutoffDate);
-    updateScatterPlot(filtered);
+// 聚合到提交层面
+function processCommits(data) {
+  return d3.groups(data, d => d.commit).map(([id, lines]) => {
+    const first = lines[0];
+    const dt = first.datetime;
+    const commit = {
+      id,
+      author: first.author,
+      datetime: dt,
+      hourFrac: dt.getHours() + dt.getMinutes() / 60,
+      totalLines: lines.length,
+      url: 'https://github.com/JACK-coder0315/portfolio/commit/' + id
+    };
+    // 隐藏原始行数据
+    Object.defineProperty(commit, 'lines', { value: lines });
+    return commit;
   });
-
-  // 4. 渲染初始散点图与统计
-  renderCommitInfo(commentsDataToChart(), commits);
-  updateScatterPlot(commits);
 }
 
-// 渲染摘要统计（原有不变）
+// 渲染摘要统计
 function renderCommitInfo(data, commits) {
   const dl = d3.select('#stats').append('dl').attr('class', 'stats');
   dl.append('dt').html('Total <abbr title="Lines of code">LOC</abbr>');
@@ -76,53 +50,79 @@ function renderCommitInfo(data, commits) {
   dl.append('dd').text(d3.max(data, d => d.depth));
 }
 
-// 更新 tooltip 内容与位置（原有不变）
-function renderTooltipContent(d) { /* ... */ }
-function updateTooltipPosition(e) { /* ... */ }
-function updateTooltipVisibility(visible) { /* ... */ }
+// 更新 tooltip 内容与位置
+function renderTooltipContent(d) {
+  document.getElementById('commit-link').href = d.url;
+  document.getElementById('commit-link').textContent = d.id;
+  document.getElementById('commit-date').textContent   = d.datetime.toLocaleString();
+  document.getElementById('commit-author').textContent = d.author;
+  document.getElementById('commit-lines').textContent  = d.totalLines;
+}
+function updateTooltipPosition(e) {
+  const t = document.getElementById('commit-tooltip');
+  t.style.left = e.clientX + 10 + 'px';
+  t.style.top  = e.clientY + 10 + 'px';
+}
+function updateTooltipVisibility(visible) {
+  document.getElementById('commit-tooltip').hidden = !visible;
+}
 
-// 选中判断（原有不变）
-function isCommitSelected(sel, d, x, y) { /* ... */ }
+// brush 选中判断
+function isCommitSelected(sel, d, x, y) {
+  if (!sel) return false;
+  const [[x0, y0], [x1, y1]] = sel;
+  const cx = x(d.datetime), cy = y(d.hourFrac);
+  return x0 <= cx && cx <= x1 && y0 <= cy && cy <= y1;
+}
 
-// 语言细分渲染（原有不变）
-function renderLanguageBreakdown(commits, sel, x, y) { /* ... */ }
+// 渲染语言细分
+function renderLanguageBreakdown(commits, sel, x, y) {
+  const chosen = sel ? commits.filter(d => isCommitSelected(sel, d, x, y)) : [];
+  const source = chosen.length ? chosen : commits;
+  const lines = source.flatMap(d => d.lines);
+  const breakdown = d3.rollup(lines, v => v.length, d => d.type);
+  const total = lines.length;
+  const container = d3.select('#language-breakdown').html('');
+  container.selectAll('div')
+    .data(Array.from(breakdown.entries()))
+    .join('div').attr('class', 'lang')
+    .html(([lang, count]) => `${lang}: ${count} (${d3.format('.1~%')(count/total)})`);
+}
 
-// 更新散点图：支持滑块过滤
-function updateScatterPlot(commitsData) {
-  // 清空旧 svg
-  d3.select('#chart svg').remove();
-
-  // 新建 svg
+// 绘制散点图 + tooltips + brushing
+function renderScatterPlot(commits) {
   const W = 1000, H = 600;
   const margin = { top: 10, right: 10, bottom: 30, left: 40 };
-  const svg = d3.select('#chart').append('svg')
+  const svg = d3.select('#chart')
+    .append('svg')
     .attr('viewBox', `0 0 ${W} ${H}`)
     .style('overflow', 'visible');
 
-  // 比例尺
   const x = d3.scaleTime()
-    .domain(d3.extent(commitsData, d => d.datetime))
+    .domain(d3.extent(commits, d => d.datetime))
     .range([margin.left, W - margin.right]).nice();
   const y = d3.scaleLinear()
     .domain([0, 24])
     .range([H - margin.bottom, margin.top]);
-  const [minL, maxL] = d3.extent(commitsData, d => d.totalLines);
+  const [minL, maxL] = d3.extent(commits, d => d.totalLines);
   const rScale = d3.scaleSqrt().domain([minL, maxL]).range([3, 20]);
 
-  // 轴与网格线
+  // 轴
   svg.append('g')
     .attr('transform', `translate(0, ${H - margin.bottom})`)
     .call(d3.axisBottom(x));
   svg.append('g')
     .attr('transform', `translate(${margin.left}, 0)`)
     .call(d3.axisLeft(y).tickFormat(d => String(d % 24).padStart(2, '0') + ':00'));
+
+  // 网格线
   svg.append('g')
     .attr('class', 'gridlines')
     .attr('transform', `translate(${margin.left}, 0)`)
     .call(d3.axisLeft(y).tickFormat('').tickSize(-(W - margin.left - margin.right)));
 
-  // 绘制点
-  const sorted = commitsData.slice().sort((a, b) => b.totalLines - a.totalLines);
+  // 数据点
+  const sorted = commits.slice().sort((a, b) => b.totalLines - a.totalLines);
   const dots = svg.append('g').attr('class', 'dots');
   dots.selectAll('circle').data(sorted).join('circle')
     .attr('cx', d => x(d.datetime))
@@ -151,21 +151,18 @@ function updateScatterPlot(commitsData) {
   // 刷选
   const brush = d3.brush().on('start brush end', ({ selection }) => {
     dots.selectAll('circle').classed('selected', d => isCommitSelected(selection, d, x, y));
-    d3.select('#selection-count').text(
-      dots.selectAll('circle.selected').size()
-        ? `${dots.selectAll('circle.selected').size()} commits selected`
-        : 'No commits selected'
-    );
-    renderLanguageBreakdown(commitsData, selection, x, y);
+    const count = dots.selectAll('circle.selected').size();
+    d3.select('#selection-count').text(count ? `${count} commits selected` : 'No commits selected');
+    renderLanguageBreakdown(commits, selection, x, y);
   });
   svg.call(brush);
-}
-
-// 辅助：将原始 data 转为 renderCommitInfo 所需格式
-function commentsDataToChart() {
-  // 假定原始 CSV 数据已加载到全局 data 变量，否则需修改
-  return d3.csv('loc.csv', d3.autoType);
+  svg.selectAll('.dots, .overlay ~ *').raise();
 }
 
 // 启动
-loadData();
+(async () => {
+  const data = await loadData();
+  const commits = processCommits(data);
+  renderCommitInfo(data, commits);
+  renderScatterPlot(commits);
+})();
