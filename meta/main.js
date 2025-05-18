@@ -1,5 +1,24 @@
 import * as d3 from 'https://cdn.jsdelivr.net/npm/d3@7.9.0/+esm';
 
+let commitProgress = 100;
+let timeScale;
+
+timeScale = d3.scaleTime()
+  .domain(d3.extent(commits, d => d.datetime))
+  .range([0, 100]);
+
+const display = document.getElementById('time-display');
+display.textContent = timeScale.invert(commitProgress).toLocaleString();
+
+const slider = document.getElementById('time-slider');
+const display = document.getElementById('time-display');
+slider.addEventListener('input', () => {
+  commitProgress = +slider.value;
+  const cutoffDate = timeScale.invert(commitProgress);
+  display.textContent = cutoffDate.toLocaleString();
+  // TODO Step1.5: 使用 cutoffDate 过滤 commits 并调用更新函数
+});
+
 // 读取并解析 CSV
 async function loadData() {
   return d3.csv('loc.csv', row => ({

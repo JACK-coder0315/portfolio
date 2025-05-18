@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <title>Code Statistics</title>
@@ -7,12 +8,17 @@
   <script type="module" src="https://cdn.jsdelivr.net/npm/d3@7.9.0/+esm" defer></script>
   <script type="module" src="main.js" defer></script>
 </head>
+
 <body>
   <div id="nav-container"></div>
   <script src="../global.js"></script>
 
   <h1>Code Statistics</h1>
-  
+  <div id="filter-ui" style="display:flex; align-items:center; gap:0.5em; margin:1em 0;">
+    <label for="time-slider">Show commits until:</label>
+    <input type="range" id="time-slider" min="0" max="100" value="100">
+    <time id="time-display"></time>
+  </div>
   <section id="stats"></section>
   <div id="chart"></div>
 
@@ -32,4 +38,5 @@
     <div id="language-breakdown"></div>
   </div>
 </body>
+
 </html>
