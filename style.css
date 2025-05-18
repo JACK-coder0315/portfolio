@@ -10,16 +10,16 @@ body {
 }
 
 .nav {
-    background-color: #4fa1fe;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 8px 20px;
-    position: sticky;
-    top: 0;
-    width: 100%;
-    z-index: 1000;
-  }
+  background-color: #4fa1fe;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 8px 20px;
+  position: sticky;
+  top: 0;
+  width: 100%;
+  z-index: 1000;
+}
 
 .nav a {
   display: inline-block;
@@ -53,7 +53,7 @@ body {
   justify-content: center;
   gap: 4em;
   flex-wrap: wrap;
-  margin-top: 2em; 
+  margin-top: 2em;
 }
 
 .visualization-page #projects-pie-plot {
@@ -66,7 +66,7 @@ body {
 .visualization-page .legend {
   display: flex;
   flex-wrap: wrap;
-  gap: 1em 2em; 
+  gap: 1em 2em;
   list-style: none;
   padding: 1em;
   border: 1px solid #ccc;
@@ -190,24 +190,53 @@ body {
   color: #333;
 }
 
-.stats { display:grid; grid-template-columns:auto 1fr; gap:0.5em 1em; margin:1em 0; }
-stats dt { font-weight:bold; }
-stats dd { margin:0; }
+.stats {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.5em 1em;
+  margin: 1em 0;
+}
+
+stats dt {
+  font-weight: bold;
+}
+
+stats dd {
+  margin: 0;
+}
 
 /* 散点图网格线 */
-.gridlines line { stroke:#ddd; stroke-opacity:0.7; }
-.gridlines path { display:none; }
+.gridlines line {
+  stroke: #ddd;
+  stroke-opacity: 0.7;
+}
+
+.gridlines path {
+  display: none;
+}
 
 /* 刷选框 */
-.selection { fill-opacity:0.1; stroke:#333; stroke-dasharray:5 3; animation:marching-ants 2s linear infinite; }
-@keyframes marching-ants { to { stroke-dashoffset:-8; }}
+.selection {
+  fill-opacity: 0.1;
+  stroke: #333;
+  stroke-dasharray: 5 3;
+  animation: marching-ants 2s linear infinite;
+}
+
+@keyframes marching-ants {
+  to {
+    stroke-dashoffset: -8;
+  }
+}
 
 /* 工具提示覆盖 hidden */
 #commit-tooltip[hidden] {
-  display: block !important; /* 强制覆盖浏览器 default hidden */
+  display: block !important;
+  /* 强制覆盖浏览器 default hidden */
   opacity: 0;
   visibility: hidden;
 }
+
 #commit-tooltip:not([hidden]) {
   display: block !important;
   opacity: 1;
@@ -218,45 +247,62 @@ dl.info.tooltip {
   position: fixed;
   top: 1em;
   left: 1em;
-  background: rgba(255,255,255,0.9);
-  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
   padding: 0.5em;
   border-radius: 4px;
   transition: opacity 0.2s;
   font-size: 0.9em;
-  z-index: 1001; /* 提示框置顶 */
+  z-index: 1001;
+  /* 提示框置顶 */
 }
 
 /* 圆点交互 */
-.dots circle { transition: transform 0.2s; transform-origin: center; transform-box: fill-box; }
-.dots circle.selected { stroke: #f66; stroke-width: 2px; }
+.dots circle {
+  transition: transform 0.2s;
+  transform-origin: center;
+  transform-box: fill-box;
+}
+
+.dots circle.selected {
+  stroke: #f66;
+  stroke-width: 2px;
+}
 
 /* === 时间滑块：宽度 & 双色轨道 ==================================== */
-#time-filter{                 /* 整块容器 */
-  max-width:800px;            /* 想再长就调大，例如 900px */
-  margin:0 auto;              /* 居中，可按需改成 left/right 对齐 */
-  display:flex;
-  align-items:baseline;
+#time-filter {
+  /* 整块容器 */
+  max-width: 800px;
+  /* 想再长就调大，例如 900px */
+  margin: 0 auto;
+  /* 居中，可按需改成 left/right 对齐 */
+  display: flex;
+  align-items: baseline;
 }
 
-#time-filter label{           /* 让 label 保持最小宽度 */
-  white-space:nowrap;
+#time-filter label {
+  /* 让 label 保持最小宽度 */
+  white-space: nowrap;
 }
 
-#time-slider{
+#time-slider {
   /* 布局——占据 label 与 time 之间所有剩余空间 */
-  flex:1 1 auto;
-  margin:0 0.75rem;           /* 左右各留 12px */
+  flex: 1 1 auto;
+  margin: 0 0.75rem;
+  /* 左右各留 12px */
 
   /* 去系统默认样式 */
-  appearance:none;
-  height:6px;
-  background:transparent;     /* 轨道由渐变生成 */
-  cursor:pointer;
-  border-radius:3px;
+  appearance: none;
+  height: 6px;
+  background: transparent;
+  /* 轨道由渐变生成 */
+  cursor: pointer;
+  border-radius: 3px;
 
   /* CSS 变量：min max value 用来算蓝色比例 */
-  --min:0; --max:100; --value:100;
+  --min: 0;
+  --max: 100;
+  --value: 100;
 
   /* 双色轨道。第一条蓝，第二条灰，靠 background-size 控制覆盖宽度 */
   background-image:
@@ -265,36 +311,83 @@ dl.info.tooltip {
   background-size:
     calc((var(--value) - var(--min))/(var(--max) - var(--min))*100%) 100%,
     100% 100%;
-  background-repeat:no-repeat;
+  background-repeat: no-repeat;
 }
 
 /* WebKit（Chrome/Edge/Safari）轨道 */
-#time-slider::-webkit-slider-runnable-track{
-  height:6px;
+#time-slider::-webkit-slider-runnable-track {
+  height: 6px;
 }
 
 /* Firefox 轨道 */
-#time-slider::-moz-range-track{
-  height:6px;
-  background:transparent;
+#time-slider::-moz-range-track {
+  height: 6px;
+  background: transparent;
 }
 
 /* WebKit 系浏览器（Chrome / Edge / Safari）*/
-#time-slider::-webkit-slider-thumb{
-  appearance:none;
-  width:12px; height:12px;
-  border-radius:50%;
-  background:#1e74ff;
-  border:none;
+#time-slider::-webkit-slider-thumb {
+  appearance: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #1e74ff;
+  border: none;
   /* ↓↓↓ 关键行：向上提 3px */
-  margin-top:-3px;
+  margin-top: -3px;
 }
 
 /* Firefox */
-#time-slider::-moz-range-thumb{
-  width:12px; height:12px;
-  border-radius:50%;
-  background:#1e74ff;
-  border:none;
-  margin-top:-3px;   /* 同样上移 */
+#time-slider::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #1e74ff;
+  border: none;
+  margin-top: -3px;
+  /* 同样上移 */
+}
+
+.files {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  row-gap: .2em;
+  column-gap: 1em;
+  margin-top: 1rem;
+}
+
+.files>div {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: subgrid;
+}
+
+.files dt {
+  grid-column: 1;
+  margin: 0;
+}
+
+.files dd {
+  grid-column: 2;
+  margin-left: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: start;
+  align-content: start;
+  gap: .15em;
+  padding-top: .4em;
+}
+
+.files dt small {
+  display: block;
+  opacity: .65;
+  font-size: .75em;
+  margin-top: .2em;
+}
+
+.line {
+  display: flex;
+  width: .5em;
+  aspect-ratio: 1;
+  border-radius: 50%;
 }
