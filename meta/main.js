@@ -1,5 +1,12 @@
 import * as d3 from 'https://cdn.jsdelivr.net/npm/d3@7.9.0/+esm';
 
+/* ==== Lab 8 时间筛选全局变量 ==== */
+let commitProgress = 100;          // 当前滑块百分比 0–100
+let timeScale;                     // 日期 ↔︎ 百分比 尺规
+let commitMaxTime;                 // 对应百分比的 Date
+let filteredCommits = [];          // 过滤后要画的提交
+/* ================================= */
+
 // 读取并解析 CSV
 async function loadData() {
   return d3.csv('loc.csv', row => ({
@@ -159,10 +166,51 @@ function renderScatterPlot(commits) {
   svg.selectAll('.dots, .overlay ~ *').raise();
 }
 
+/* 根据 commitMaxTime 刷新 filteredCommits */
+function filterCommitsByTime(allCommits) {
+  filteredCommits = allCommits.filter(d => d.datetime <= commitMaxTime);
+}
+
+/* 先删旧 SVG，再重绘 */
+function updateScatterPlot(data) {
+  d3.select('#chart svg').remove();   // chart 容器只有一个 SVG
+  renderScatterPlot(data);            // 复用你原来的绘图函数
+}
+
+
 // 启动
 (async () => {
   const data = await loadData();
   const commits = processCommits(data);
-  renderCommitInfo(data, commits);
-  renderScatterPlot(commits);
+
+  /* ---------- 初始化时间尺规 ---------- */
+  timeScale = d3.scaleTime(
+    d3.extent(commits, d => d.datetime),   // [最早, 最晚]
+    [0, 100]
+  );
+  commitMaxTime = timeScale.invert(commitProgress);   // 初始 = 100%
+
+  /* ---------- 过滤 + 首次绘图 ---------- */
+  filterCommitsByTime(commits);        // ➜ filteredCommits
+  renderCommitInfo(data, commits);     // 你的原函数，不动
+  renderScatterPlot(filteredCommits);  // 只画符合时间的提交
+
+  /* ---------- 更新 <time> 显示 ---------- */
+  const selectedTimeEl = document.getElementById('selectedTime');
+  selectedTimeEl.textContent = commitMaxTime.toLocaleString(
+    'en-US', { dateStyle: 'long', timeStyle: 'short' }
+  );
+
+  /* ---------- 绑定滑块事件 ---------- */
+  const timeSlider = document.getElementById('time-slider');
+  timeSlider.value = commitProgress;   // 同步初始值
+  timeSlider.addEventListener('input', () => {
+    commitProgress = +timeSlider.value;           // 1 更新百分比
+    commitMaxTime  = timeScale.invert(commitProgress); // 2 算日期
+    selectedTimeEl.textContent = commitMaxTime.toLocaleString(
+      'en-US', { dateStyle: 'long', timeStyle: 'short' }
+    );
+    filterCommitsByTime(commits);      // 3 重算过滤
+    updateScatterPlot(filteredCommits); // 4 重绘
+  });
 })();

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <title>Code Statistics</title>
@@ -7,12 +8,23 @@
   <script type="module" src="https://cdn.jsdelivr.net/npm/d3@7.9.0/+esm" defer></script>
   <script type="module" src="main.js" defer></script>
 </head>
+
 <body>
   <div id="nav-container"></div>
   <script src="../global.js"></script>
 
   <h1>Code Statistics</h1>
   <section id="stats"></section>
+  <!-- ============= Commit 时间筛选 UI（Lab 8） ============= -->
+  <div id="time-filter">
+    <label for="time-slider">Show commits until&nbsp;</label>
+    <!-- 0-100 滑块，默认 100% -->
+    <input id="time-slider" type="range" min="0" max="100" value="100" />
+    <!-- 对应日期时间 -->
+    <time id="selectedTime"></time>
+  </div>
+  <!-- ======================================================= -->
+
   <div id="chart"></div>
 
   <dl id="commit-tooltip" class="info tooltip" hidden>
@@ -31,4 +43,5 @@
     <div id="language-breakdown"></div>
   </div>
 </body>
+
 </html>
