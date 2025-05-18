@@ -391,3 +391,55 @@ dl.info.tooltip {
   aspect-ratio: 1;
   border-radius: 50%;
 }
+
+/* 让页面更宽一些 */
+:global(body){
+  max-width: min(120ch, 80vw);
+}
+
+/* ===== scrollytelling 布局 ===== */
+#scrollytelling{
+  grid-column:1 / -1;
+  display:grid;
+  grid-template-columns: subgrid;   /* 继承父网格 */
+}
+
+/* 左侧滚动框 */
+#scroll-container{
+  grid-column:1;
+  position:relative;
+  width:95%;
+  height:350px;
+  overflow-y:scroll;
+  border:1px solid #ccc;
+  margin-bottom:50px;
+}
+
+/* 右侧散点图列 */
+#chart{
+  grid-column:2;
+}
+
+/* spacer = 占位高度，透明即可 */
+#spacer{
+  position:absolute;
+  inset:0 auto auto 0;
+  width:100%;
+  background:none;
+  pointer-events:none;
+}
+
+/* items 容器绝对定位 */
+#items-container{
+  position:absolute;
+  top:0; left:0;
+  width:100%;
+}
+
+/* 单条 story */
+.item{
+  height:60px;             /* 与 JS 中 ITEM_HEIGHT 对齐 */
+  padding:10px;
+  box-sizing:border-box;
+  border-bottom:2px solid #eee;
+}

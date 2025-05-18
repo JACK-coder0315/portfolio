@@ -1,10 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8" />
   <title>Code Statistics</title>
+
+  <!-- 全站样式 -->
   <link rel="stylesheet" href="../style.css" />
+
+  <!-- D3 & 业务脚本 -->
   <script type="module" src="https://cdn.jsdelivr.net/npm/d3@7.9.0/+esm" defer></script>
   <script type="module" src="main.js" defer></script>
 </head>
@@ -14,31 +17,41 @@
   <script src="../global.js"></script>
 
   <h1>Code Statistics</h1>
-  <section id="stats"></section>
-  <!-- ============= Commit 时间筛选 UI（Lab 8） ============= -->
-  <div id="time-filter">
-    <label for="time-slider">Show commits until&nbsp;</label>
-    <!-- 0-100 滑块，默认 100% -->
-    <input id="time-slider" type="range" min="0" max="100" value="100" />
-    <!-- 对应日期时间 -->
-    <time id="selectedTime"></time>
-  </div>
-  <!-- ======================================================= -->
 
+  <!-- 摘要统计 -->
+  <section id="stats"></section>
+
+  <!-- ========= Scrollytelling ========= -->
+  <div id="scrollytelling">
+    <!-- 左列：文字滚动 -->
+    <div id="scroll-container">
+      <div id="spacer"></div>
+      <div id="items-container"></div>
+    </div>
+
+    <!-- 右列：散点图 -->
+    <div id="chart"></div>
+  </div>
+  <!-- ================================== -->
+
+  <!-- 文件单元可视化 -->
   <dl class="files"></dl>
 
-  <div id="chart"></div>
-
+  <!-- Tooltip -->
   <dl id="commit-tooltip" class="info tooltip" hidden>
-    <dt>Commit</dt>
-    <dd><a id="commit-link" target="_blank"></a></dd>
-    <dt>Date</dt>
-    <dd id="commit-date"></dd>
-    <dt>Author</dt>
-    <dd id="commit-author"></dd>
-    <dt>Lines edited</dt>
-    <dd id="commit-lines"></dd>
+    <dt>Commit</dt><dd><a id="commit-link" target="_blank"></a></dd>
+    <dt>Date</dt><dd id="commit-date"></dd>
+    <dt>Author</dt><dd id="commit-author"></dd>
+    <dt>Lines edited</dt><dd id="commit-lines"></dd>
   </dl>
+
+  <!-- 选择统计 -->
+  <div id="selection-summary">
+    <p id="selection-count">No commits selected</p>
+    <div id="language-breakdown"></div>
+  </div>
+</body>
+</html>
 
   <div id="selection-summary">
     <p id="selection-count">No commits selected</p>
