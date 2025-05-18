@@ -4,10 +4,8 @@
   <meta charset="UTF-8" />
   <title>Code Statistics</title>
 
-  <!-- 全站样式 -->
   <link rel="stylesheet" href="../style.css" />
 
-  <!-- D3 & 业务脚本 -->
   <script type="module" src="https://cdn.jsdelivr.net/npm/d3@7.9.0/+esm" defer></script>
   <script type="module" src="main.js" defer></script>
 </head>
@@ -18,45 +16,36 @@
 
   <h1>Code Statistics</h1>
 
-  <!-- 摘要统计 -->
+  <!-- ===== Summary ===== -->
+  <h2>Summary</h2>
   <section id="stats"></section>
 
-  <!-- ========= Scrollytelling ========= -->
+  <!-- ===== Scrollytelling + Plot ===== -->
+  <h2>Commits by Time of Day</h2>
   <div id="scrollytelling">
-    <!-- 左列：文字滚动 -->
     <div id="scroll-container">
       <div id="spacer"></div>
       <div id="items-container"></div>
     </div>
-
-    <!-- 右列：散点图 -->
     <div id="chart"></div>
   </div>
-  <!-- ================================== -->
 
-  <!-- 文件单元可视化 -->
+  <!-- ===== File unit vis ===== -->
   <dl class="files"></dl>
 
-  <!-- Tooltip -->
-  <dl id="commit-tooltip" class="info tooltip" hidden>
-    <dt>Commit</dt><dd><a id="commit-link" target="_blank"></a></dd>
-    <dt>Date</dt><dd id="commit-date"></dd>
-    <dt>Author</dt><dd id="commit-author"></dd>
-    <dt>Lines edited</dt><dd id="commit-lines"></dd>
+  <!-- ===== Tooltip ===== -->
+  <dl id="commit-tooltip" class="commit-tip" hidden>
+    <dt>COMMIT</dt><dd id="tip-id"></dd>
+    <dt>DATE</dt><dd id="tip-date"></dd>
+    <dt>TIME</dt><dd id="tip-time"></dd>
+    <dt>AUTHOR</dt><dd id="tip-author"></dd>
+    <dt>LINES EDITED</dt><dd id="tip-lines"></dd>
   </dl>
 
-  <!-- 选择统计 -->
+  <!-- ===== Selection stats ===== -->
   <div id="selection-summary">
     <p id="selection-count">No commits selected</p>
     <div id="language-breakdown"></div>
   </div>
 </body>
-</html>
-
-  <div id="selection-summary">
-    <p id="selection-count">No commits selected</p>
-    <div id="language-breakdown"></div>
-  </div>
-</body>
-
 </html>
