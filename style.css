@@ -279,12 +279,22 @@ dl.info.tooltip {
   background:transparent;
 }
 
-/* Thumb（滑块柄）统一蓝色小圆点 */
-#time-slider::-webkit-slider-thumb,
-#time-slider::-moz-range-thumb{
+/* WebKit 系浏览器（Chrome / Edge / Safari）*/
+#time-slider::-webkit-slider-thumb{
   appearance:none;
   width:12px; height:12px;
   border-radius:50%;
   background:#1e74ff;
   border:none;
+  /* ↓↓↓ 关键行：向上提 3px */
+  margin-top:-3px;
+}
+
+/* Firefox */
+#time-slider::-moz-range-thumb{
+  width:12px; height:12px;
+  border-radius:50%;
+  background:#1e74ff;
+  border:none;
+  margin-top:-3px;   /* 同样上移 */
 }
