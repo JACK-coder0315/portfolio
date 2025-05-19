@@ -1,7 +1,7 @@
 import * as d3 from 'https://cdn.jsdelivr.net/npm/d3@7.9.0/+esm';
 
 /* ---------- 常量 ---------- */
-const ITEM_HEIGHT   = 100;   // 与 .css 中 .item { height: 100px; } 保持一致
+const ITEM_HEIGHT   = 100;   // 与 .item { height:100px } 保持一致
 const VISIBLE_COUNT = 10;
 const fileTypeColors = d3.scaleOrdinal(d3.schemeTableau10);
 
@@ -54,13 +54,13 @@ function renderSummary(data, commits) {
   add('Average File Length (In Lines)', d3.mean(byFile).toFixed(0));
 
   const hourCounts = d3.rollup(commits, v=>v.length, c=>c.datetime.getHours());
-  const peakHour   = d3.greatest(hourCounts, d=>d[1])[0];
+  const peakHour   = d3.greatest(hourCounts, ([h,count])=>count)[0];
   add('Peak Work Time', peakHour>=18||peakHour<6 ? 'At Night':'Daytime');
 
   add('Longest Line', d3.max(data,d=>d.length));
 }
 
-/* ---------- 渲染散点图、刷选、Tooltip、语言细分 ---------- */
+/* ---------- 渲染散点图 + 刷选 + Tooltip + 语言细分 ---------- */
 function renderScatter(commits) {
   const W=1000, H=600, m={top:10,right:10,bottom:30,left:40};
   const svg = d3.select('#chart').html('')
@@ -69,31 +69,32 @@ function renderScatter(commits) {
       .style('overflow','visible');
 
   const x = d3.scaleTime()
-      .domain(d3.extent(commits,d=>d.datetime))
-      .range([m.left, W-m.right]).nice();
+    .domain(d3.extent(commits,d=>d.datetime))
+    .range([m.left, W-m.right]).nice();
   const y = d3.scaleLinear()
-      .domain([0,24])
-      .range([H-m.bottom, m.top]);
+    .domain([0,24])
+    .range([H-m.bottom, m.top]);
   const r = d3.scaleSqrt()
-      .domain(d3.extent(commits,d=>d.totalLines))
-      .range([3,20]);
+    .domain(d3.extent(commits,d=>d.totalLines))
+    .range([3,20]);
 
-  // 轴 & 网格
+  // 轴
   svg.append('g')
-     .attr('transform',`translate(0,${H-m.bottom})`)
-     .call(d3.axisBottom(x));
+    .attr('transform',`translate(0,${H-m.bottom})`)
+    .call(d3.axisBottom(x));
   svg.append('g')
-     .attr('transform',`translate(${m.left},0)`)
-     .call(d3.axisLeft(y).tickFormat(d=>`${String(d%24).padStart(2,'0')}:00`));
+    .attr('transform',`translate(${m.left},0)`)
+    .call(d3.axisLeft(y).tickFormat(d=>`${String(d%24).padStart(2,'0')}:00`));
+  // 网格
   svg.append('g')
-     .attr('class','gridlines')
-     .attr('transform',`translate(${m.left},0)`)
-     .call(d3.axisLeft(y).tickFormat('').tickSize(-(W-m.left-m.right)));
+    .attr('class','gridlines')
+    .attr('transform',`translate(${m.left},0)`)
+    .call(d3.axisLeft(y).tickFormat('').tickSize(-(W-m.left-m.right)));
 
-  // 数据点
+  // 圆点
   const dots = svg.append('g').attr('class','dots');
   dots.selectAll('circle')
-    .data(commits.slice().sort((a,b)=>b.totalLines - a.totalLines))
+    .data(commits.slice().sort((a,b)=>b.totalLines-a.totalLines))
     .join('circle')
       .attr('cx', d=>x(d.datetime))
       .attr('cy', d=>y(d.hourFrac))
@@ -101,7 +102,7 @@ function renderScatter(commits) {
       .attr('fill','steelblue')
       .attr('fill-opacity',0.7);
 
-  // 刷选
+  // Brush
   const brush = d3.brush()
     .extent([[m.left,m.top],[W-m.right,H-m.bottom]])
     .on('start brush end', ({selection}) => {
@@ -115,19 +116,30 @@ function renderScatter(commits) {
 
       const count = dots.selectAll('circle.selected').size();
       d3.select('#selection-count')
-        .text(count? `${count} commits selected` : 'No commits selected');
+        .text(count ? `${count} commits selected` : 'No commits selected');
 
+      // 刷新语言细分：只展示被选的那些
       renderLanguageBreakdown(commits, selection);
+
+      // 刷新文件列表：也只展示被选的
+      const selectedData = commits.filter(d => {
+        if (!selection) return false;
+        const [[x0,y0],[x1,y1]] = selection;
+        const cx = x(d.datetime), cy = y(d.hourFrac);
+        return x0<=cx && cx<=x1 && y0<=cy && cy<=y1;
+      });
+      renderFiles(selectedData);
     });
 
   svg.append('g').call(brush);
   svg.selectAll('.dots, .overlay ~ *').raise();
 
-  // 悬停提示
+  // Tooltip
   const tooltip = d3.select('#commit-tooltip');
   dots.selectAll('circle')
     .on('mouseenter', function(e,d){
       d3.select(this).attr('fill-opacity',1);
+      // 填充内容
       d3.select('#tip-id').text(d.id.slice(0,7));
       d3.select('#tip-date').text(
         d.datetime.toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'})
@@ -137,7 +149,7 @@ function renderScatter(commits) {
       );
       d3.select('#tip-author').text(d.author);
       d3.select('#tip-lines').text(d.totalLines);
-
+      // 显示
       tooltip
         .classed('visible', true)
         .style('left', (e.clientX+10)+'px')
@@ -159,54 +171,55 @@ function renderLanguageBreakdown(commits, selection) {
   const selected = selection
     ? commits.filter(d => {
         const [[x0,y0],[x1,y1]] = selection;
-        const cx = d3.scaleTime().domain(d3.extent(commits,d=>d.datetime))
-                      .range([40, 1000-10])(d.datetime);
-        const cy = d3.scaleLinear().domain([0,24])
-                      .range([600-30,10])(d.hourFrac);
+        // 重新构建同样的 x,y 方便计算
+        // （也可缓存外层的 x,y 但这里示范完整 self-contain）
+        const xScale = d3.scaleTime()
+          .domain(d3.extent(commits, d=>d.datetime))
+          .range([40, 1000-10]);
+        const yScale = d3.scaleLinear()
+          .domain([0,24])
+          .range([600-30,10]);
+        const cx = xScale(d.datetime), cy = yScale(d.hourFrac);
         return x0<=cx && cx<=x1 && y0<=cy && cy<=y1;
       })
     : [];
 
   const source = selected.length ? selected : [];
-  const lines = source.flatMap(d => d.lines);
-  const summary = d3.rollup(lines, v=>v.length, d=>d.type);
-  const total = d3.sum(summary.values());
-
-  const dl = d3.select('#language-breakdown').html('');
-  if (total === 0) return;
-
-  for (const [lang, cnt] of summary) {
+  const lines  = source.flatMap(d=>d.lines);
+  const roll   = d3.rollup(lines, v=>v.length, d=>d.type);
+  const total  = d3.sum(roll.values());
+  const dl     = d3.select('#language-breakdown').html('');
+  if (total===0) return;
+  for (const [lang,cnt] of roll) {
     dl.append('dt').text(lang);
-    dl.append('dd').html(`${cnt} lines (${d3.format('.1~%')(cnt/total)})`);
+    dl.append('dd').text(`${cnt} lines (${d3.format('.1~%')(cnt/total)})`);
   }
 }
 
-/* ---------- 渲染文件列表可视化 ---------- */
+/* ---------- 渲染文件列表 ---------- */
 function renderFiles(commits) {
   const files = d3.groups(commits.flatMap(c=>c.lines), d=>d.file)
-    .map(([name, lines]) => ({name,lines}))
-    .sort((a,b)=>d3.descending(a.lines.length,b.lines.length));
+    .map(([name,lines])=>({name,lines}))
+    .sort((a,b)=>b.lines.length - a.lines.length);
 
-  const dl = d3.select('.files').html('');
-  const rows = dl.selectAll('div')
-    .data(files, d=>d.name)
-    .join('div');
+  const dl   = d3.select('.files').html('');
+  const rows = dl.selectAll('div').data(files, d=>d.name).join('div');
 
   rows.append('dt')
     .html(d=>`<code>${d.name}</code><small>${d.lines.length} lines</small>`);
 
   rows.append('dd')
-    .selectAll('div')
-    .data(d=>d.lines)
-    .join('div')
+    .selectAll('div').data(d=>d.lines).join('div')
       .attr('class','line')
       .style('background', d=>fileTypeColors(d.type));
 }
 
-/* ---------- Scrollytelling Items ---------- */
+/* ---------- Scrollytelling 文本项 ---------- */
 function narrative(c) {
   const dateStr = c.datetime.toLocaleString('en',{dateStyle:'full',timeStyle:'short'});
-  const linkText = c.idx? 'another glorious commit' : 'my first commit, and it was glorious';
+  const linkText = c.idx
+    ? 'another glorious commit'
+    : 'my first commit, and it was glorious';
   return `<p>On ${dateStr}, I made <a href="${c.url}" target="_blank">${linkText}</a>. I edited <b>${c.totalLines}</b> lines.</p>`;
 }
 
