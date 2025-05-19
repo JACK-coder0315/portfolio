@@ -438,7 +438,7 @@ dl.info.tooltip {
 
 /* 单条 story */
 .item{
-  height:80px;             /* 与 JS 中 ITEM_HEIGHT 对齐 */
+  height:60px;             /* 与 JS 中 ITEM_HEIGHT 对齐 */
   padding:10px;
   box-sizing:border-box;
   border-bottom:2px solid #eee;
