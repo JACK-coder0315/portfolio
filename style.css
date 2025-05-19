@@ -343,14 +343,12 @@ stats dd {
 
 .files {
   display: grid;
-  /* 第一列 auto：文件名；第二列 1fr：点阵 */
-  grid-template-columns: auto 1fr;
-  /* 其余不动 */
+  /* 第一列自动撑满最长文件名，第二列占剩余 */
+  grid-template-columns: max-content 1fr;
   row-gap: .2em;
   column-gap: 1em;
   margin-top: 1rem;
 }
-
 
 .files > div {
   grid-column: 1 / -1;
