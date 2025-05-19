@@ -226,40 +226,55 @@ function renderCommitItems(slice, startIdx) {
 }
 
 /* ---------- 新增：Scrollytelling Items for Daily Work Summary ---------- */
+/* ---------- Scrollytelling Items for Daily Work Summary ---------- */
 function renderDailyItems(allCommits, slice, startIdx) {
+  // 对齐滚动位置
   d3.select('#items-container2')
     .style('transform', `translateY(${startIdx * ITEM_HEIGHT}px)`);
+
   d3.select('#items-container2').selectAll('div')
     .data(slice, d => d.id)
     .join('div')
       .attr('class','item2')
       .style('position','absolute')
       .style('top', (d,i) => `${i * ITEM_HEIGHT}px`)
-      .html(d => {
-        // 当天日期键
+      .html((d,i) => {
+        // 当天的唯一 key，如 "2025-05-18"
         const dayKey = d.datetime.toISOString().slice(0,10);
-        // 当天所有提交
+
+        // 如果和上一条 commit 同一天，就不渲染任何内容
+        if (i > 0 && slice[i-1].datetime.toISOString().slice(0,10) === dayKey) {
+          return '';
+        }
+
+        // 收集当天所有 commits
         const daily = allCommits.filter(c =>
           c.datetime.toISOString().slice(0,10) === dayKey
         );
-        // 工作时长：最晚 - 最早，小时
+
+        // 计算工作时长（最晚 - 最早）
         const times = daily.map(c => c.datetime.getTime());
         const hours = ((Math.max(...times) - Math.min(...times)) / 3600000).toFixed(1);
-        // 计算 CSS/JS/HTML 占比
-        const lines = daily.flatMap(c => c.lines);
+
+        // 计算 CSS/JS/HTML 各自的行数及百分比
+        const lines  = daily.flatMap(c => c.lines);
         const counts = d3.rollup(lines, v => v.length, l => l.type);
         const total  = d3.sum(counts.values());
-        const parts  = [];
-        if (hours > 0) parts.push(`Worked ${hours}h`);
+
+        // 组装输出片段
+        const parts = [];
+        parts.push(`Worked ${hours}h`);
         ['css','js','html'].forEach(t => {
           if (counts.has(t)) {
-            const pct = Math.round((counts.get(t)/total)*100);
+            const pct = Math.round(counts.get(t) / total * 100);
             parts.push(`${t.toUpperCase()} ${pct}%`);
           }
         });
+
         return `<p>${parts.join(' • ')}</p>`;
       });
 }
+
 
 // ======= 主程序 =======
 (async () => {
