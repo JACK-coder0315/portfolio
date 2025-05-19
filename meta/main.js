@@ -240,7 +240,7 @@ function renderItems(slice, startIdx) {
       .html(narrative);
 }
 
-/* ---------- 主程序 ---------- */
+// ======= 最下面的主程序部分 =======
 (async () => {
   const raw     = await loadData();
   const commits = processCommits(raw);
@@ -251,18 +251,41 @@ function renderItems(slice, startIdx) {
     .style('height', `${(commits.length-1)*ITEM_HEIGHT}px`);
 
   const scrollC = d3.select('#scroll-container');
+
   function update(idx) {
+    // 保证 idx 在合法范围
     idx = Math.max(0, Math.min(idx, commits.length - VISIBLE_COUNT));
     const slice = commits.slice(idx, idx + VISIBLE_COUNT);
+
+    // 渲染左侧故事、右侧图、底部文件
     renderItems(slice, idx);
     renderScatter(commits, slice);
     renderFiles(slice);
   }
 
-  scrollC.on('scroll.main', () => {
-    const idx = Math.floor(scrollC.property('scrollTop')/ITEM_HEIGHT);
+  // 监听滚动，除了 update 还要更新日期标签
+  scrollC.on('scroll', () => {
+    const scrollTop = scrollC.property('scrollTop');
+    const idx = Math.floor(scrollTop / ITEM_HEIGHT);
+
+    // 1) 更新可视化
     update(idx);
+
+    // 2) 更新 #scroll-date 的文字 & 位置
+    const d = commits[idx];
+    const dateText = d
+      ? d.datetime.toLocaleDateString('en-US', {
+          year : 'numeric',
+          month: 'short',
+          day  : 'numeric'
+        })
+      : '';
+    d3.select('#scroll-date')
+      .style('top', scrollTop + 'px')
+      .text(dateText);
   });
 
+  // 首次渲染
   update(0);
 })();
+

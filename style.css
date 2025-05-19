@@ -468,13 +468,13 @@ stats dd {
 }
 #scroll-date {
   position: absolute;
-  top: 0.5em;
-  right: 0.5em;        /* 往左偏一点，让位给滚动条 */
+  right: 4px;              /* 距离滚动条一点距离 */
+  top: 0;                   /* 初始放在最上面 */
+  padding: 2px 6px;
   background: rgba(0,0,0,0.6);
   color: white;
-  padding: 2px 6px;
+  font-size: 12px;
   border-radius: 4px;
-  font-size: 0.8em;
-  z-index: 1000;       /* 提升层级，盖过滚动条 */
-  pointer-events: none;
+  pointer-events: none;     /* 不拦截任何鼠标事件 */
+  white-space: nowrap;
 }
