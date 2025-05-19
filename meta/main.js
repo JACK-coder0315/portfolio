@@ -61,21 +61,28 @@ function renderSummary(data, commits) {
 }
 
 /* ---------- 渲染散点图 + 刷选 + Tooltip ---------- */
-function renderScatter(commits) {
+
+// 改动：renderScatter 接受两个参数 —— allCommits（全量） 和 slice（当前可见）
+function renderScatter(allCommits, slice) {
   const W=1000, H=600, m={top:10,right:10,bottom:30,left:40};
   const svg = d3.select('#chart').html('')
     .append('svg')
       .attr('viewBox',`0 0 ${W} ${H}`)
       .style('overflow','visible');
 
+  // x 轴用全量提交来计算 domain
   const x = d3.scaleTime()
-      .domain(d3.extent(commits,d=>d.datetime))
-      .range([m.left,W-m.right]).nice();
+      .domain(d3.extent(allCommits, d=>d.datetime))
+      .range([m.left,W-m.right])
+      .nice();
+
+  // y 和 r 也用全量
   const y = d3.scaleLinear()
       .domain([0,24])
       .range([H-m.bottom,m.top]);
+
   const r = d3.scaleSqrt()
-      .domain(d3.extent(commits,d=>d.totalLines))
+      .domain(d3.extent(allCommits, d=>d.totalLines))
       .range([3,20]);
 
   // 轴 & 网格
@@ -90,10 +97,10 @@ function renderScatter(commits) {
       .attr('transform',`translate(${m.left},0)`)
       .call(d3.axisLeft(y).tickFormat('').tickSize(-(W-m.left-m.right)));
 
-  // 数据点
+  // 数据点 —— 只画 slice 里的
   const dots = svg.append('g').attr('class','dots');
   dots.selectAll('circle')
-    .data(commits.slice().sort((a,b)=>b.totalLines-a.totalLines))
+    .data(slice.sort((a,b)=>b.totalLines-a.totalLines))
     .join('circle')
       .attr('cx', d=>x(d.datetime))
       .attr('cy', d=>y(d.hourFrac))
@@ -105,7 +112,6 @@ function renderScatter(commits) {
   const brush = d3.brush()
     .extent([[m.left,m.top],[W-m.right,H-m.bottom]])
     .on('start brush end', ({selection}) => {
-      // 标记选中状态
       dots.selectAll('circle')
         .classed('selected', d => {
           if (!selection) return false;
@@ -114,21 +120,18 @@ function renderScatter(commits) {
           return x0<=cx && cx<=x1 && y0<=cy && cy<=y1;
         });
 
-      // 筛出被选的 commits
-      const selectedCommits = commits.filter(d => {
+      const selectedCommits = allCommits.filter(d => {
         if (!selection) return false;
         const [[x0,y0],[x1,y1]] = selection;
         const cx = x(d.datetime), cy = y(d.hourFrac);
         return x0<=cx && cx<=x1 && y0<=cy && cy<=y1;
       });
 
-      // 更新文字计数
       d3.select('#selection-count')
         .text(selectedCommits.length
               ? `${selectedCommits.length} commits selected`
               : 'No commits selected');
 
-      // 只用选中的去刷新语言拆分和文件列表
       renderLanguageBreakdown(selectedCommits);
       renderFiles(selectedCommits);
     });
@@ -136,7 +139,7 @@ function renderScatter(commits) {
   svg.append('g').call(brush);
   svg.selectAll('.dots, .overlay ~ *').raise();
 
-  // 悬停提示
+  // Tooltip
   const tooltip = d3.select('#commit-tooltip');
   dots.selectAll('circle')
     .on('mouseenter', function(e,d){
@@ -240,7 +243,7 @@ function renderItems(slice, startIdx) {
     idx = Math.max(0, Math.min(idx, commits.length - VISIBLE_COUNT));
     const slice = commits.slice(idx, idx + VISIBLE_COUNT);
     renderItems(slice, idx);
-    renderScatter(slice);
+    renderScatter(commits, slice);     // ← 传入全量 + 切片
     renderFiles(slice);
   }
 
