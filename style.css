@@ -1,7 +1,9 @@
+/* 全局配色 */
 html {
   color-scheme: light dark;
 }
 
+/* 基本页面样式 */
 body {
   font-family: Arial, sans-serif;
   margin: 0;
@@ -9,6 +11,7 @@ body {
   background-color: #f4f4f4;
 }
 
+/* 顶部导航栏 */
 .nav {
   background-color: #4fa1fe;
   display: flex;
@@ -40,13 +43,14 @@ body {
   border-bottom: 2px solid white;
 }
 
-/* 标题 */
+/* 页面标题 */
 .page-title {
   text-align: center;
   font-size: 2.5rem;
   margin-top: 1em;
 }
 
+/* Pie 图及其图例（项目可视化） */
 .visualization-page .container {
   display: flex;
   align-items: center;
@@ -111,6 +115,7 @@ body {
   color: oklch(60% 45% 0);
 }
 
+/* 搜索栏 */
 .visualization-page .search-bar-container {
   display: flex;
   justify-content: center;
@@ -125,6 +130,7 @@ body {
   border-radius: 8px;
 }
 
+/* 项目卡片网格 */
 .visualization-page .projects-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
@@ -158,6 +164,7 @@ body {
   color: #666;
 }
 
+/* 主要内容区 */
 .main-content {
   max-width: 800px;
   margin: 2em auto;
@@ -167,6 +174,7 @@ body {
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
+/* 个人简介 */
 .profile-section {
   display: flex;
   flex-direction: column;
@@ -190,6 +198,7 @@ body {
   color: #333;
 }
 
+/* 统计摘要 */
 .stats {
   display: grid;
   grid-template-columns: auto 1fr;
@@ -205,7 +214,7 @@ stats dd {
   margin: 0;
 }
 
-/* 散点图网格线 */
+/* 散点图网格 */
 .gridlines line {
   stroke: #ddd;
   stroke-opacity: 0.7;
@@ -215,7 +224,7 @@ stats dd {
   display: none;
 }
 
-/* 刷选框 */
+/* 刷选框样式 */
 .selection {
   fill-opacity: 0.1;
   stroke: #333;
@@ -229,7 +238,7 @@ stats dd {
   }
 }
 
-/* Tooltip */
+/* 提示框 */
 #commit-tooltip[hidden] {
   display: none !important;
 }
@@ -250,7 +259,7 @@ stats dd {
   opacity: 1;
 }
 
-/* 选中统计区 */
+/* 语言拆分 & 统计区 */
 #selection-summary {
   display: flex;
   justify-content: center;
@@ -281,7 +290,7 @@ stats dd {
   text-align: center;
 }
 
-/* === 时间滑块：宽度 & 双色轨道 ==================================== */
+/* 时间滑块（如果有） */
 #time-filter {
   max-width: 800px;
   margin: 0 auto;
@@ -341,6 +350,7 @@ stats dd {
   margin-top: -3px;
 }
 
+/* 文件列表可视化 */
 .files {
   display: grid;
   /* 第一列自动撑满最长文件名，第二列占剩余 */
@@ -386,19 +396,19 @@ stats dd {
   border-radius: 50%;
 }
 
-/* 让页面更宽一些 */
+/* 页面主宽度限制 */
 :global(body) {
   max-width: min(120ch, 80vw);
 }
 
-/* ===== scrollytelling 布局 ===== */
+/* Scrollytelling 布局 */
 #scrollytelling {
   grid-column: 1 / -1;
   display: grid;
   grid-template-columns: subgrid;
 }
 
-/* 左侧滚动框 */
+/* 左侧滚动区 */
 #scroll-container {
   grid-column: 1;
   position: relative;
@@ -409,12 +419,25 @@ stats dd {
   margin-bottom: 50px;
 }
 
-/* 右侧散点图列 */
+/* ✏️ 新增：滚动条旁的日期标签 */
+#scroll-date {
+  position: absolute;
+  right: 0;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 0.8em;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+/* 右侧散点图 */
 #chart {
   grid-column: 2;
 }
 
-/* spacer = 占位高度，透明即可 */
+/* spacer 占位 */
 #spacer {
   position: absolute;
   inset: 0 auto auto 0;
@@ -423,7 +446,7 @@ stats dd {
   pointer-events: none;
 }
 
-/* items 容器绝对定位 */
+/* items 容器 */
 #items-container {
   position: absolute;
   top: 0;

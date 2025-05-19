@@ -60,9 +60,7 @@ function renderSummary(data, commits) {
   add('Longest Line', d3.max(data,d=>d.length));
 }
 
-/* ---------- 渲染散点图 + 刷选 + Tooltip ---------- */
-
-// 改动：renderScatter 接受两个参数 —— allCommits（全量） 和 slice（当前可见）
+/* ---------- 渲染散点图 + 刷选 + Tooltip + 滚动日期标签 ---------- */
 function renderScatter(allCommits, slice) {
   const W=1000, H=600, m={top:10,right:10,bottom:30,left:40};
   const svg = d3.select('#chart').html('')
@@ -70,22 +68,18 @@ function renderScatter(allCommits, slice) {
       .attr('viewBox',`0 0 ${W} ${H}`)
       .style('overflow','visible');
 
-  // x 轴用全量提交来计算 domain
+  // 1) x/y/r 轴度量都用 allCommits
   const x = d3.scaleTime()
       .domain(d3.extent(allCommits, d=>d.datetime))
-      .range([m.left,W-m.right])
-      .nice();
-
-  // y 和 r 也用全量
+      .range([m.left, W-m.right]).nice();
   const y = d3.scaleLinear()
       .domain([0,24])
-      .range([H-m.bottom,m.top]);
-
+      .range([H-m.bottom, m.top]);
   const r = d3.scaleSqrt()
       .domain(d3.extent(allCommits, d=>d.totalLines))
       .range([3,20]);
 
-  // 轴 & 网格
+  // 2) 画轴 & 网格
   svg.append('g')
       .attr('transform',`translate(0,${H-m.bottom})`)
       .call(d3.axisBottom(x));
@@ -97,10 +91,10 @@ function renderScatter(allCommits, slice) {
       .attr('transform',`translate(${m.left},0)`)
       .call(d3.axisLeft(y).tickFormat('').tickSize(-(W-m.left-m.right)));
 
-  // 数据点 —— 只画 slice 里的
+  // 3) 数据点 —— 只渲染当前 slice 中的
   const dots = svg.append('g').attr('class','dots');
   dots.selectAll('circle')
-    .data(slice.sort((a,b)=>b.totalLines-a.totalLines))
+    .data(slice.slice().sort((a,b)=>b.totalLines-a.totalLines))
     .join('circle')
       .attr('cx', d=>x(d.datetime))
       .attr('cy', d=>y(d.hourFrac))
@@ -108,7 +102,7 @@ function renderScatter(allCommits, slice) {
       .attr('fill','steelblue')
       .attr('fill-opacity',0.7);
 
-  // 刷选
+  // 4) 刷选
   const brush = d3.brush()
     .extent([[m.left,m.top],[W-m.right,H-m.bottom]])
     .on('start brush end', ({selection}) => {
@@ -139,7 +133,7 @@ function renderScatter(allCommits, slice) {
   svg.append('g').call(brush);
   svg.selectAll('.dots, .overlay ~ *').raise();
 
-  // Tooltip
+  // 5) Tooltip
   const tooltip = d3.select('#commit-tooltip');
   dots.selectAll('circle')
     .on('mouseenter', function(e,d){
@@ -168,6 +162,24 @@ function renderScatter(allCommits, slice) {
       d3.select(this).attr('fill-opacity',0.7);
       tooltip.classed('visible', false);
     });
+
+  // ✏️ 新增：滚动条旁日期标签的更新
+  const scrollDate = d3.select('#scroll-date');
+  const scrollC    = d3.select('#scroll-container');
+  scrollC.on('scroll.date', () => {
+    const scrollTop = scrollC.property('scrollTop');
+    const idx = Math.floor(scrollTop / ITEM_HEIGHT);
+    const dateStr = allCommits[idx]
+      ? allCommits[idx].datetime.toLocaleDateString('en-US', {
+          year : 'numeric',
+          month: 'short',
+          day  : 'numeric'
+        })
+      : '';
+    scrollDate
+      .style('top', scrollTop + 'px')
+      .text(dateStr);
+  });
 }
 
 /* ---------- 渲染语言细分 ---------- */
@@ -243,11 +255,11 @@ function renderItems(slice, startIdx) {
     idx = Math.max(0, Math.min(idx, commits.length - VISIBLE_COUNT));
     const slice = commits.slice(idx, idx + VISIBLE_COUNT);
     renderItems(slice, idx);
-    renderScatter(commits, slice);     // ← 传入全量 + 切片
+    renderScatter(commits, slice);
     renderFiles(slice);
   }
 
-  scrollC.on('scroll', () => {
+  scrollC.on('scroll.main', () => {
     const idx = Math.floor(scrollC.property('scrollTop')/ITEM_HEIGHT);
     update(idx);
   });
