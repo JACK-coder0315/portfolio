@@ -46,18 +46,21 @@ function renderSummary(data, commits) {
   add('Average Depth', d3.mean(data, d => d.depth).toFixed(1));
   add('Maximum Depth', d3.max(data, d => d.depth));
   add('Number Of Files', d3.groups(data, d => d.file).length);
+
   const byFile = d3.rollups(data, v => v.length, d => d.file).map(d => d[1]);
   add('Average File Length (In Lines)', d3.mean(byFile).toFixed(0));
+
   const hourCounts = d3.rollup(commits, v => v.length, d => d.datetime.getHours());
   const peakHour   = d3.greatest(hourCounts, d => d[1])[0];
   add('Peak Work Time', peakHour >= 18 || peakHour < 6 ? 'At Night' : 'Daytime');
+
   add('Longest Line', d3.max(data, d => d.length));
 }
 
 /* ---------- Tooltip ---------- */
 function showTip(d, e) {
-  d3.select('#tip-id'   ).text(d.id.slice(0, 7));
-  d3.select('#tip-date' ).text(
+  d3.select('#tip-id').text(d.id.slice(0, 7));
+  d3.select('#tip-date').text(
     d.datetime.toLocaleDateString('en-US', {
       weekday : 'long',
       year    : 'numeric',
@@ -65,14 +68,14 @@ function showTip(d, e) {
       day     : 'numeric'
     })
   );
-  d3.select('#tip-time' ).text(
+  d3.select('#tip-time').text(
     d.datetime.toLocaleTimeString('en-US', {
       hour   : 'numeric',
       minute : '2-digit'
     })
   );
   d3.select('#tip-author').text(d.author);
-  d3.select('#tip-lines' ).text(d.totalLines);
+  d3.select('#tip-lines').text(d.totalLines);
 
   d3.select('#commit-tooltip')
     .style('left', e.clientX + 10 + 'px')
@@ -205,8 +208,11 @@ function renderItems(slice, startIdx) {
 
 /* ---------- 主程序 ---------- */
 (async () => {
-  const raw     = await loadData();
-  const commits = processCommits(raw);
+  const raw = await loadData();
+  let commits = processCommits(raw);
+
+  // ★ 在这里按时间升序排序（由早到晚）
+  commits = commits.sort((a, b) => a.datetime - b.datetime);
 
   renderSummary(raw, commits);
 
