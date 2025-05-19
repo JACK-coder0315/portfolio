@@ -261,33 +261,44 @@ function renderDailyItems(allCommits, slice, startIdx) {
       });
 }
 
-/* ---------- 主程序 ---------- */
+// ======= 主程序 =======
 (async () => {
   const raw     = await loadData();
   const commits = processCommits(raw);
 
   renderSummary(raw, commits);
 
-  // 为两个滚动区撑高度
+  // 给两个滚动区撑高度
   d3.select('#spacer1')
     .style('height', `${(commits.length - 1) * ITEM_HEIGHT}px`);
   d3.select('#spacer2')
     .style('height', `${(commits.length - 1) * ITEM_HEIGHT}px`);
 
-  // 更新函数：同时刷新两个滚动框
+  // 更新函数：同时渲染两块
   function update(idx) {
     const slice = commits.slice(idx, idx + VISIBLE_COUNT);
-    renderCommitItems(slice, idx);
+    renderCommitItems(slice, idx);          // 对 #items-container1
     renderScatter(commits, slice);
     renderFiles(slice);
-    renderDailyItems(commits, slice, idx);
+    renderDailyItems(commits, slice, idx);  // 对 #items-container2
   }
 
-  // 监听第一个滚动区滚动
+  // **只监听** 第一个滚动区，id 要改成 scroll-container1 **
   d3.select('#scroll-container1')
     .on('scroll', () => {
-      const idx = Math.floor(d3.select('#scroll-container1').property('scrollTop') / ITEM_HEIGHT);
+      const scrollTop = d3.select('#scroll-container1').property('scrollTop');
+      const idx       = Math.floor(scrollTop / ITEM_HEIGHT);
       update(idx);
+
+      // 滚动日期标签也同步用 scroll-container1
+      const dateText = commits[idx]
+        ? commits[idx].datetime.toLocaleDateString('en-US', {
+            year : 'numeric', month: 'short', day: 'numeric'
+          })
+        : '';
+      d3.select('#scroll-date')
+        .style('top', scrollTop + 'px')
+        .text(dateText);
     });
 
   // 首次渲染

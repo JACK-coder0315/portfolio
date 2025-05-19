@@ -360,7 +360,7 @@ stats dd {
   margin-top: 1rem;
 }
 
-.files > div {
+.files>div {
   grid-column: 1 / -1;
   display: grid;
   grid-template-columns: subgrid;
@@ -464,24 +464,30 @@ stats dd {
 
 /* 确保日期标签总是在滚动条之上，靠右但不被遮挡 */
 #scroll-container {
-  position: relative; /* 已经有，不用重复 */
+  position: relative;
+  /* 已经有，不用重复 */
 }
+
 #scroll-date {
   position: absolute;
-  right: 4px;              /* 距离滚动条一点距离 */
-  top: 0;                   /* 初始放在最上面 */
+  right: 4px;
+  /* 距离滚动条一点距离 */
+  top: 0;
+  /* 初始放在最上面 */
   padding: 2px 6px;
-  background: rgba(0,0,0,0.6);
+  background: rgba(0, 0, 0, 0.6);
   color: white;
   font-size: 12px;
   border-radius: 4px;
-  pointer-events: none;     /* 不拦截任何鼠标事件 */
+  pointer-events: none;
+  /* 不拦截任何鼠标事件 */
   white-space: nowrap;
 }
 
 #daily-scrollytelling {
   margin-top: 1em;
 }
+
 #scroll-container2 {
   grid-column: 1;
   position: relative;
@@ -491,17 +497,21 @@ stats dd {
   border: 1px solid #ccc;
   margin-bottom: 50px;
 }
+
 #spacer2 {
   position: absolute;
   inset: 0 auto auto 0;
   width: 100%;
   pointer-events: none;
 }
+
 #items-container2 {
   position: absolute;
-  top: 0; left: 0;
+  top: 0;
+  left: 0;
   width: 100%;
 }
+
 .item2 {
   height: 100px;
   padding: 10px;
@@ -510,4 +520,21 @@ stats dd {
   font-size: 0.9em;
   line-height: 1.2;
   color: #333;
+}
+
+/* Commits 滚动区 */
+#scroll-container1 {
+  position: relative;
+  width: 95%;
+  height: 350px;
+  overflow-y: scroll;
+  border: 1px solid #ccc;
+  margin-bottom: 1em;
+}
+
+#spacer1 {
+  position: absolute;
+  inset: 0 auto auto 0;
+  width: 100%;
+  pointer-events: none;
 }
