@@ -1,7 +1,7 @@
 import * as d3 from 'https://cdn.jsdelivr.net/npm/d3@7.9.0/+esm';
 
 /* ---------- 常量 ---------- */
-const ITEM_HEIGHT = 60;
+const ITEM_HEIGHT = 100;
 const VISIBLE_COUNT = 10;
 const fileTypeColors = d3.scaleOrdinal(d3.schemeTableau10);
 
