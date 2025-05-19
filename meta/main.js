@@ -230,12 +230,17 @@ function renderItems(slice, startIdx) {
   const raw     = await loadData();
   const commits = processCommits(raw);
 
+  // —— 计算时间范围，用于滚动条旁日期映射
+  const minDate = d3.min(commits, d => d.datetime).getTime();
+  const maxDate = d3.max(commits, d => d.datetime).getTime();
+
   renderSummary(raw, commits);
 
   d3.select('#spacer')
     .style('height', `${(commits.length-1)*ITEM_HEIGHT}px`);
 
   const scrollC = d3.select('#scroll-container');
+
   function update(idx) {
     idx = Math.max(0, Math.min(idx, commits.length - VISIBLE_COUNT));
     const slice = commits.slice(idx, idx + VISIBLE_COUNT);
@@ -245,7 +250,19 @@ function renderItems(slice, startIdx) {
   }
 
   scrollC.on('scroll', () => {
-    const idx = Math.floor(scrollC.property('scrollTop')/ITEM_HEIGHT);
+    const st   = scrollC.property('scrollTop');
+    const sh   = scrollC.node().scrollHeight - scrollC.node().clientHeight;
+    const frac = sh > 0 ? st / sh : 0;
+    const t    = minDate + frac * (maxDate - minDate);
+    const d    = new Date(t);
+    const fmt  = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+
+    // 更新滚动日期标签
+    d3.select('#scroll-date-label')
+      .style('top', st + 'px')
+      .text(fmt);
+
+    const idx = Math.floor(st / ITEM_HEIGHT);
     update(idx);
   });
 

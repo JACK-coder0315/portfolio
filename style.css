@@ -281,7 +281,7 @@ stats dd {
   text-align: center;
 }
 
-/* === 时间滑块：宽度 & 双色轨道 ==================================== */
+/* 时间滑块相关 */
 #time-filter {
   max-width: 800px;
   margin: 0 auto;
@@ -341,6 +341,7 @@ stats dd {
   margin-top: -3px;
 }
 
+/* 文件列表 */
 .files {
   display: grid;
   /* 第一列自动撑满最长文件名，第二列占剩余 */
@@ -386,19 +387,18 @@ stats dd {
   border-radius: 50%;
 }
 
-/* 让页面更宽一些 */
+/* 页面宽度控制 */
 :global(body) {
   max-width: min(120ch, 80vw);
 }
 
-/* ===== scrollytelling 布局 ===== */
+/* Scrollytelling 布局 */
 #scrollytelling {
   grid-column: 1 / -1;
   display: grid;
   grid-template-columns: subgrid;
 }
 
-/* 左侧滚动框 */
 #scroll-container {
   grid-column: 1;
   position: relative;
@@ -409,12 +409,24 @@ stats dd {
   margin-bottom: 50px;
 }
 
-/* 右侧散点图列 */
+/* 滚动条日期标签 */
+#scroll-date-label {
+  position: absolute;
+  right: -70px;
+  top: 0;
+  padding: 2px 6px;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  border-radius: 4px;
+  font-size: 0.85em;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
 #chart {
   grid-column: 2;
 }
 
-/* spacer = 占位高度，透明即可 */
 #spacer {
   position: absolute;
   inset: 0 auto auto 0;
@@ -423,7 +435,6 @@ stats dd {
   pointer-events: none;
 }
 
-/* items 容器绝对定位 */
 #items-container {
   position: absolute;
   top: 0;
@@ -431,7 +442,6 @@ stats dd {
   width: 100%;
 }
 
-/* 单条 story */
 .item {
   height: 100px;
   padding: 10px;
