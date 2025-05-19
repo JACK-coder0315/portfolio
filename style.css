@@ -479,3 +479,35 @@ stats dd {
   white-space: nowrap;
 }
 
+#daily-scrollytelling {
+  margin-top: 1em;
+}
+#scroll-container2 {
+  grid-column: 1;
+  position: relative;
+  width: 95%;
+  height: 350px;
+  overflow-y: scroll;
+  border: 1px solid #ccc;
+  margin-bottom: 50px;
+}
+#spacer2 {
+  position: absolute;
+  inset: 0 auto auto 0;
+  width: 100%;
+  pointer-events: none;
+}
+#items-container2 {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+}
+.item2 {
+  height: 100px;
+  padding: 10px;
+  box-sizing: border-box;
+  border-bottom: 2px solid #eee;
+  font-size: 0.9em;
+  line-height: 1.2;
+  color: #333;
+}

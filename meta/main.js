@@ -1,7 +1,7 @@
 import * as d3 from 'https://cdn.jsdelivr.net/npm/d3@7.9.0/+esm';
 
 /* ---------- 常量 ---------- */
-const ITEM_HEIGHT = 100;   // 与 .css 中 .item { height: 100px; } 保持一致
+const ITEM_HEIGHT   = 100;   // 与 CSS 中 .item/.item2 { height:100px } 保持一致
 const VISIBLE_COUNT = 10;
 const fileTypeColors = d3.scaleOrdinal(d3.schemeTableau10);
 
@@ -60,7 +60,7 @@ function renderSummary(data, commits) {
   add('Longest Line', d3.max(data, d => d.length));
 }
 
-/* ---------- 渲染散点图 + 刷选 + Tooltip + 滚动日期标签 ---------- */
+/* ---------- 渲染散点图 + 刷选 + Tooltip ---------- */
 function renderScatter(allCommits, slice) {
   const W = 1000, H = 600, m = { top: 10, right: 10, bottom: 30, left: 40 };
   const svg = d3.select('#chart').html('')
@@ -68,7 +68,7 @@ function renderScatter(allCommits, slice) {
       .attr('viewBox', `0 0 ${W} ${H}`)
       .style('overflow', 'visible');
 
-  // 1) x/y/r 轴度量都用 allCommits
+  // x/y/r 轴度量都用全量 commits
   const x = d3.scaleTime()
       .domain(d3.extent(allCommits, d => d.datetime))
       .range([m.left, W - m.right]).nice();
@@ -79,7 +79,7 @@ function renderScatter(allCommits, slice) {
       .domain(d3.extent(allCommits, d => d.totalLines))
       .range([3, 20]);
 
-  // 2) 画轴 & 网格
+  // 画轴 & 网格
   svg.append('g')
       .attr('transform', `translate(0,${H - m.bottom})`)
       .call(d3.axisBottom(x));
@@ -91,7 +91,7 @@ function renderScatter(allCommits, slice) {
       .attr('transform', `translate(${m.left},0)`)
       .call(d3.axisLeft(y).tickFormat('').tickSize(-(W - m.left - m.right)));
 
-  // 3) 数据点 —— 只渲染当前 slice
+  // 渲染切片 slice 中的点
   const dots = svg.append('g').attr('class', 'dots');
   dots.selectAll('circle')
     .data(slice.slice().sort((a, b) => b.totalLines - a.totalLines))
@@ -102,7 +102,7 @@ function renderScatter(allCommits, slice) {
       .attr('fill', 'steelblue')
       .attr('fill-opacity', 0.7);
 
-  // 4) 刷选
+  // 刷选
   const brush = d3.brush()
     .extent([[m.left, m.top], [W - m.right, H - m.bottom]])
     .on('start brush end', ({ selection }) => {
@@ -133,7 +133,7 @@ function renderScatter(allCommits, slice) {
   svg.append('g').call(brush);
   svg.selectAll('.dots, .overlay ~ *').raise();
 
-  // 5) Tooltip
+  // Tooltip
   const tooltip = d3.select('#commit-tooltip');
   dots.selectAll('circle')
     .on('mouseenter', function(e, d) {
@@ -154,8 +154,8 @@ function renderScatter(allCommits, slice) {
 
       tooltip
         .classed('visible', true)
-        .style('left',  (e.clientX + 10) + 'px')
-        .style('top',   (e.clientY + 10) + 'px');
+        .style('left', (e.clientX + 10) + 'px')
+        .style('top',  (e.clientY + 10) + 'px');
     })
     .on('mousemove', function(e) {
       tooltip
@@ -166,22 +166,6 @@ function renderScatter(allCommits, slice) {
       d3.select(this).attr('fill-opacity', 0.7);
       tooltip.classed('visible', false);
     });
-
-  // 6) 新增：滚动条旁日期标签的更新
-  const scrollDate = d3.select('#scroll-date');
-  const scrollC    = d3.select('#scroll-container');
-  scrollC.on('scroll.date', () => {
-    const scrollTop = scrollC.property('scrollTop');
-    const idx       = Math.floor(scrollTop / ITEM_HEIGHT);
-    const dateStr   = allCommits[idx]
-      ? allCommits[idx].datetime.toLocaleDateString('en-US', {
-          year : 'numeric', month: 'short', day  : 'numeric'
-        })
-      : '';
-    scrollDate
-      .style('top', scrollTop + 'px')
-      .text(dateStr);
-  });
 }
 
 /* ---------- 渲染语言细分 ---------- */
@@ -221,25 +205,60 @@ function renderFiles(commits) {
       .style('background', d => fileTypeColors(d.type));
 }
 
-/* ---------- Scrollytelling Items ---------- */
-function narrative(c) {
+/* ---------- Scrollytelling Items for Commits ---------- */
+function narrativeCommit(c) {
   const dateStr  = c.datetime.toLocaleString('en', { dateStyle: 'full', timeStyle: 'short' });
   const linkText = c.idx
     ? 'another glorious commit'
     : 'my first commit, and it was glorious';
   return `<p>On ${dateStr}, I made <a href="${c.url}" target="_blank">${linkText}</a>. I edited <b>${c.totalLines}</b> lines.</p>`;
 }
-
-function renderItems(slice, startIdx) {
-  d3.select('#items-container')
+function renderCommitItems(slice, startIdx) {
+  d3.select('#items-container1')
     .style('transform', `translateY(${startIdx * ITEM_HEIGHT}px)`);
-  d3.select('#items-container').selectAll('div')
+  d3.select('#items-container1').selectAll('div')
     .data(slice, d => d.id)
     .join('div')
-      .attr('class', 'item')
-      .style('position', 'absolute')
-      .style('top',     (d,i) => `${i * ITEM_HEIGHT}px`)
-      .html(narrative);
+      .attr('class','item')
+      .style('position','absolute')
+      .style('top',   (d,i) => `${i * ITEM_HEIGHT}px`)
+      .html(narrativeCommit);
+}
+
+/* ---------- 新增：Scrollytelling Items for Daily Work Summary ---------- */
+function renderDailyItems(allCommits, slice, startIdx) {
+  d3.select('#items-container2')
+    .style('transform', `translateY(${startIdx * ITEM_HEIGHT}px)`);
+  d3.select('#items-container2').selectAll('div')
+    .data(slice, d => d.id)
+    .join('div')
+      .attr('class','item2')
+      .style('position','absolute')
+      .style('top', (d,i) => `${i * ITEM_HEIGHT}px`)
+      .html(d => {
+        // 当天日期键
+        const dayKey = d.datetime.toISOString().slice(0,10);
+        // 当天所有提交
+        const daily = allCommits.filter(c =>
+          c.datetime.toISOString().slice(0,10) === dayKey
+        );
+        // 工作时长：最晚 - 最早，小时
+        const times = daily.map(c => c.datetime.getTime());
+        const hours = ((Math.max(...times) - Math.min(...times)) / 3600000).toFixed(1);
+        // 计算 CSS/JS/HTML 占比
+        const lines = daily.flatMap(c => c.lines);
+        const counts = d3.rollup(lines, v => v.length, l => l.type);
+        const total  = d3.sum(counts.values());
+        const parts  = [];
+        if (hours > 0) parts.push(`Worked ${hours}h`);
+        ['css','js','html'].forEach(t => {
+          if (counts.has(t)) {
+            const pct = Math.round((counts.get(t)/total)*100);
+            parts.push(`${t.toUpperCase()} ${pct}%`);
+          }
+        });
+        return `<p>${parts.join(' • ')}</p>`;
+      });
 }
 
 /* ---------- 主程序 ---------- */
@@ -249,34 +268,28 @@ function renderItems(slice, startIdx) {
 
   renderSummary(raw, commits);
 
-  d3.select('#spacer')
+  // 为两个滚动区撑高度
+  d3.select('#spacer1')
+    .style('height', `${(commits.length - 1) * ITEM_HEIGHT}px`);
+  d3.select('#spacer2')
     .style('height', `${(commits.length - 1) * ITEM_HEIGHT}px`);
 
-  const scrollC = d3.select('#scroll-container');
-
+  // 更新函数：同时刷新两个滚动框
   function update(idx) {
-    idx = Math.max(0, Math.min(idx, commits.length - VISIBLE_COUNT));
     const slice = commits.slice(idx, idx + VISIBLE_COUNT);
-    renderItems(slice, idx);
+    renderCommitItems(slice, idx);
     renderScatter(commits, slice);
     renderFiles(slice);
+    renderDailyItems(commits, slice, idx);
   }
 
-  scrollC.on('scroll', () => {
-    const scrollTop = scrollC.property('scrollTop');
-    const idx       = Math.floor(scrollTop / ITEM_HEIGHT);
-    update(idx);
+  // 监听第一个滚动区滚动
+  d3.select('#scroll-container1')
+    .on('scroll', () => {
+      const idx = Math.floor(d3.select('#scroll-container1').property('scrollTop') / ITEM_HEIGHT);
+      update(idx);
+    });
 
-    // 同步更新 #scroll-date 文字
-    const dateText = commits[idx]
-      ? commits[idx].datetime.toLocaleDateString('en-US', {
-          year : 'numeric', month: 'short', day: 'numeric'
-        })
-      : '';
-    d3.select('#scroll-date')
-      .style('top', scrollTop + 'px')
-      .text(dateText);
-  });
-
+  // 首次渲染
   update(0);
 })();
