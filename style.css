@@ -229,7 +229,40 @@ stats dd {
   }
 }
 
-/* 时间滑块 */
+/* 工具提示覆盖 hidden */
+#commit-tooltip[hidden] {
+  display: none !important;
+}
+
+#commit-tooltip {
+  position: fixed;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  padding: 0.5em;
+  border-radius: 4px;
+  font-size: 0.9em;
+  pointer-events: none;
+  z-index: 1001;
+}
+
+#commit-tooltip.visible {
+  display: block !important;
+  opacity: 1;
+}
+
+/* 圆点交互 */
+.dots circle {
+  transition: transform 0.2s;
+  transform-origin: center;
+  transform-box: fill-box;
+}
+
+.dots circle.selected {
+  stroke: #f66;
+  stroke-width: 2px;
+}
+
+/* === 时间滑块：宽度 & 双色轨道 ==================================== */
 #time-filter {
   max-width: 800px;
   margin: 0 auto;
@@ -256,7 +289,7 @@ stats dd {
     linear-gradient(#1e74ff, #1e74ff),
     linear-gradient(#d3d3d3, #d3d3d3);
   background-size:
-    calc((var(--value) - var(--min))/(var(--max) - var(--min))*100%) 100%,
+    calc((var(--value)-var(--min))/(var(--max)-var(--min))*100%) 100%,
     100% 100%;
   background-repeat: no-repeat;
 }
@@ -291,13 +324,13 @@ stats dd {
 
 .files {
   display: grid;
-  grid-template-columns: 1fr auto;
+  grid-template-columns: auto 1fr;
   row-gap: .2em;
   column-gap: 1em;
   margin-top: 1rem;
 }
 
-.files > div {
+.files>div {
   grid-column: 1 / -1;
   display: grid;
   grid-template-columns: subgrid;
@@ -333,12 +366,11 @@ stats dd {
   border-radius: 50%;
 }
 
-/* 让页面更宽一些 */
 :global(body) {
   max-width: min(120ch, 80vw);
 }
 
-/* Scrollytelling 布局 */
+/* ===== scrollytelling 布局 ===== */
 #scrollytelling {
   grid-column: 1 / -1;
   display: grid;
@@ -357,7 +389,6 @@ stats dd {
 
 #chart {
   grid-column: 2;
-  position: relative; /* 新增：让 tooltip 绝对定位相对于此 */
 }
 
 #spacer {
@@ -380,21 +411,4 @@ stats dd {
   padding: 10px;
   box-sizing: border-box;
   border-bottom: 2px solid #eee;
-}
-
-/* Tooltip 本体 */
-#commit-tooltip {
-  position: absolute;
-  display: none;       /* 默认隐藏 */
-  background: rgba(255,255,255,0.9);
-  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-  padding: 0.5em;
-  border-radius: 4px;
-  font-size: 0.9em;
-  pointer-events: none;
-  z-index: 10;
-}
-
-#commit-tooltip.visible {
-  display: block;
 }
