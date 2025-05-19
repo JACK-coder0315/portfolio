@@ -55,7 +55,7 @@ function renderSummary(data, commits) {
 
   const hourCounts = d3.rollup(commits, v=>v.length, c=>c.datetime.getHours());
   const peakHour   = d3.greatest(hourCounts, d=>d[1])[0];
-  add('Peak Work Time', peakHour>=18||peakHour<6 ? 'At Night' : 'Daytime');
+  add('Peak Work Time', peakHour>=18||peakHour<6 ? 'At Night':'Daytime');
 
   add('Longest Line', d3.max(data, d=>d.length));
 }
@@ -227,7 +227,6 @@ function renderFiles(commits) {
 
 /* ---------- 渲染 “每日工作汇总” ---------- */
 function renderDailyItems(uniqueDays, allCommits) {
-  // 先撑高 spacer2
   d3.select('#spacer2')
     .style('height', `${uniqueDays.length * ITEM_HEIGHT}px`);
 
@@ -242,18 +241,14 @@ function renderDailyItems(uniqueDays, allCommits) {
         const dateStr = d0.toLocaleDateString('en-US',{
           weekday:'long',year:'numeric',month:'long',day:'numeric'
         });
-        // 当天所有 commits
         const daily = allCommits.filter(c=>
           c.datetime.toISOString().slice(0,10) === dayKey
         );
-        // 计算工作时长
         const times = daily.map(c=>c.datetime.getTime());
         let hours = (Math.max(...times) - Math.min(...times))/3600000;
-        // 小于 1h 用分钟
         const timeStr = hours < 1
           ? `${Math.round(hours*60)}m`
           : `${hours.toFixed(1)}h`;
-        // 各语言占比
         const lines  = daily.flatMap(c=>c.lines);
         const counts = d3.rollup(lines, v=>v.length, l=>l.type);
         const total  = d3.sum(counts.values());
@@ -288,6 +283,15 @@ function renderDailyItems(uniqueDays, allCommits) {
   renderFiles(initialSlice);
   renderDailyItems(uniqueDays, commits);
 
+  // —— 新增：首次把 #scroll-date 设为第一条日期 —— 
+  d3.select('#scroll-date')
+    .style('top','0px')
+    .text(
+      commits[0]
+        .datetime
+        .toLocaleDateString('en-US',{ weekday:'long',year:'numeric',month:'long',day:'numeric' })
+    );
+
   // 4) 同步滚动：当 scroll-container1 滚动
   d3.select('#scroll-container1')
     .on('scroll', function() {
@@ -303,5 +307,13 @@ function renderDailyItems(uniqueDays, allCommits) {
       const dayIdx = uniqueDays.indexOf(dayKey);
       d3.select('#scroll-container2')
         .property('scrollTop', dayIdx * ITEM_HEIGHT);
+
+      // —— 新增：更新第一个滚动区旁的日期浮层 —— 
+      const dateStr = commits[idx]
+        .datetime
+        .toLocaleDateString('en-US',{ weekday:'long',year:'numeric',month:'long',day:'numeric' });
+      d3.select('#scroll-date')
+        .style('top', this.scrollTop + 'px')
+        .text(dateStr);
     });
 })();
