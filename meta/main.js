@@ -289,7 +289,7 @@ function renderDailyItems(uniqueDays, allCommits) {
   renderDailyItems(uniqueDays, commits);
 
   // 4) 同步滚动：当 scroll-container1 滚动
-  d3.select('#scroll-container1')
+ d3.select('#scroll-container')
     .on('scroll', function() {
       const idx = Math.floor(this.scrollTop / ITEM_HEIGHT);
       const slice = commits.slice(idx, idx + VISIBLE_COUNT);
