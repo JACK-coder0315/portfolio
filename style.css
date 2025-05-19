@@ -229,82 +229,29 @@ stats dd {
   }
 }
 
-/* 工具提示覆盖 hidden */
-#commit-tooltip[hidden] {
-  display: block !important;
-  /* 强制覆盖浏览器 default hidden */
-  opacity: 0;
-  visibility: hidden;
-}
-
-#commit-tooltip:not([hidden]) {
-  display: block !important;
-  opacity: 1;
-  visibility: visible;
-}
-
-dl.info.tooltip {
-  position: fixed;
-  top: 1em;
-  left: 1em;
-  background: rgba(255, 255, 255, 0.9);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-  padding: 0.5em;
-  border-radius: 4px;
-  transition: opacity 0.2s;
-  font-size: 0.9em;
-  z-index: 1001;
-  /* 提示框置顶 */
-}
-
-/* 圆点交互 */
-.dots circle {
-  transition: transform 0.2s;
-  transform-origin: center;
-  transform-box: fill-box;
-}
-
-.dots circle.selected {
-  stroke: #f66;
-  stroke-width: 2px;
-}
-
-/* === 时间滑块：宽度 & 双色轨道 ==================================== */
+/* 时间滑块 */
 #time-filter {
-  /* 整块容器 */
   max-width: 800px;
-  /* 想再长就调大，例如 900px */
   margin: 0 auto;
-  /* 居中，可按需改成 left/right 对齐 */
   display: flex;
   align-items: baseline;
 }
 
 #time-filter label {
-  /* 让 label 保持最小宽度 */
   white-space: nowrap;
 }
 
 #time-slider {
-  /* 布局——占据 label 与 time 之间所有剩余空间 */
   flex: 1 1 auto;
   margin: 0 0.75rem;
-  /* 左右各留 12px */
-
-  /* 去系统默认样式 */
   appearance: none;
   height: 6px;
   background: transparent;
-  /* 轨道由渐变生成 */
   cursor: pointer;
   border-radius: 3px;
-
-  /* CSS 变量：min max value 用来算蓝色比例 */
   --min: 0;
   --max: 100;
   --value: 100;
-
-  /* 双色轨道。第一条蓝，第二条灰，靠 background-size 控制覆盖宽度 */
   background-image:
     linear-gradient(#1e74ff, #1e74ff),
     linear-gradient(#d3d3d3, #d3d3d3);
@@ -314,18 +261,15 @@ dl.info.tooltip {
   background-repeat: no-repeat;
 }
 
-/* WebKit（Chrome/Edge/Safari）轨道 */
 #time-slider::-webkit-slider-runnable-track {
   height: 6px;
 }
 
-/* Firefox 轨道 */
 #time-slider::-moz-range-track {
   height: 6px;
   background: transparent;
 }
 
-/* WebKit 系浏览器（Chrome / Edge / Safari）*/
 #time-slider::-webkit-slider-thumb {
   appearance: none;
   width: 12px;
@@ -333,11 +277,9 @@ dl.info.tooltip {
   border-radius: 50%;
   background: #1e74ff;
   border: none;
-  /* ↓↓↓ 关键行：向上提 3px */
   margin-top: -3px;
 }
 
-/* Firefox */
 #time-slider::-moz-range-thumb {
   width: 12px;
   height: 12px;
@@ -345,13 +287,11 @@ dl.info.tooltip {
   background: #1e74ff;
   border: none;
   margin-top: -3px;
-  /* 同样上移 */
 }
 
 .files {
   display: grid;
-  /* 这里改成 auto 1fr，让第一列只包裹文件名，第二列占剩余 */
-  grid-template-columns: auto 1fr;
+  grid-template-columns: 1fr auto;
   row-gap: .2em;
   column-gap: 1em;
   margin-top: 1rem;
@@ -398,14 +338,13 @@ dl.info.tooltip {
   max-width: min(120ch, 80vw);
 }
 
-/* ===== scrollytelling 布局 ===== */
+/* Scrollytelling 布局 */
 #scrollytelling {
   grid-column: 1 / -1;
   display: grid;
-  grid-template-columns: subgrid;   /* 继承父网格 */
+  grid-template-columns: subgrid;
 }
 
-/* 左侧滚动框 */
 #scroll-container {
   grid-column: 1;
   position: relative;
@@ -416,12 +355,11 @@ dl.info.tooltip {
   margin-bottom: 50px;
 }
 
-/* 右侧散点图列 */
 #chart {
   grid-column: 2;
+  position: relative; /* 新增：让 tooltip 绝对定位相对于此 */
 }
 
-/* spacer = 占位高度，透明即可 */
 #spacer {
   position: absolute;
   inset: 0 auto auto 0;
@@ -430,17 +368,33 @@ dl.info.tooltip {
   pointer-events: none;
 }
 
-/* items 容器绝对定位 */
 #items-container {
   position: absolute;
-  top: 0; left: 0;
+  top: 0;
+  left: 0;
   width: 100%;
 }
 
-/* 单条 story */
 .item {
-  height: 100px;             /* 与 JS 中 ITEM_HEIGHT 对齐 */
+  height: 100px;
   padding: 10px;
   box-sizing: border-box;
   border-bottom: 2px solid #eee;
+}
+
+/* Tooltip 本体 */
+#commit-tooltip {
+  position: absolute;
+  display: none;       /* 默认隐藏 */
+  background: rgba(255,255,255,0.9);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  padding: 0.5em;
+  border-radius: 4px;
+  font-size: 0.9em;
+  pointer-events: none;
+  z-index: 10;
+}
+
+#commit-tooltip.visible {
+  display: block;
 }
