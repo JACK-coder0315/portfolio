@@ -16,6 +16,7 @@ async function loadData() {
   }));
 }
 
+/* ---------- 提取并按时间升序排序提交 ---------- */
 function processCommits(data) {
   return d3.groups(data, d => d.commit)
     .map(([id, lines], idx) => {
@@ -34,9 +35,10 @@ function processCommits(data) {
     .sort((a, b) => a.datetime - b.datetime);
 }
 
-/* ---------- Summary ---------- */
+/* ---------- 渲染摘要统计 ---------- */
 function renderSummary(data, commits) {
-  const dl = d3.select('#stats').html('').append('dl').attr('class','stats');
+  const dl = d3.select('#stats').html('')
+    .append('dl').attr('class','stats');
   const add = (label, value) => {
     dl.append('dt').text(label);
     dl.append('dd').text(value);
@@ -51,18 +53,20 @@ function renderSummary(data, commits) {
   const byFile = d3.rollups(data, v=>v.length, d=>d.file).map(d=>d[1]);
   add('Average File Length (In Lines)', d3.mean(byFile).toFixed(0));
 
-  const hourCounts = d3.rollup(commits, v=>v.length, d=>d.datetime.getHours());
+  const hourCounts = d3.rollup(commits, v=>v.length, c=>c.datetime.getHours());
   const peakHour   = d3.greatest(hourCounts, d=>d[1])[0];
   add('Peak Work Time', peakHour>=18||peakHour<6 ? 'At Night':'Daytime');
 
   add('Longest Line', d3.max(data,d=>d.length));
 }
 
-/* ---------- 散点图 + 刷选 + Tooltip ---------- */
+/* ---------- 渲染散点图、刷选、Tooltip、语言细分 ---------- */
 function renderScatter(commits) {
   const W=1000, H=600, m={top:10,right:10,bottom:30,left:40};
-  const svg = d3.select('#chart').html('').append('svg')
-    .attr('viewBox',`0 0 ${W} ${H}`).style('overflow','visible');
+  const svg = d3.select('#chart').html('')
+    .append('svg')
+      .attr('viewBox',`0 0 ${W} ${H}`)
+      .style('overflow','visible');
 
   const x = d3.scaleTime()
       .domain(d3.extent(commits,d=>d.datetime))
@@ -74,6 +78,7 @@ function renderScatter(commits) {
       .domain(d3.extent(commits,d=>d.totalLines))
       .range([3,20]);
 
+  // 轴 & 网格
   svg.append('g')
      .attr('transform',`translate(0,${H-m.bottom})`)
      .call(d3.axisBottom(x));
@@ -85,6 +90,7 @@ function renderScatter(commits) {
      .attr('transform',`translate(${m.left},0)`)
      .call(d3.axisLeft(y).tickFormat('').tickSize(-(W-m.left-m.right)));
 
+  // 数据点
   const dots = svg.append('g').attr('class','dots');
   dots.selectAll('circle')
     .data(commits.slice().sort((a,b)=>b.totalLines - a.totalLines))
@@ -95,6 +101,7 @@ function renderScatter(commits) {
       .attr('fill','steelblue')
       .attr('fill-opacity',0.7);
 
+  // 刷选
   const brush = d3.brush()
     .extent([[m.left,m.top],[W-m.right,H-m.bottom]])
     .on('start brush end', ({selection}) => {
@@ -105,14 +112,18 @@ function renderScatter(commits) {
           const cx = x(d.datetime), cy = y(d.hourFrac);
           return x0<=cx && cx<=x1 && y0<=cy && cy<=y1;
         });
+
       const count = dots.selectAll('circle.selected').size();
       d3.select('#selection-count')
         .text(count? `${count} commits selected` : 'No commits selected');
+
+      renderLanguageBreakdown(commits, selection);
     });
 
   svg.append('g').call(brush);
   svg.selectAll('.dots, .overlay ~ *').raise();
 
+  // 悬停提示
   const tooltip = d3.select('#commit-tooltip');
   dots.selectAll('circle')
     .on('mouseenter', function(e,d){
@@ -143,7 +154,34 @@ function renderScatter(commits) {
     });
 }
 
-/* ---------- 文件单元可视化 ---------- */
+/* ---------- 渲染语言细分 ---------- */
+function renderLanguageBreakdown(commits, selection) {
+  const selected = selection
+    ? commits.filter(d => {
+        const [[x0,y0],[x1,y1]] = selection;
+        const cx = d3.scaleTime().domain(d3.extent(commits,d=>d.datetime))
+                      .range([40, 1000-10])(d.datetime);
+        const cy = d3.scaleLinear().domain([0,24])
+                      .range([600-30,10])(d.hourFrac);
+        return x0<=cx && cx<=x1 && y0<=cy && cy<=y1;
+      })
+    : [];
+
+  const source = selected.length ? selected : [];
+  const lines = source.flatMap(d => d.lines);
+  const summary = d3.rollup(lines, v=>v.length, d=>d.type);
+  const total = d3.sum(summary.values());
+
+  const dl = d3.select('#language-breakdown').html('');
+  if (total === 0) return;
+
+  for (const [lang, cnt] of summary) {
+    dl.append('dt').text(lang);
+    dl.append('dd').html(`${cnt} lines (${d3.format('.1~%')(cnt/total)})`);
+  }
+}
+
+/* ---------- 渲染文件列表可视化 ---------- */
 function renderFiles(commits) {
   const files = d3.groups(commits.flatMap(c=>c.lines), d=>d.file)
     .map(([name, lines]) => ({name,lines}))

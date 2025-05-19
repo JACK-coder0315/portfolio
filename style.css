@@ -229,7 +229,7 @@ stats dd {
   }
 }
 
-/* 工具提示覆盖 hidden */
+/* Tooltip */
 #commit-tooltip[hidden] {
   display: none !important;
 }
@@ -250,16 +250,35 @@ stats dd {
   opacity: 1;
 }
 
-/* 圆点交互 */
-.dots circle {
-  transition: transform 0.2s;
-  transform-origin: center;
-  transform-box: fill-box;
+/* 选中统计区 */
+#selection-summary {
+  display: flex;
+  justify-content: center;
+  gap: 3em;
+  margin-top: 1.5em;
 }
 
-.dots circle.selected {
-  stroke: #f66;
-  stroke-width: 2px;
+#selection-summary p {
+  font-size: 1.1em;
+  margin: 0;
+  grid-column: 1 / -1;
+}
+
+#language-breakdown {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 0.5em 2em;
+  margin: 0;
+}
+
+#language-breakdown dt {
+  font-weight: bold;
+  text-align: center;
+}
+
+#language-breakdown dd {
+  margin: 0;
+  text-align: center;
 }
 
 /* === 时间滑块：宽度 & 双色轨道 ==================================== */
@@ -289,7 +308,7 @@ stats dd {
     linear-gradient(#1e74ff, #1e74ff),
     linear-gradient(#d3d3d3, #d3d3d3);
   background-size:
-    calc((var(--value)-var(--min))/(var(--max)-var(--min))*100%) 100%,
+    calc((var(--value) - var(--min))/(var(--max) - var(--min))*100%) 100%,
     100% 100%;
   background-repeat: no-repeat;
 }
@@ -324,13 +343,13 @@ stats dd {
 
 .files {
   display: grid;
-  grid-template-columns: auto 1fr;
+  grid-template-columns: 1fr auto;
   row-gap: .2em;
   column-gap: 1em;
   margin-top: 1rem;
 }
 
-.files>div {
+.files > div {
   grid-column: 1 / -1;
   display: grid;
   grid-template-columns: subgrid;
@@ -366,6 +385,7 @@ stats dd {
   border-radius: 50%;
 }
 
+/* 让页面更宽一些 */
 :global(body) {
   max-width: min(120ch, 80vw);
 }
@@ -377,6 +397,7 @@ stats dd {
   grid-template-columns: subgrid;
 }
 
+/* 左侧滚动框 */
 #scroll-container {
   grid-column: 1;
   position: relative;
@@ -387,10 +408,12 @@ stats dd {
   margin-bottom: 50px;
 }
 
+/* 右侧散点图列 */
 #chart {
   grid-column: 2;
 }
 
+/* spacer = 占位高度，透明即可 */
 #spacer {
   position: absolute;
   inset: 0 auto auto 0;
@@ -399,6 +422,7 @@ stats dd {
   pointer-events: none;
 }
 
+/* items 容器绝对定位 */
 #items-container {
   position: absolute;
   top: 0;
@@ -406,6 +430,7 @@ stats dd {
   width: 100%;
 }
 
+/* 单条 story */
 .item {
   height: 100px;
   padding: 10px;
