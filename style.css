@@ -478,19 +478,3 @@ stats dd {
   pointer-events: none;     /* 不拦截任何鼠标事件 */
   white-space: nowrap;
 }
-
-/* —— 滚动条旁的日期标签 —— */
-#scroll-container {
-  position: relative; /* 确保内部绝对定位有效 */
-}
-
-#scroll-date {
-  position: absolute;
-  right: 8px;        /* 或者你希望的间距 */
-  top: 0;
-  padding: 2px 6px;
-  background: rgba(255,255,255,0.8);
-  border-radius: 4px;
-  font-size: 0.85em;
-  pointer-events: none;
-}
