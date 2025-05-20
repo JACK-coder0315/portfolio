@@ -1,7 +1,7 @@
 import * as d3 from 'https://cdn.jsdelivr.net/npm/d3@7.9.0/+esm';
 
 /* ---------- 常量 ---------- */
-const ITEM_HEIGHT   = 80;    // 与 CSS 中 .item/.item2 { height:80px } 保持一致，滚动更快
+const ITEM_HEIGHT   = 80;    // 与 CSS 中 .item { height:80px } 保持一致
 const VISIBLE_COUNT = 10;
 const fileTypeColors = d3.scaleOrdinal(d3.schemeTableau10);
 
@@ -88,7 +88,6 @@ function renderScatter(allCommits, slice) {
       .attr('viewBox', `0 0 ${W} ${H}`)
       .style('overflow','visible');
 
-  // 轴度量用 allCommits
   const x = d3.scaleTime()
       .domain(d3.extent(allCommits, d=>d.datetime))
       .range([m.left, W-m.right]).nice();
@@ -99,7 +98,7 @@ function renderScatter(allCommits, slice) {
       .domain(d3.extent(allCommits, d=>d.totalLines))
       .range([3,20]);
 
-  // 轴 & 网格
+  // 画轴和网格
   svg.append('g')
      .attr('transform', `translate(0,${H-m.bottom})`)
      .call(d3.axisBottom(x));
@@ -111,7 +110,7 @@ function renderScatter(allCommits, slice) {
      .attr('transform', `translate(${m.left},0)`)
      .call(d3.axisLeft(y).tickFormat('').tickSize(-(W-m.left-m.right)));
 
-  // 数据点（只渲染 slice）
+  // 绘制数据点（只渲染 slice）
   const dots = svg.append('g').attr('class','dots');
   dots.selectAll('circle')
     .data(slice.slice().sort((a,b)=>b.totalLines-a.totalLines))
@@ -122,7 +121,7 @@ function renderScatter(allCommits, slice) {
       .attr('fill','steelblue')
       .attr('fill-opacity',0.7);
 
-  // 刷选
+  // 刷选行为
   const brush = d3.brush()
     .extent([[m.left,m.top],[W-m.right,H-m.bottom]])
     .on('start brush end', ({selection}) => {
@@ -225,44 +224,6 @@ function renderFiles(commits) {
       .style('background', d=>fileTypeColors(d.type));
 }
 
-/* ---------- 渲染 “每日工作汇总” ---------- */
-function renderDailyItems(uniqueDays, allCommits) {
-  d3.select('#spacer2')
-    .style('height', `${uniqueDays.length * ITEM_HEIGHT}px`);
-
-  d3.select('#items-container2').selectAll('div')
-    .data(uniqueDays)
-    .join('div')
-      .attr('class','item2')
-      .style('position','absolute')
-      .style('top',(day,i)=>`${i * ITEM_HEIGHT}px`)
-      .html(dayKey=>{
-        const d0      = new Date(dayKey);
-        const dateStr = d0.toLocaleDateString('en-US',{
-          weekday:'long',year:'numeric',month:'long',day:'numeric'
-        });
-        const daily = allCommits.filter(c=>
-          c.datetime.toISOString().slice(0,10) === dayKey
-        );
-        const times = daily.map(c=>c.datetime.getTime());
-        let hours = (Math.max(...times) - Math.min(...times))/3600000;
-        const timeStr = hours < 1
-          ? `${Math.round(hours*60)}m`
-          : `${hours.toFixed(1)}h`;
-        const lines  = daily.flatMap(c=>c.lines);
-        const counts = d3.rollup(lines, v=>v.length, l=>l.type);
-        const total  = d3.sum(counts.values());
-        const parts  = [`worked ${timeStr}`];
-        ['css','js','html'].forEach(t=>{
-          if (counts.has(t)) {
-            const pct = Math.round(counts.get(t)/total*100);
-            parts.push(`${t.toUpperCase()} ${pct}%`);
-          }
-        });
-        return `<p>On ${dateStr}, ${parts.join(', ')}</p>`;
-      });
-}
-
 /* ---------- 主程序 ---------- */
 (async () => {
   const raw     = await loadData();
@@ -271,19 +232,13 @@ function renderDailyItems(uniqueDays, allCommits) {
   // 1) 渲染 Summary
   renderSummary(raw, commits);
 
-  // 2) 唯一日期列表
-  const uniqueDays = Array.from(
-    new Set(commits.map(c=>c.datetime.toISOString().slice(0,10)))
-  ).sort((a,b)=>new Date(a)-new Date(b));
-
-  // 3) 首次渲染
+  // 2) 首次渲染
   const initialSlice = commits.slice(0, VISIBLE_COUNT);
   renderCommitItems(initialSlice, 0);
   renderScatter(commits, initialSlice);
   renderFiles(initialSlice);
-  renderDailyItems(uniqueDays, commits);
 
-  // —— 新增：首次把 #scroll-date 设为第一条日期 —— 
+  // —— 首次把 #scroll-date 设为第一条日期 —— 
   d3.select('#scroll-date')
     .style('top','0px')
     .text(
@@ -292,7 +247,7 @@ function renderDailyItems(uniqueDays, allCommits) {
         .toLocaleDateString('en-US',{ weekday:'long',year:'numeric',month:'long',day:'numeric' })
     );
 
-  // 4) 同步滚动：当 scroll-container1 滚动
+  // 3) 同步滚动：当 #scroll-container1 滚动
   d3.select('#scroll-container1')
     .on('scroll', function() {
       const idx = Math.floor(this.scrollTop / ITEM_HEIGHT);
@@ -302,13 +257,7 @@ function renderDailyItems(uniqueDays, allCommits) {
       renderScatter(commits, slice);
       renderFiles(slice);
 
-      // 同步第二个滚动区
-      const dayKey = commits[idx].datetime.toISOString().slice(0,10);
-      const dayIdx = uniqueDays.indexOf(dayKey);
-      d3.select('#scroll-container2')
-        .property('scrollTop', dayIdx * ITEM_HEIGHT);
-
-      // —— 新增：更新第一个滚动区旁的日期浮层 —— 
+      // —— 更新浮层日期 —— 
       const dateStr = commits[idx]
         .datetime
         .toLocaleDateString('en-US',{ weekday:'long',year:'numeric',month:'long',day:'numeric' });
