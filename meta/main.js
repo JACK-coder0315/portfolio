@@ -99,7 +99,7 @@ function renderScatter(allCommits, slice) {
       .domain(d3.extent(allCommits, d=>d.totalLines))
       .range([3,20]);
 
-  // 轴 & 网格
+  // axes & gridlines
   svg.append('g')
      .attr('transform', `translate(0,${H-m.bottom})`)
      .call(d3.axisBottom(x));
@@ -111,7 +111,7 @@ function renderScatter(allCommits, slice) {
      .attr('transform', `translate(${m.left},0)`)
      .call(d3.axisLeft(y).tickFormat('').tickSize(-(W-m.left-m.right)));
 
-  // 数据点（只渲染 slice）
+  // data points
   const dots = svg.append('g').attr('class','dots');
   dots.selectAll('circle')
     .data(slice.slice().sort((a,b)=>b.totalLines-a.totalLines))
@@ -122,7 +122,7 @@ function renderScatter(allCommits, slice) {
       .attr('fill','steelblue')
       .attr('fill-opacity',0.7);
 
-  // 刷选
+  // brushing
   const brush = d3.brush()
     .extent([[m.left,m.top],[W-m.right,H-m.bottom]])
     .on('start brush end', ({selection}) => {
@@ -155,7 +155,7 @@ function renderScatter(allCommits, slice) {
   svg.append('g').call(brush);
   svg.selectAll('.dots, .overlay ~ *').raise();
 
-  // Tooltip
+  // tooltip
   const tooltip = d3.select('#commit-tooltip');
   dots.selectAll('circle')
     .on('mouseenter', function(e,d){
@@ -227,13 +227,11 @@ function renderFiles(commits) {
       .style('background', d=>fileTypeColors(d.type));
 }
 
-/* ---------- 渲染 第二个 Scrolly：显示每次提交的文件修改及主要改动 ---------- */
+/* ---------- 渲染 第二个 Scrolly：显示每次提交，并指示时间段 ---------- */
 function renderDailyItems(commits) {
-  // 设置 spacer2 高度
   d3.select('#spacer2')
     .style('height', `${commits.length * ITEM_HEIGHT}px`);
 
-  // 渲染每条记录
   d3.select('#items-container2').html('')
     .selectAll('div')
     .data(commits)
@@ -248,17 +246,18 @@ function renderDailyItems(commits) {
         const file    = c.lines[0].file;
         const minLine = d3.min(c.lines, d=>d.line);
         const maxLine = d3.max(c.lines, d=>d.line);
-        // 统计各类型行数
-        const summary = d3.rollup(c.lines, v=>v.length, d=>d.type);
-        const jsCount  = summary.get('js') || 0;
-        const cssCount = summary.get('css')|| 0;
-        const htmlCount= summary.get('html')|| 0;
-        return `<p>
-          On ${dateStr}, modified <code>${file}</code> (lines ${minLine}–${maxLine}).<br/>
-          Changes included ${jsCount} JS lines (added or updated functions), 
-          ${cssCount} CSS lines (style changes), and 
-          ${htmlCount} HTML lines (new elements or structure).
-        </p>`;
+        const hour    = c.datetime.getHours();
+        let period;
+        if (hour >= 12 && hour < 13)      period = 'it is around afternoon';
+        else if (hour < 12)               period = 'it is early in the morning';
+        else                               period = 'it is late in the evening';
+
+        return `
+          <p>
+            On ${dateStr}, modified <code>${file}</code> (lines ${minLine}–${maxLine}).<br/>
+            ${period}.
+          </p>
+        `;
       });
 }
 
@@ -276,7 +275,7 @@ function renderDailyItems(commits) {
   renderScatter(commits, initialSlice);
   renderFiles(initialSlice);
 
-  // 3) 渲染 第二个 Scrolly（文件修改叙事）
+  // 3) 渲染 第二个 Scrolly（时间段指示）
   renderDailyItems(commits);
 
   // 4) 首次把 #scroll-date 设为第一条日期
