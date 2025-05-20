@@ -1,7 +1,7 @@
 import * as d3 from 'https://cdn.jsdelivr.net/npm/d3@7.9.0/+esm';
 
 /* ---------- 常量 ---------- */
-const ITEM_HEIGHT    = 80;   // 与 CSS 中 .item、.item-story { height:80px } 保持一致
+const ITEM_HEIGHT    = 80;    // 与 CSS 中 .item/.item2 { height:80px } 保持一致
 const VISIBLE_COUNT  = 10;
 const fileTypeColors = d3.scaleOrdinal(d3.schemeTableau10);
 
@@ -19,16 +19,19 @@ async function loadData() {
 /* ---------- 提取并按时间升序排序提交 ---------- */
 function processCommits(data) {
   return d3.groups(data, d => d.commit)
-    .map(([id, lines], idx) => ({
-      id,
-      idx,
-      author     : lines[0].author,
-      datetime   : lines[0].datetime,
-      hourFrac   : lines[0].datetime.getHours() + lines[0].datetime.getMinutes() / 60,
-      totalLines : lines.length,
-      url        : `https://github.com/JACK-coder0315/portfolio/commit/${id}`,
-      lines
-    }))
+    .map(([id, lines], idx) => {
+      const dt = lines[0].datetime;
+      return {
+        id,
+        idx,
+        author     : lines[0].author,
+        datetime   : dt,
+        hourFrac   : dt.getHours() + dt.getMinutes() / 60,
+        totalLines : lines.length,
+        url        : `https://github.com/JACK-coder0315/portfolio/commit/${id}`,
+        lines
+      };
+    })
     .sort((a, b) => a.datetime - b.datetime);
 }
 
@@ -57,7 +60,7 @@ function renderSummary(data, commits) {
   add('Longest Line', d3.max(data, d=>d.length));
 }
 
-/* ---------- 渲染提交叙事条目 ---------- */
+/* ---------- 渲染 Commit 故事条目 ---------- */
 function narrativeCommit(c) {
   const dateStr  = c.datetime.toLocaleString('en', { dateStyle:'full', timeStyle:'short' });
   const linkText = c.idx
@@ -65,6 +68,7 @@ function narrativeCommit(c) {
     : 'my first commit, and it was glorious';
   return `<p>On ${dateStr}, I made <a href="${c.url}" target="_blank">${linkText}</a>. I edited <b>${c.totalLines}</b> lines.</p>`;
 }
+
 function renderCommitItems(slice, startIdx) {
   d3.select('#items-container1')
     .style('transform', `translateY(${startIdx * ITEM_HEIGHT}px)`);
@@ -95,6 +99,7 @@ function renderScatter(allCommits, slice) {
       .domain(d3.extent(allCommits, d=>d.totalLines))
       .range([3,20]);
 
+  // 轴 & 网格
   svg.append('g')
      .attr('transform', `translate(0,${H-m.bottom})`)
      .call(d3.axisBottom(x));
@@ -106,6 +111,7 @@ function renderScatter(allCommits, slice) {
      .attr('transform', `translate(${m.left},0)`)
      .call(d3.axisLeft(y).tickFormat('').tickSize(-(W-m.left-m.right)));
 
+  // 数据点（只渲染 slice）
   const dots = svg.append('g').attr('class','dots');
   dots.selectAll('circle')
     .data(slice.slice().sort((a,b)=>b.totalLines-a.totalLines))
@@ -116,6 +122,7 @@ function renderScatter(allCommits, slice) {
       .attr('fill','steelblue')
       .attr('fill-opacity',0.7);
 
+  // 刷选
   const brush = d3.brush()
     .extent([[m.left,m.top],[W-m.right,H-m.bottom]])
     .on('start brush end', ({selection}) => {
@@ -127,7 +134,7 @@ function renderScatter(allCommits, slice) {
           return x0<=cx && cx<=x1 && y0<=cy && cy<=y1;
         });
 
-      const selected = allCommits.filter(d => {
+      const selectedCommits = allCommits.filter(d => {
         if (!selection) return false;
         const [[x0,y0],[x1,y1]] = selection;
         const cx = x(d.datetime), cy = y(d.hourFrac);
@@ -135,17 +142,20 @@ function renderScatter(allCommits, slice) {
       });
 
       d3.select('#selection-count')
-        .text(selected.length
-          ? `${selected.length} commits selected`
-          : 'No commits selected');
+        .text(
+          selectedCommits.length
+            ? `${selectedCommits.length} commits selected`
+            : 'No commits selected'
+        );
 
-      renderLanguageBreakdown(selected);
-      renderFiles(selected);
+      renderLanguageBreakdown(selectedCommits);
+      renderFiles(selectedCommits);
     });
 
   svg.append('g').call(brush);
   svg.selectAll('.dots, .overlay ~ *').raise();
 
+  // Tooltip
   const tooltip = d3.select('#commit-tooltip');
   dots.selectAll('circle')
     .on('mouseenter', function(e,d){
@@ -166,13 +176,13 @@ function renderScatter(allCommits, slice) {
 
       tooltip
         .classed('visible',true)
-        .style('left', (e.clientX+10)+'px')
-        .style('top',  (e.clientY+10)+'px');
+        .style('left', `${e.clientX+10}px`)
+        .style('top',  `${e.clientY+10}px`);
     })
     .on('mousemove', function(e){
       tooltip
-        .style('left', (e.clientX+10)+'px')
-        .style('top',  (e.clientY+10)+'px');
+        .style('left', `${e.clientX+10}px`)
+        .style('top',  `${e.clientY+10}px`);
     })
     .on('mouseleave', function(){
       d3.select(this).attr('fill-opacity',0.7);
@@ -181,8 +191,8 @@ function renderScatter(allCommits, slice) {
 }
 
 /* ---------- 渲染语言细分 ---------- */
-function renderLanguageBreakdown(selected) {
-  const lines   = selected.flatMap(d=>d.lines);
+function renderLanguageBreakdown(selectedCommits) {
+  const lines   = selectedCommits.flatMap(d=>d.lines);
   const summary = d3.rollup(lines, v=>v.length, d=>d.type);
   const total   = d3.sum(summary.values());
 
@@ -198,8 +208,8 @@ function renderLanguageBreakdown(selected) {
 /* ---------- 渲染文件列表可视化 ---------- */
 function renderFiles(commits) {
   const files = d3.groups(commits.flatMap(c=>c.lines), d=>d.file)
-    .map(([name, lines])=>({ name, count: lines.length, type: lines[0].type }))
-    .sort((a,b)=>b.count - a.count);
+    .map(([name, lines]) => ({ name, lines }))
+    .sort((a,b)=>d3.descending(a.lines.length, b.lines.length));
 
   const dl   = d3.select('.files').html('');
   const rows = dl.selectAll('div')
@@ -207,106 +217,84 @@ function renderFiles(commits) {
     .join('div');
 
   rows.append('dt')
-    .html(d=>`<code>${d.name}</code><small>${d.count} lines</small>`);
+    .html(d=>`<code>${d.name}</code><small>${d.lines.length} lines</small>`);
 
   rows.append('dd')
     .selectAll('div')
-    .data(d=>Array(d.count).fill(d).map((f,i)=>f))
+    .data(d=>d.lines)
     .join('div')
       .attr('class','line')
       .style('background', d=>fileTypeColors(d.type));
 }
 
-/* ---------- 渲染文件活动散点图（底部左侧） ---------- */
-function renderActivityScatter(data) {
-  const W = 400, H = 400, m = { top:20, right:20, bottom:40, left:50 };
-  const svg = d3.select('#activity-chart').html('')
-    .append('svg')
-      .attr('viewBox', `0 0 ${W} ${H}`);
+/* ---------- 渲染 “每日工作汇总” ---------- */
+function renderDailyItems(uniqueDays, allCommits) {
+  d3.select('#spacer2')
+    .style('height', `${uniqueDays.length * ITEM_HEIGHT}px`);
 
-  const x = d3.scaleLinear()
-      .domain([0,1])
-      .range([m.left, W-m.right]);
-  const y = d3.scaleLinear()
-      .domain([0, d3.max(data, d=>d.changedLines)])
-      .nice()
-      .range([H-m.bottom, m.top]);
-  const r = d3.scaleSqrt()
-      .domain(d3.extent(data, d=>d.changedLines))
-      .range([2,8]);
-
-  svg.append('g')
-     .attr('transform', `translate(0,${H-m.bottom})`)
-     .call(d3.axisBottom(x).ticks(5).tickFormat(d3.format('.0%')));
-  svg.append('g')
-     .attr('transform', `translate(${m.left},0)`)
-     .call(d3.axisLeft(y));
-
-  svg.selectAll('circle')
-    .data(data)
-    .join('circle')
-      .attr('cx', d=>x(d.progress))
-      .attr('cy', d=>y(d.changedLines))
-      .attr('r' , d=>r(d.changedLines))
-      .attr('fill', d=>fileTypeColors(d.type))
-      .attr('fill-opacity', 0.7);
-
-  // 图标题
-  svg.append('text')
-    .attr('x', W/2).attr('y', m.top - 5)
-    .attr('text-anchor','middle')
-    .text('File Changes Over Project Lifecycle');
-  // 轴标签
-  svg.append('text')
-    .attr('x', W/2).attr('y', H - 5)
-    .attr('text-anchor','middle')
-    .text('Progress');
-  svg.append('text')
-    .attr('transform','rotate(-90)')
-    .attr('x', -H/2).attr('y', 15)
-    .attr('text-anchor','middle')
-    .text('Changed Lines');
-}
-
-/* ---------- 渲染文件演进滚动叙事（底部右侧） ---------- */
-function renderFileStoryItems(stories) {
-  d3.select('#spacer-story')
-    .style('height', `${stories.length * ITEM_HEIGHT}px`);
-
-  const container = d3.select('#items-file-story');
-  container.selectAll('div')
-    .data(stories)
+  d3.select('#items-container2').selectAll('div')
+    .data(uniqueDays)
     .join('div')
-      .attr('class','item-story')
+      .attr('class','item2')
       .style('position','absolute')
       .style('top',(d,i)=>`${i * ITEM_HEIGHT}px`)
-      .html(d => `<p>${d.text}</p>`);
+      .html(dayKey=>{
+        const d0      = new Date(dayKey);
+        const dateStr = d0.toLocaleDateString('en-US',{
+          weekday:'long',year:'numeric',month:'long',day:'numeric'
+        });
+        const daily = allCommits.filter(c=>
+          c.datetime.toISOString().slice(0,10) === dayKey
+        );
+        const times = daily.map(c=>c.datetime.getTime());
+        let hours = (Math.max(...times) - Math.min(...times))/3600000;
+        const timeStr = hours < 1
+          ? `${Math.round(hours*60)}m`
+          : `${hours.toFixed(1)}h`;
+        const lines  = daily.flatMap(c=>c.lines);
+        const counts = d3.rollup(lines, v=>v.length, l=>l.type);
+        const total  = d3.sum(counts.values());
+        const parts  = [`worked ${timeStr}`];
+        ['css','js','html'].forEach(t=>{
+          if (counts.has(t)) {
+            const pct = Math.round(counts.get(t)/total*100);
+            parts.push(`${t.toUpperCase()} ${pct}%`);
+          }
+        });
+        return `<p>On ${dateStr}, ${parts.join(', ')}</p>`;
+      });
 }
 
-/* ---------- 主流程 ---------- */
+/* ---------- 主程序 ---------- */
 (async () => {
   const raw     = await loadData();
   const commits = processCommits(raw);
 
-  // 渲染摘要
+  // 1) 渲染 Summary
   renderSummary(raw, commits);
 
-  // 首次渲染提交区域
+  // 2) 唯一日期列表
+  const uniqueDays = Array.from(
+    new Set(commits.map(c=>c.datetime.toISOString().slice(0,10)))
+  ).sort((a,b)=>new Date(a)-new Date(b));
+
+  // 3) 首次渲染
   const initialSlice = commits.slice(0, VISIBLE_COUNT);
   renderCommitItems(initialSlice, 0);
   renderScatter(commits, initialSlice);
   renderFiles(initialSlice);
-
-  // 初始化滚动日期
+  renderDailyItems(uniqueDays, commits);
+  
+  // —— 新增：首次把 #scroll-date 设为第一条日期 —— 
   d3.select('#scroll-date')
     .style('top','0px')
     .text(
-      commits[0].datetime.toLocaleDateString('en-US',{
-        weekday:'long',year:'numeric',month:'long',day:'numeric'
-      })
+      commits[0]
+        .datetime
+        .toLocaleDateString('en-US',{ weekday:'long',year:'numeric',month:'long',day:'numeric' })
     );
 
-  // 同步滚动逻辑
+  // 4) 同步滚动：当 #scroll-container1 滚动
   d3.select('#scroll-container1')
     .on('scroll', function() {
       const idx   = Math.floor(this.scrollTop / ITEM_HEIGHT);
@@ -316,62 +304,18 @@ function renderFileStoryItems(stories) {
       renderScatter(commits, slice);
       renderFiles(slice);
 
+      // 同步第二个滚动区
+      const dayKey = commits[idx].datetime.toISOString().slice(0,10);
+      const dayIdx = uniqueDays.indexOf(dayKey);
+      d3.select('#scroll-container2')
+        .property('scrollTop', dayIdx * ITEM_HEIGHT);
+
+      // —— 更新浮层日期 —— 
       const dateStr = commits[idx]
         .datetime
-        .toLocaleDateString('en-US',{
-          weekday:'long',year:'numeric',month:'long',day:'numeric'
-        });
+        .toLocaleDateString('en-US',{ weekday:'long',year:'numeric',month:'long',day:'numeric' });
       d3.select('#scroll-date')
         .style('top', this.scrollTop + 'px')
         .text(dateStr);
     });
-
-  // —— 底部：文件活动和故事 —— //
-
-  // 1. 组装文件活动数据
-  const fileCommitGroups = d3.groups(raw, d=>d.file, d=>d.commit);
-  const activityData = fileCommitGroups.flatMap(([file, commitGroups]) =>
-    commitGroups.map(([commitId, rows]) => ({
-      file,
-      type        : rows[0].type,
-      datetime    : rows[0].datetime,
-      changedLines: rows.length
-    }))
-  );
-  const dates = activityData.map(d=>d.datetime);
-  const t0 = d3.min(dates), t1 = d3.max(dates);
-  activityData.forEach(d => {
-    d.progress = (d.datetime - t0) / (t1 - t0);
-  });
-
-  // 2. 渲染文件活动散点
-  renderActivityScatter(activityData);
-
-  // 3. 生成并渲染“文件演进故事”叙事（选取改动最多的那个文件）
-  const totalByFile = d3.rollup(
-    activityData,
-    v => d3.sum(v, d=>d.changedLines),
-    d => d.file
-  );
-  const topFile = Array.from(totalByFile.entries())
-    .sort((a,b)=>b[1] - a[1])[0][0];
-
-  const fileEvents = activityData
-    .filter(d => d.file === topFile)
-    .sort((a,b)=>a.datetime - b.datetime);
-
-  const first = fileEvents[0];
-  const peak  = fileEvents.reduce((p,c)=> c.changedLines>p.changedLines?c:p, first);
-  const last  = fileEvents[fileEvents.length-1];
-
-  const fmtDate = d => d.datetime.toLocaleDateString('en-US',{
-    year:'numeric',month:'short',day:'numeric'
-  });
-  const stories = [
-    { text: `On ${fmtDate(first)}, file ${topFile} first appeared (changed ${first.changedLines} lines).` },
-    { text: `On ${fmtDate(peak)}, file ${topFile} had its largest change: ${peak.changedLines} lines.` },
-    { text: `On ${fmtDate(last)}, file ${topFile} last changed (${last.changedLines} lines).` }
-  ];
-
-  renderFileStoryItems(stories);
 })();
