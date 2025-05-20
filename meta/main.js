@@ -227,41 +227,26 @@ function renderFiles(commits) {
       .style('background', d=>fileTypeColors(d.type));
 }
 
-/* ---------- 渲染 “每日工作汇总” ---------- */
-function renderDailyItems(uniqueDays, allCommits) {
+/* ---------- 渲染 第二个 Scrolly：显示每次提交的文件修改 ---------- */
+function renderDailyItems(commits) {
   d3.select('#spacer2')
-    .style('height', `${uniqueDays.length * ITEM_HEIGHT}px`);
+    .style('height', `${commits.length * ITEM_HEIGHT}px`);
 
-  d3.select('#items-container2').selectAll('div')
-    .data(uniqueDays)
+  d3.select('#items-container2').html('')
+    .selectAll('div')
+    .data(commits)
     .join('div')
       .attr('class','item2')
       .style('position','absolute')
       .style('top',(d,i)=>`${i * ITEM_HEIGHT}px`)
-      .html(dayKey=>{
-        const d0      = new Date(dayKey);
-        const dateStr = d0.toLocaleDateString('en-US',{
-          weekday:'long',year:'numeric',month:'long',day:'numeric'
+      .html(c => {
+        const dateStr = c.datetime.toLocaleDateString('en-US',{
+          month:'long', day:'numeric'
         });
-        const daily = allCommits.filter(c=>
-          c.datetime.toISOString().slice(0,10) === dayKey
-        );
-        const times = daily.map(c=>c.datetime.getTime());
-        let hours = (Math.max(...times) - Math.min(...times))/3600000;
-        const timeStr = hours < 1
-          ? `${Math.round(hours*60)}m`
-          : `${hours.toFixed(1)}h`;
-        const lines  = daily.flatMap(c=>c.lines);
-        const counts = d3.rollup(lines, v=>v.length, l=>l.type);
-        const total  = d3.sum(counts.values());
-        const parts  = [`worked ${timeStr}`];
-        ['css','js','html'].forEach(t=>{
-          if (counts.has(t)) {
-            const pct = Math.round(counts.get(t)/total*100);
-            parts.push(`${t.toUpperCase()} ${pct}%`);
-          }
-        });
-        return `<p>On ${dateStr}, ${parts.join(', ')}</p>`;
+        const file    = c.lines[0].file;
+        const minLine = d3.min(c.lines, d=>d.line);
+        const maxLine = d3.max(c.lines, d=>d.line);
+        return `<p>On ${dateStr}, modified file <code>${file}</code>: lines ${minLine}–${maxLine}.</p>`;
       });
 }
 
@@ -273,19 +258,16 @@ function renderDailyItems(uniqueDays, allCommits) {
   // 1) 渲染 Summary
   renderSummary(raw, commits);
 
-  // 2) 唯一日期列表
-  const uniqueDays = Array.from(
-    new Set(commits.map(c=>c.datetime.toISOString().slice(0,10)))
-  ).sort((a,b)=>new Date(a)-new Date(b));
-
-  // 3) 首次渲染
+  // 2) 首次渲染 Commit scrolly
   const initialSlice = commits.slice(0, VISIBLE_COUNT);
   renderCommitItems(initialSlice, 0);
   renderScatter(commits, initialSlice);
   renderFiles(initialSlice);
-  renderDailyItems(uniqueDays, commits);
-  
-  // —— 新增：首次把 #scroll-date 设为第一条日期 —— 
+
+  // 3) 渲染 第二个 Scrolly（文件修改叙事）
+  renderDailyItems(commits);
+
+  // 4) 首次把 #scroll-date 设为第一条日期
   d3.select('#scroll-date')
     .style('top','0px')
     .text(
@@ -294,7 +276,7 @@ function renderDailyItems(uniqueDays, allCommits) {
         .toLocaleDateString('en-US',{ weekday:'long',year:'numeric',month:'long',day:'numeric' })
     );
 
-  // 4) 同步滚动：当 #scroll-container1 滚动
+  // 5) 同步滚动：当 #scroll-container1 滚动
   d3.select('#scroll-container1')
     .on('scroll', function() {
       const idx   = Math.floor(this.scrollTop / ITEM_HEIGHT);
@@ -304,16 +286,13 @@ function renderDailyItems(uniqueDays, allCommits) {
       renderScatter(commits, slice);
       renderFiles(slice);
 
-      // 同步第二个滚动区
-      const dayKey = commits[idx].datetime.toISOString().slice(0,10);
-      const dayIdx = uniqueDays.indexOf(dayKey);
+      // 同步 第二个 Scrolly（滚动位置一致）
       d3.select('#scroll-container2')
-        .property('scrollTop', dayIdx * ITEM_HEIGHT);
+        .property('scrollTop', idx * ITEM_HEIGHT);
 
-      // —— 更新浮层日期 —— 
+      // 更新浮层日期
       const dateStr = commits[idx]
-        .datetime
-        .toLocaleDateString('en-US',{ weekday:'long',year:'numeric',month:'long',day:'numeric' });
+        .datetime.toLocaleDateString('en-US',{ weekday:'long',year:'numeric',month:'long',day:'numeric' });
       d3.select('#scroll-date')
         .style('top', this.scrollTop + 'px')
         .text(dateStr);
