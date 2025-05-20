@@ -227,11 +227,13 @@ function renderFiles(commits) {
       .style('background', d=>fileTypeColors(d.type));
 }
 
-/* ---------- 渲染 第二个 Scrolly：显示每次提交的文件修改 ---------- */
+/* ---------- 渲染 第二个 Scrolly：显示每次提交的文件修改及主要改动 ---------- */
 function renderDailyItems(commits) {
+  // 设置 spacer2 高度
   d3.select('#spacer2')
     .style('height', `${commits.length * ITEM_HEIGHT}px`);
 
+  // 渲染每条记录
   d3.select('#items-container2').html('')
     .selectAll('div')
     .data(commits)
@@ -246,7 +248,17 @@ function renderDailyItems(commits) {
         const file    = c.lines[0].file;
         const minLine = d3.min(c.lines, d=>d.line);
         const maxLine = d3.max(c.lines, d=>d.line);
-        return `<p>On ${dateStr}, modified file <code>${file}</code>: lines ${minLine}–${maxLine}.</p>`;
+        // 统计各类型行数
+        const summary = d3.rollup(c.lines, v=>v.length, d=>d.type);
+        const jsCount  = summary.get('js') || 0;
+        const cssCount = summary.get('css')|| 0;
+        const htmlCount= summary.get('html')|| 0;
+        return `<p>
+          On ${dateStr}, modified <code>${file}</code> (lines ${minLine}–${maxLine}).<br/>
+          Changes included ${jsCount} JS lines (added or updated functions), 
+          ${cssCount} CSS lines (style changes), and 
+          ${htmlCount} HTML lines (new elements or structure).
+        </p>`;
       });
 }
 
@@ -272,8 +284,7 @@ function renderDailyItems(commits) {
     .style('top','0px')
     .text(
       commits[0]
-        .datetime
-        .toLocaleDateString('en-US',{ weekday:'long',year:'numeric',month:'long',day:'numeric' })
+        .datetime.toLocaleDateString('en-US',{ weekday:'long',year:'numeric',month:'long',day:'numeric' })
     );
 
   // 5) 同步滚动：当 #scroll-container1 滚动
