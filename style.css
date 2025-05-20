@@ -465,61 +465,19 @@ stats dd {
 /* 确保日期标签总是在滚动条之上，靠右但不被遮挡 */
 #scroll-container {
   position: relative;
-  /* 已经有，不用重复 */
 }
 
 #scroll-date {
   position: absolute;
   right: 4px;
-  /* 距离滚动条一点距离 */
   top: 0;
-  /* 初始放在最上面 */
   padding: 2px 6px;
   background: rgba(0, 0, 0, 0.6);
   color: white;
   font-size: 12px;
   border-radius: 4px;
   pointer-events: none;
-  /* 不拦截任何鼠标事件 */
   white-space: nowrap;
-}
-
-#daily-scrollytelling {
-  margin-top: 1em;
-}
-
-#scroll-container2 {
-  grid-column: 1;
-  position: relative;
-  width: 95%;
-  height: 350px;
-  overflow-y: scroll;
-  border: 1px solid #ccc;
-  margin-bottom: 50px;
-}
-
-#spacer2 {
-  position: absolute;
-  inset: 0 auto auto 0;
-  width: 100%;
-  pointer-events: none;
-}
-
-#items-container2 {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-}
-
-.item2 {
-  height: 100px;
-  padding: 10px;
-  box-sizing: border-box;
-  border-bottom: 2px solid #eee;
-  font-size: 0.9em;
-  line-height: 1.2;
-  color: #333;
 }
 
 /* Commits 滚动区 */
@@ -537,4 +495,55 @@ stats dd {
   inset: 0 auto auto 0;
   width: 100%;
   pointer-events: none;
+}
+
+/* ===== 新增：底部双栏布局 ===== */
+#bottom-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  margin: 2rem 0;
+}
+
+#file-activity,
+#file-story {
+  background: white;
+  padding: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+#activity-chart {
+  width: 100%;
+  height: 400px;
+}
+
+#scroll-file-story {
+  position: relative;
+  width: 100%;
+  height: 400px;
+  overflow-y: scroll;
+  border: 1px solid #ccc;
+  margin-top: 0.5rem;
+}
+
+#spacer-story {
+  position: absolute;
+  inset: 0 auto auto 0;
+  width: 100%;
+  pointer-events: none;
+}
+
+#items-file-story {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+}
+
+.item-story {
+  height: 80px;
+  padding: 10px;
+  box-sizing: border-box;
+  border-bottom: 2px solid #eee;
 }
