@@ -38,19 +38,19 @@
   <!-- ===== 第二组 Scrolly + Scatter ===== -->
   <h2>Daily Work Summary</h2>
   <div id="daily-scrollytelling">
-    <!-- 左侧滚动区 -->
+    <!-- 右侧散点图 改到左边 -->
+    <div id="daily-chart"></div>
+    <!-- 左侧滚动区 改到右边 -->
     <div id="scroll-container2">
       <div id="spacer2"></div>
       <div id="items-container2"></div>
     </div>
-    <!-- 右侧散点图（新增） -->
-    <div id="daily-chart"></div>
   </div>
 
-  <!-- ===== 可选的文件单位可视化（如果你还想保留） ===== -->
+  <!-- ===== 可选的文件单位可视化 ===== -->
   <dl class="files"></dl>
 
-  <!-- ===== Tooltip （如需保留） ===== -->
+  <!-- ===== Tooltip ===== -->
   <dl id="commit-tooltip" class="commit-tip" hidden>
     <dt>COMMIT</dt><dd id="tip-id"></dd>
     <dt>DATE</dt><dd id="tip-date"></dd>
@@ -59,7 +59,7 @@
     <dt>LINES EDITED</dt><dd id="tip-lines"></dd>
   </dl>
 
-  <!-- ===== Selection Stats （如需保留） ===== -->
+  <!-- ===== Selection Stats ===== -->
   <div id="selection-summary">
     <p id="selection-count">No commits selected</p>
     <div id="language-breakdown"></div>
