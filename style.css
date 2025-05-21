@@ -546,3 +546,19 @@ stats dd {
   display: grid;
   grid-template-columns: subgrid;
 }
+
+/* —— 新增：第二组并排布局与同高 —— */
+#scrollytelling,
+#daily-scrollytelling {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+#scroll-container1,
+#scroll-container2,
+#chart,
+#daily-chart {
+  height: 350px;
+}
