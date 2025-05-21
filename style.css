@@ -1,4 +1,3 @@
-/* —— 在这里粘上你现有的所有 CSS —— */
 /* 全局配色 */
 html {
   color-scheme: light dark;
@@ -513,59 +512,23 @@ stats dd {
   width: 100%;
 }
 
-.item2 {
-  height: 100px;
-  padding: 10px;
-  box-sizing: border-box;
-  border-bottom: 2px solid #eee;
-  font-size: 0.9em;
-  line-height: 1.2;
-  color: #333;
-}
+/* —— 以下三条新增 —— */
 
-/* Commits 滚动区 */
-#scroll-container1 {
-  position: relative;
-  width: 95%;
-  height: 350px;
-  overflow-y: scroll;
-  border: 1px solid #ccc;
-  margin-bottom: 1em;
-}
-
-#spacer1 {
-  position: absolute;
-  inset: 0 auto auto 0;
-  width: 100%;
-  pointer-events: none;
-}
-
-/* 在现有 CSS 的底部（或 #scrollytelling 同级）插入： */
-#daily-scrollytelling {
-  /* 与 #scrollytelling 一样，铺满整个子网格 */
-  grid-column: 1 / -1;
-  display: grid;
-  grid-template-columns: subgrid;
-}
-
-/* —— 以下三条为新增 —— */
-
-/* 清除单独滚动区自身的 margin-bottom */
+/* 1. 取消滚动区自身的 margin-bottom */
 #scroll-container1,
 #scroll-container2 {
   margin-bottom: 0;
 }
 
-/* 两组 Scrolly+Scatter 并排同高，由 grid gap 控制整体间距 */
+/* 2. 两组 Scrolly+Scatter 并排同高，由 grid gap 控制整体间距 */
 #scrollytelling,
 #daily-scrollytelling {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 1rem;      /* 水平和垂直间距均为 1rem */
-  margin-bottom: 2rem;
+  gap: 1rem;
 }
 
-/* 强制四个区域同高 */
+/* 3. 强制四个区域同高 */
 #scroll-container1,
 #scroll-container2,
 #chart,
