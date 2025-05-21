@@ -1,4 +1,3 @@
-// == 自动生成蓝色导航栏 ==
 console.log("Generating Navigation Bar...");
 
 const BASE_PATH = location.hostname.includes("localhost") ? "/" : "/portfolio/";
