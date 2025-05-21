@@ -535,3 +535,30 @@ stats dd {
 #daily-chart {
   height: 350px;
 }
+
+#scroll-container1,
+#scroll-container2 {
+  width: 100%;
+}
+
+/* 2. 取消它们原本的 margin-bottom（避免行高跑偏） */
+#scroll-container1,
+#scroll-container2 {
+  margin-bottom: 0;
+}
+
+/* 3. 强制两组同时采用 1fr 1fr 布局（覆盖 subgrid） */
+#scrollytelling,
+#daily-scrollytelling {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;       /* 水平、垂直都 1rem 间距 */
+}
+
+/* 4. 让这四个区域严格同高 */
+#scroll-container1,
+#scroll-container2,
+#chart,
+#daily-chart {
+  height: 350px;
+}
