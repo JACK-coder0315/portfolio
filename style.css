@@ -408,7 +408,7 @@ stats dd {
   grid-template-columns: subgrid;
 }
 
-/* 左侧滚动区（改为 #scroll-container1 和 #scroll-container2） */
+/* 左侧滚动区：同时作用到两处 */
 #scroll-container1,
 #scroll-container2 {
   grid-column: 1;
@@ -463,20 +463,61 @@ stats dd {
   border-bottom: 2px solid #eee;
 }
 
-/* 日志滚动区位置 */
+/* 确保日期标签总是在滚动条之上，靠右但不被遮挡 */
+#scroll-container1,
+#scroll-container2 {
+  position: relative;
+}
+
+#scroll-date {
+  position: absolute;
+  right: 4px;
+  top: 0;
+  padding: 2px 6px;
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  font-size: 12px;
+  border-radius: 4px;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+/* 第二组标题上方 */
 #daily-scrollytelling {
+  /* 下面的子grid会被覆盖为两列 */
   margin-top: 1em;
 }
 
-/* 1. 滚动区填满各自列宽 */
+/* 右侧滚动区位置（此处仅声明样式，column 会被下面覆盖） */
+#scroll-container2 {
+  /* grid-column:1; 此行已上面合并到 #scroll-container1, #scroll-container2 中 */
+}
+
+/* spacer2 与 items-container2 */
+#spacer2 {
+  position: absolute;
+  inset: 0 auto auto 0;
+  width: 100%;
+  pointer-events: none;
+}
+
+#items-container2 {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+}
+
+/* ===== 最末尾，新增以下 4 条覆盖规则 ===== */
+
+/* 1. 滚动区填满各自列宽，并清除内建 margin-bottom */
 #scroll-container1,
 #scroll-container2 {
   width: 100%;
-  /* 2. 同时取消它们自身的 margin-bottom */
   margin-bottom: 0;
 }
 
-/* 3. 两组 Scrolly+Scatter 并排同高，由 grid gap 控制整体间距 */
+/* 2. 两组 Scrolly+Scatter 并排同高，由 grid gap 控制整体间距 */
 #scrollytelling,
 #daily-scrollytelling {
   display: grid;
@@ -484,10 +525,14 @@ stats dd {
   gap: 1rem;
 }
 
-/* 4. 强制四个区域同高 */
+/* 3. 强制四个区域同高 */
 #scroll-container1,
 #scroll-container2,
 #chart,
 #daily-chart {
   height: 350px;
 }
+
+/* 4. 确保第二组散点和滚动框各占一列 */
+#daily-chart { grid-column: 1; width: 100%; }
+#scroll-container2 { grid-column: 2; }
