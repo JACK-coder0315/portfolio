@@ -12,6 +12,7 @@
 </head>
 
 <body>
+  <!-- 你的导航栏 -->
   <div id="nav-container"></div>
   <script src="../global.js"></script>
 
@@ -21,45 +22,44 @@
   <h2>Summary</h2>
   <section id="stats"></section>
 
-  <!-- ===== Scrollytelling + Plot ===== -->
+  <!-- ===== 第一组 Scrolly + Scatter ===== -->
   <h2>Commits by Time of Day</h2>
   <div id="scrollytelling">
+    <!-- 左侧滚动区 -->
     <div id="scroll-container1">
-      <!-- ✏️ 新增：滚动日期标签 -->
       <div id="scroll-date"></div>
-       <div id="spacer1"></div>
-       <div id="items-container1"></div>
+      <div id="spacer1"></div>
+      <div id="items-container1"></div>
     </div>
+    <!-- 右侧散点图 -->
     <div id="chart"></div>
   </div>
 
+  <!-- ===== 第二组 Scrolly + Scatter ===== -->
   <h2>Daily Work Summary</h2>
   <div id="daily-scrollytelling">
+    <!-- 左侧滚动区 -->
     <div id="scroll-container2">
       <div id="spacer2"></div>
       <div id="items-container2"></div>
     </div>
+    <!-- 右侧散点图 -->
+    <div id="daily-chart"></div>
   </div>
 
-
-  <!-- ===== File unit vis ===== -->
+  <!-- ===== 可选的文件单位可视化（如果你还想保留） ===== -->
   <dl class="files"></dl>
 
-  <!-- ===== Tooltip ===== -->
+  <!-- ===== Tooltip （如需保留） ===== -->
   <dl id="commit-tooltip" class="commit-tip" hidden>
-    <dt>COMMIT</dt>
-    <dd id="tip-id"></dd>
-    <dt>DATE</dt>
-    <dd id="tip-date"></dd>
-    <dt>TIME</dt>
-    <dd id="tip-time"></dd>
-    <dt>AUTHOR</dt>
-    <dd id="tip-author"></dd>
-    <dt>LINES EDITED</dt>
-    <dd id="tip-lines"></dd>
+    <dt>COMMIT</dt><dd id="tip-id"></dd>
+    <dt>DATE</dt><dd id="tip-date"></dd>
+    <dt>TIME</dt><dd id="tip-time"></dd>
+    <dt>AUTHOR</dt><dd id="tip-author"></dd>
+    <dt>LINES EDITED</dt><dd id="tip-lines"></dd>
   </dl>
 
-  <!-- ===== Selection stats ===== -->
+  <!-- ===== Selection Stats （如需保留） ===== -->
   <div id="selection-summary">
     <p id="selection-count">No commits selected</p>
     <div id="language-breakdown"></div>
