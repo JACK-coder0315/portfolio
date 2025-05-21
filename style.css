@@ -1,3 +1,4 @@
+/* —— 在这里粘上你现有的所有 CSS —— */
 /* 全局配色 */
 html {
   color-scheme: light dark;
@@ -547,15 +548,24 @@ stats dd {
   grid-template-columns: subgrid;
 }
 
-/* —— 新增：第二组并排布局与同高 —— */
+/* —— 以下三条为新增 —— */
+
+/* 清除单独滚动区自身的 margin-bottom */
+#scroll-container1,
+#scroll-container2 {
+  margin-bottom: 0;
+}
+
+/* 两组 Scrolly+Scatter 并排同高，由 grid gap 控制整体间距 */
 #scrollytelling,
 #daily-scrollytelling {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 1rem;
+  gap: 1rem;      /* 水平和垂直间距均为 1rem */
   margin-bottom: 2rem;
 }
 
+/* 强制四个区域同高 */
 #scroll-container1,
 #scroll-container2,
 #chart,
