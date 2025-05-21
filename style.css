@@ -532,3 +532,10 @@ stats dd {
 /* 4. 确保第二组散点和滚动框各占一列 */
 #daily-chart { grid-column: 1; width: 100%; }
 #scroll-container2 { grid-column: 2; }
+
+#scrollytelling {
+  margin-bottom: 2rem;
+}
+#daily-scrollytelling {
+  margin-top: 2rem;
+}
