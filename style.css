@@ -488,10 +488,6 @@ stats dd {
   margin-top: 1em;
 }
 
-/* 右侧滚动区位置（此处仅声明样式，column 会被下面覆盖） */
-#scroll-container2 {
-  /* grid-column:1; 此行已上面合并到 #scroll-container1, #scroll-container2 中 */
-}
 
 /* spacer2 与 items-container2 */
 #spacer2 {
