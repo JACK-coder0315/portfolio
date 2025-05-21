@@ -408,8 +408,9 @@ stats dd {
   grid-template-columns: subgrid;
 }
 
-/* 左侧滚动区 */
-#scroll-container {
+/* 左侧滚动区（改为 #scroll-container1 和 #scroll-container2） */
+#scroll-container1,
+#scroll-container2 {
   grid-column: 1;
   position: relative;
   width: 95%;
@@ -462,65 +463,20 @@ stats dd {
   border-bottom: 2px solid #eee;
 }
 
-/* 确保日期标签总是在滚动条之上，靠右但不被遮挡 */
-#scroll-container {
-  position: relative;
-  /* 已经有，不用重复 */
-}
-
-#scroll-date {
-  position: absolute;
-  right: 4px;
-  /* 距离滚动条一点距离 */
-  top: 0;
-  /* 初始放在最上面 */
-  padding: 2px 6px;
-  background: rgba(0, 0, 0, 0.6);
-  color: white;
-  font-size: 12px;
-  border-radius: 4px;
-  pointer-events: none;
-  /* 不拦截任何鼠标事件 */
-  white-space: nowrap;
-}
-
+/* 日志滚动区位置 */
 #daily-scrollytelling {
   margin-top: 1em;
 }
 
-#scroll-container2 {
-  grid-column: 1;
-  position: relative;
-  width: 95%;
-  height: 350px;
-  overflow-y: scroll;
-  border: 1px solid #ccc;
-  margin-bottom: 50px;
-}
-
-#spacer2 {
-  position: absolute;
-  inset: 0 auto auto 0;
-  width: 100%;
-  pointer-events: none;
-}
-
-#items-container2 {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-}
-
-/* —— 以下三条新增 —— */
-
-/* 1. 取消滚动区自身的 margin-bottom */
+/* 1. 滚动区填满各自列宽 */
 #scroll-container1,
 #scroll-container2 {
+  width: 100%;
+  /* 2. 同时取消它们自身的 margin-bottom */
   margin-bottom: 0;
 }
 
-/* 2. 两组 Scrolly+Scatter 并排同高，由 grid gap 控制整体间距 */
+/* 3. 两组 Scrolly+Scatter 并排同高，由 grid gap 控制整体间距 */
 #scrollytelling,
 #daily-scrollytelling {
   display: grid;
@@ -528,34 +484,7 @@ stats dd {
   gap: 1rem;
 }
 
-/* 3. 强制四个区域同高 */
-#scroll-container1,
-#scroll-container2,
-#chart,
-#daily-chart {
-  height: 350px;
-}
-
-#scroll-container1,
-#scroll-container2 {
-  width: 100%;
-}
-
-/* 2. 取消它们原本的 margin-bottom（避免行高跑偏） */
-#scroll-container1,
-#scroll-container2 {
-  margin-bottom: 0;
-}
-
-/* 3. 强制两组同时采用 1fr 1fr 布局（覆盖 subgrid） */
-#scrollytelling,
-#daily-scrollytelling {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;       /* 水平、垂直都 1rem 间距 */
-}
-
-/* 4. 让这四个区域严格同高 */
+/* 4. 强制四个区域同高 */
 #scroll-container1,
 #scroll-container2,
 #chart,
