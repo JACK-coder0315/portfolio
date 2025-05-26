@@ -187,91 +187,70 @@ function renderScatter(allCommits, slice) {
 }
 
 function renderScatterAt(containerId, allCommits, slice) {
-  // 清空容器并创建 SVG
+  // 1. 清空容器并创建 SVG
   const container = d3.select(containerId).html('');
   const W = container.node().clientWidth;
   const H = container.node().clientHeight;
-  const m = { top:10, right:10, bottom:30, left:40 };
+  const m = { top: 10, right: 10, bottom: 30, left: 40 };
   const svg = container.append('svg')
     .attr('viewBox', `0 0 ${W} ${H}`)
-    .style('overflow','visible');
+    .style('overflow', 'visible');
 
-  // 比例尺
+  // 2. 比例尺
   const x = d3.scaleTime()
-      .domain(d3.extent(allCommits, d=>d.datetime))
-      .range([m.left, W-m.right]).nice();
+    .domain(d3.extent(allCommits, d => d.datetime))
+    .range([m.left, W - m.right]).nice();
   const y = d3.scaleLinear()
-      .domain([0,24])
-      .range([H-m.bottom, m.top]);
+    .domain([0, 24])
+    .range([H - m.bottom, m.top]);
   const r = d3.scaleSqrt()
-      .domain(d3.extent(allCommits, d=>d.totalLines))
-      .range([3,20]);
+    .domain(d3.extent(allCommits, d => d.totalLines))
+    .range([3, 20]);
 
-  // 坐标轴 & 网格
+  // 3. 画坐标轴 & 网格线
   svg.append('g')
-     .attr('transform', `translate(0,${H-m.bottom})`)
-     .call(d3.axisBottom(x));
+    .attr('transform', `translate(0,${H - m.bottom})`)
+    .call(d3.axisBottom(x));
   svg.append('g')
-     .attr('transform', `translate(${m.left},0)`)
-     .call(d3.axisLeft(y).tickFormat(d=>`${String(d%24).padStart(2,'0')}:00`));
+    .attr('transform', `translate(${m.left},0)`)
+    .call(d3.axisLeft(y).tickFormat(d => `${String(d % 24).padStart(2, '0')}:00`));
   svg.append('g')
-     .attr('class','gridlines')
-     .attr('transform', `translate(${m.left},0)`)
-     .call(d3.axisLeft(y).tickFormat('').tickSize(-(W-m.left-m.right)));
+    .attr('class', 'gridlines')
+    .attr('transform', `translate(${m.left},0)`)
+    .call(d3.axisLeft(y).tickFormat('').tickSize(-(W - m.left - m.right)));
 
-  // 画点
-  const dots = svg.append('g').attr('class','dots');
+  // 4. 画点
+  const dots = svg.append('g').attr('class', 'dots');
   const circles = dots.selectAll('circle')
-    .data(slice.slice().sort((a,b)=>b.totalLines - a.totalLines))
+    .data(slice.slice().sort((a, b) => b.totalLines - a.totalLines))
     .join('circle')
-      .attr('cx', d=>x(d.datetime))
-      .attr('cy', d=>y(d.hourFrac))
-      .attr('r' , d=>r(d.totalLines))
-      .attr('fill','steelblue')
-      .attr('fill-opacity',0.7);
+      .attr('cx', d => x(d.datetime))
+      .attr('cy', d => y(d.hourFrac))
+      .attr('r',  d => r(d.totalLines))
+      .attr('fill', 'steelblue')
+      .attr('fill-opacity', 0.7);
 
-  // 绑定 tooltip 事件
-  const tooltip = d3.select('#commit-tooltip');
-  circles
-    .on('mouseenter', function(event, d) {
-      // 填充内容
-      tooltip.select('#tip-id')   .text(d.id.slice(0,7));
-      tooltip.select('#tip-date') .text(
-        d.datetime.toLocaleDateString('en-US',{
-          weekday:'long', year:'numeric', month:'long', day:'numeric'
-        })
-      );
-      tooltip.select('#tip-time') .text(
-        d.datetime.toLocaleTimeString('en-US',{
-          hour:'numeric', minute:'2-digit'
-        })
-      );
-      tooltip.select('#tip-author').text(d.author);
-      tooltip.select('#tip-lines') .text(d.totalLines);
-
-      // 去掉 hidden 并显示
-      tooltip
-        .attr('hidden', null)
-        .style('left',  (event.clientX + 10) + 'px')
-        .style('top',   (event.clientY + 10) + 'px');
-    })
-    .on('mousemove', function(event) {
-      // 跟随鼠标移动
-      tooltip
-        .style('left',  (event.clientX + 10) + 'px')
-        .style('top',   (event.clientY + 10) + 'px');
-    })
-    .on('mouseleave', function() {
-      // 鼠标离开时重新隐藏
-      tooltip.attr('hidden', true);
+  // 5. 添加原生 <title> tooltip（最稳定的方案）
+  circles.append('title')
+    .text(d => {
+      const date = d.datetime.toLocaleDateString('en-US', {
+        weekday: 'short', year: 'numeric', month: 'short', day: 'numeric'
+      });
+      const time = d.datetime.toLocaleTimeString('en-US', {
+        hour: '2-digit', minute: '2-digit'
+      });
+      return `${d.id.slice(0,7)}\n${date} ${time}\nLines: ${d.totalLines}`;
     });
 
-  // brush（可按需添加联动逻辑）
+  // 6. brush（保持原有逻辑即可）
   const brush = d3.brush()
-    .extent([[m.left, m.top], [W-m.right, H-m.bottom]])
-    .on('start brush end', () => {});
+    .extent([[m.left, m.top], [W - m.right, H - m.bottom]])
+    .on('start brush end', ({selection}) => {
+      // 如果需要联动选中效果，可以在这里处理
+    });
   svg.append('g').call(brush);
 }
+
 
 /* ---------- 渲染语言细分 ---------- */
 function renderLanguageBreakdown(selectedCommits) {
