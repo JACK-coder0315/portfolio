@@ -539,3 +539,23 @@ stats dd {
 #daily-scrollytelling {
   margin-top: 2rem;
 }
+
+#overview-stats.stats {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr); /* 六列 */
+  text-align: center;
+  gap: 1.5rem;
+  margin: 1rem 0;
+}
+#overview-stats.stats dt {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  opacity: 0.6;
+  margin-bottom: 0.25rem;
+}
+#overview-stats.stats dd {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 0;
+  line-height: 1;
+}
