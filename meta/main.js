@@ -299,6 +299,98 @@ function renderDailyItems(commits) {
       });
 }
 
+// ===== Commit Timeline Overview（粘在这里） =====
+
+// 4.1 映射比例
+const overviewScale = d3.scaleTime()
+  .domain(d3.extent(commits, d => d.datetime))
+  .range([0, 100]);
+
+// 4.2 拿到 slider 和 display
+const overviewSlider  = d3.select('#overview-slider');
+const overviewDisplay = d3.select('#overview-time-display');
+
+// 4.3 新散点渲染函数
+function renderOverviewScatter(maxDate) {
+  const data = commits.filter(d => d.datetime <= maxDate);
+  const container = d3.select('#overview-chart');
+  const W = container.node().clientWidth;
+  const H = container.node().clientHeight;
+  const margin = { top: 20, right: 20, bottom: 30, left: 40 };
+  container.selectAll('*').remove();
+  const svg = container.append('svg').attr('width', W).attr('height', H);
+
+  const x = d3.scaleTime()
+    .domain(d3.extent(commits, d => d.datetime))
+    .range([margin.left, W - margin.right]);
+  const y = d3.scaleLinear()
+    .domain([0,24])
+    .range([H - margin.bottom, margin.top]);
+  const r = d3.scaleSqrt()
+    .domain(d3.extent(commits, d => d.totalLines))
+    .range([3, 15]);
+
+  svg.append('g')
+    .attr('transform', `translate(0,${H - margin.bottom})`)
+    .call(d3.axisBottom(x));
+  svg.append('g')
+    .attr('transform', `translate(${margin.left},0)`)
+    .call(d3.axisLeft(y).tickFormat(d => `${String(d).padStart(2,'0')}:00`));
+
+  svg.append('g')
+    .selectAll('circle')
+    .data(data)
+    .join('circle')
+      .attr('cx', d => x(d.datetime))
+      .attr('cy', d => y(d.hourFrac))
+      .attr('r',  d => r(d.totalLines))
+      .attr('fill','steelblue')
+      .attr('fill-opacity',0.7);
+}
+
+// 4.4 新文件点渲染函数
+function renderOverviewFiles(maxDate) {
+  const lines = commits
+    .filter(d => d.datetime <= maxDate)
+    .flatMap(c => c.lines);
+  const byFile = d3.groups(lines, d => d.file)
+    .map(([file, arr]) => ({ file, count: arr.length }));
+  const dl = d3.select('#overview-files').html('');
+  byFile.forEach(({file, count}) => {
+    dl.append('dt').text(file);
+    dl.append('dd')
+      .append('div')
+      .selectAll('span')
+      .data(d3.range(count))
+      .join('span')
+        .style('display','inline-block')
+        .style('width','6px')
+        .style('height','6px')
+        .style('margin','1px')
+        .style('border-radius','50%')
+        .style('background','steelblue');
+  });
+}
+
+// 4.5 slider 事件绑定
+function onOverviewSlider() {
+  const pct = +overviewSlider.node().value;
+  const maxDate = overviewScale.invert(pct);
+  overviewDisplay.text(
+    maxDate.toLocaleDateString('en-US',{ month:'short', day:'numeric' })
+    + ' ' +
+    maxDate.toLocaleTimeString('en-US',{ hour:'2-digit', minute:'2-digit' })
+  );
+  renderOverviewScatter(maxDate);
+  renderOverviewFiles(maxDate);
+}
+
+overviewSlider.on('input', onOverviewSlider);
+// 先渲染一次
+onOverviewSlider();
+// ===== End Commit Timeline Overview =====
+
+
 /* ---------- 主程序 ---------- */
 (async () => {
   const raw     = await loadData();

@@ -61,6 +61,24 @@
     <p id="selection-count">No commits selected</p>
     <div id="language-breakdown"></div>
   </div>
+
+  <!-- ===== 新增：总体时间过滤 + 散点 + 文件点可视化 ===== -->
+  <h2>Commit Timeline Overview</h2>
+
+  <!-- 时间滑块 -->
+  <div id="overview-time-filter" style="display:flex; align-items:center; gap:1rem; margin-bottom:1rem;">
+    <label for="overview-slider">Show commits until:</label>
+    <input type="range" id="overview-slider" min="0" max="100" value="100" style="flex:1;">
+    <span id="overview-time-display" style="white-space:nowrap; font-weight:bold;"></span>
+  </div>
+
+  <!-- 新的散点图容器 -->
+  <div id="overview-chart" style="width:100%; height:400px; margin-bottom:2rem;"></div>
+
+  <!-- 新的文件点可视化 -->
+  <dl id="overview-files" class="files"></dl>
+
+
 </body>
 
 </html>
