@@ -36,7 +36,6 @@
   <!-- ===== 第二组 Scrolly + Scatter ===== -->
   <h2>Daily Work Summary</h2>
   <div id="daily-scrollytelling">
-    <!-- 先放散点，再放滚动框 -->
     <div id="daily-chart"></div>
     <div id="scroll-container2">
       <div id="spacer2"></div>
@@ -62,7 +61,7 @@
     <div id="language-breakdown"></div>
   </div>
 
-  <!-- ===== 新增：总体时间过滤 + 散点 + 文件点可视化 ===== -->
+  <!-- ===== 新增：总体时间过滤 + 统计面板 + 散点 + 文件点可视化 ===== -->
   <h2>Commit Timeline Overview</h2>
 
   <!-- 时间滑块 -->
@@ -72,12 +71,14 @@
     <span id="overview-time-display" style="white-space:nowrap; font-weight:bold;"></span>
   </div>
 
+  <!-- Overview 统计面板 -->
+  <dl id="overview-stats" class="stats"></dl>
+
   <!-- 新的散点图容器 -->
   <div id="overview-chart" style="width:100%; height:400px; margin-bottom:2rem;"></div>
 
   <!-- 新的文件点可视化 -->
   <dl id="overview-files" class="files"></dl>
-
 
 </body>
 

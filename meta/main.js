@@ -35,7 +35,7 @@ function processCommits(data) {
     .sort((a, b) => a.datetime - b.datetime);
 }
 
-/* ---------- 渲染摘要统计 ---------- */
+/* ---------- 渲染摘要统计 (左上 Summary) ---------- */
 function renderSummary(data, commits) {
   const dl = d3.select('#stats').html('')
     .append('dl').attr('class','stats');
@@ -50,10 +50,37 @@ function renderSummary(data, commits) {
   add('Number Of Files', d3.groups(data, d=>d.file).length);
   const byFile = d3.rollups(data, v=>v.length, d=>d.file).map(d=>d[1]);
   add('Average File Length (In Lines)', d3.mean(byFile).toFixed(0));
-  const hourCounts = Array.from(d3.rollup(commits, v=>v.length, c=>c.datetime.getHours()).entries());
-  const peakHour   = d3.greatest(hourCounts, d=>d[1])[0];
-  add('Peak Work Time', peakHour>=18||peakHour<6 ? 'At Night':'Daytime');
+  const hourCounts = Array.from(
+    d3.rollup(commits, v=>v.length, c=>c.datetime.getHours())
+      .entries()
+  );
+  const peakHour = d3.greatest(hourCounts, d=>d[1])[0];
+  add('Peak Work Time', peakHour>=18||peakHour<6 ? 'At Night' : 'Daytime');
   add('Longest Line', d3.max(data, d=>d.length));
+}
+
+/* ---------- Overview 统计面板 (滑块下方那一排) ---------- */
+function updateOverviewStats(commits) {
+  const commitCount = commits.length;
+  const lines       = commits.flatMap(c => c.lines);
+  const fileCount   = new Set(lines.map(d => d.file)).size;
+  const totalLOC    = lines.length;
+  const maxDepth    = d3.max(lines, d => d.depth);
+  const longestLine = d3.max(lines, d => d.length);
+  const maxLines    = d3.max(commits, c => c.totalLines);
+
+  const dl = d3.select('#overview-stats').html('')
+    .append('dl').attr('class','stats');
+  const add = (label, value) => {
+    dl.append('dt').text(label);
+    dl.append('dd').text(value);
+  };
+  add('COMMITS',      commitCount);
+  add('FILES',        fileCount);
+  add('TOTAL LOC',    totalLOC);
+  add('MAX DEPTH',    maxDepth);
+  add('LONGEST LINE', longestLine);
+  add('MAX LINES',    maxLines);
 }
 
 /* ---------- 渲染 Commit 故事条目 ---------- */
@@ -116,14 +143,12 @@ function renderScatter(allCommits, slice) {
         const cx = x(d.datetime), cy = y(d.hourFrac);
         return x0<=cx&&cx<=x1&&y0<=cy&&cy<=y1;
       });
-
       const selected = allCommits.filter(d => {
         if (!selection) return false;
         const [[x0,y0],[x1,y1]] = selection;
         const cx = x(d.datetime), cy = y(d.hourFrac);
         return x0<=cx&&cx<=x1&&y0<=cy&&cy<=y1;
       });
-
       d3.select('#selection-count').text(
         selected.length
           ? `${selected.length} commits selected`
@@ -187,7 +212,7 @@ function renderScatterAt(containerId, allCommits, slice) {
     .attr('transform',`translate(${m.left},0)`)
     .call(d3.axisLeft(y).tickFormat('').tickSize(-(W-m.left-m.right)));
 
-  const dots = svg.append('g').attr('class','dots');
+  const dots=svg.append('g').attr('class','dots');
   dots.selectAll('circle')
     .data(slice.slice().sort((a,b)=>b.totalLines-a.totalLines))
     .join('circle')
@@ -264,7 +289,7 @@ function renderDailyItems(commits) {
 
   // ===== Lab08 时间滑块映射 & 单元可视化 =====
 
-  // 1) 初始化 Overview SVG、比例尺和图层引用
+  // 初始化 Overview 区域
   const ovContainer = d3.select('#overview-chart');
   const ovW = ovContainer.node().clientWidth;
   const ovH = ovContainer.node().clientHeight;
@@ -290,10 +315,9 @@ function renderDailyItems(commits) {
   const yAxisG = ovSvg.append('g')
     .attr('class','y-axis')
     .attr('transform', `translate(${ovM.left},0)`);
+  const dotsG  = ovSvg.append('g').attr('class','dots');
 
-  const dotsG = ovSvg.append('g').attr('class','dots');
-
-  // 2) 定义更新散点函数（updateScatterPlot）
+  // 定义更新函数
   function updateScatterPlot(data) {
     xScale.domain(d3.extent(data, d=>d.datetime));
     rScale.domain(d3.extent(data, d=>d.totalLines));
@@ -321,7 +345,6 @@ function renderDailyItems(commits) {
     );
   }
 
-  // 3) 定义更新文件单元可视化函数（updateFileUnits）
   function updateFileUnits(data) {
     const lines = data.flatMap(d => d.lines);
     const files = d3.groups(lines, d => d.file)
@@ -338,26 +361,25 @@ function renderDailyItems(commits) {
         })
       );
 
-    groups.select('dt code')
-      .text(d => d.name);
+    groups.select('dt code').text(d => d.name);
 
-    groups.select('dd')
-      .each(function(d) {
-        const dd = d3.select(this);
-        dd.selectAll('div.line').remove();
-        dd.selectAll('div.line')
-          .data(d.lines)
-          .join('div')
-            .attr('class','line')
-            .style('background', l => fileTypeColors(l.type));
-      });
+    groups.select('dd').each(function(d) {
+      const dd = d3.select(this);
+      dd.selectAll('div.line').remove();
+      dd.selectAll('div.line')
+        .data(d.lines)
+        .join('div')
+          .attr('class','line')
+          .style('background', l => fileTypeColors(l.type));
+    });
   }
 
-  // 4) 初次渲染 Lab08 区域
+  // 首次渲染 Overview
   updateScatterPlot(commits);
   updateFileUnits(commits);
+  updateOverviewStats(commits);
 
-  // 5) 滑块绑定
+  // 滑块绑定
   const overviewSlider  = d3.select('#overview-slider');
   const overviewDisplay = d3.select('#overview-time-display');
   const sliderScale     = d3.scaleTime()
@@ -365,22 +387,26 @@ function renderDailyItems(commits) {
     .range([0, 100]);
 
   overviewSlider.on('input', () => {
-    const pct = +overviewSlider.node().value;
+    const pct    = +overviewSlider.node().value;
     const cutoff = sliderScale.invert(pct);
+
     overviewDisplay.text(
       cutoff.toLocaleString('en-US',{ dateStyle:'long', timeStyle:'short' })
     );
+
     const filtered = commits.filter(d => d.datetime <= cutoff);
+
     updateScatterPlot(filtered);
     updateFileUnits(filtered);
+    updateOverviewStats(filtered);
   });
 
   // ===== End Lab08 时间滑块 & 单元可视化 =====
 
-  // 6) 渲染 Summary
+  // 渲染左上 Summary
   renderSummary(raw, commits);
 
-  // 7) 第一组：Scrolly + Scatter
+  // 第一组：Scrolly + Scatter
   const initialSlice = commits.slice(0, VISIBLE_COUNT);
   renderCommitItems(initialSlice, 0);
   renderScatter(commits, initialSlice);
@@ -394,12 +420,10 @@ function renderDailyItems(commits) {
     const dateStr = commits[idx].datetime.toLocaleDateString('en-US',{
       weekday:'long',year:'numeric',month:'long',day:'numeric'
     });
-    d3.select('#scroll-date')
-      .style('top', `${this.scrollTop}px`)
-      .text(dateStr);
+    d3.select('#scroll-date').style('top',`${this.scrollTop}px`).text(dateStr);
   });
 
-  // 8) 第二组：Daily Scrolly
+  // 第二组：Daily Scrolly
   renderDailyItems(commits);
   renderScatterAt('#daily-chart', commits, initialSlice);
   d3.select('#scroll-container2').on('scroll', function() {
