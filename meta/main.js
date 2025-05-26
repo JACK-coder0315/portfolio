@@ -246,66 +246,78 @@ function renderDailyItems(commits) {
     .domain([
       d3.min(commits, d => d.datetime),
       d3.max(commits, d => d.datetime)
-    ])
-    .range([0, 100]);
-
-  // Will get updated as user changes slider
-  let filteredCommits = commits;
+    ]).range([0, 100]);
+  let commitMaxTime = timeScale.invert(commitProgress);
 
   const overviewSlider  = d3.select('#overview-slider');
   const overviewDisplay = d3.select('#overview-time-display');
 
-  // 初始化 Overview SVG、比例尺、轴组和点组
-  const ovContainer = d3.select('#overview-chart');
-  const W = ovContainer.node().clientWidth;
-  const H = ovContainer.node().clientHeight;
-  const m = { top:20, right:20, bottom:30, left:40 };
+  function renderOverviewScatter(maxDate) {
+    const data = commits.filter(d => d.datetime <= maxDate);
+    const container = d3.select('#overview-chart');
+    const W = container.node().clientWidth;
+    const H = container.node().clientHeight;
+    const m = { top:20, right:20, bottom:30, left:40 };
 
-  const svgOv = ovContainer.append('svg')
-    .attr('width', W).attr('height', H);
+    container.selectAll('*').remove();
+    const svg = container.append('svg')
+      .attr('width', W).attr('height', H);
 
-  const xScale = d3.scaleTime().range([m.left, W - m.right]);
-  const yScale = d3.scaleLinear().domain([0,24]).range([H - m.bottom, m.top]);
-  const rScale = d3.scaleSqrt().range([2, 30]);
+    const x = d3.scaleTime()
+      .domain(d3.extent(commits, d=>d.datetime))
+      .range([m.left, W - m.right]);
+    const y = d3.scaleLinear()
+      .domain([0,24])
+      .range([H - m.bottom, m.top]);
+    const r = d3.scaleSqrt()
+      .domain(d3.extent(commits, d=>d.totalLines))
+      .range([3, 15]);
 
-  const xAxisG = svgOv.append('g')
-    .attr('class','x-axis')
-    .attr('transform', `translate(0,${H-m.bottom})`);
+    svg.append('g')
+      .attr('transform', `translate(0,${H - m.bottom})`)
+      .call(d3.axisBottom(x));
+    svg.append('g')
+      .attr('transform', `translate(${m.left},0)`)
+      .call(d3.axisLeft(y).tickFormat(d => `${String(d).padStart(2,'0')}:00`));
 
-  svgOv.append('g')
-    .attr('class','y-axis')
-    .attr('transform', `translate(${m.left},0)`);
+    svg.append('g')
+      .selectAll('circle')
+      .data(data)
+      .join('circle')
+        .attr('cx', d => x(d.datetime))
+        .attr('cy', d => y(d.hourFrac))
+        .attr('r',  d => r(d.totalLines))
+        .attr('fill','steelblue')
+        .attr('fill-opacity',0.7);
+  }
 
-  const dotsG = svgOv.append('g')
-    .attr('class','dots');
+  function renderOverviewFiles(maxDate) {
+    const lines = commits
+      .filter(d => d.datetime <= maxDate)
+      .flatMap(c => c.lines);
+    const byFile = d3.groups(lines, d => d.file)
+      .map(([file, arr]) => ({ file, count: arr.length }));
 
-  // 完全按照 Lab08 的 enter-update-exit + 轴更新
-  function updateScatterPlot(data) {
-    xScale.domain(d3.extent(data, d => d.datetime));
-    rScale.domain(d3.extent(data, d => d.totalLines));
-
-    xAxisG.call(d3.axisBottom(xScale));
-    svgOv.select('g.y-axis')
-      .call(d3.axisLeft(yScale).tickFormat(d => `${String(d).padStart(2,'0')}:00`));
-
-    const circles = dotsG.selectAll('circle').data(data, d=>d.id);
-    circles.join(
-      enter => enter.append('circle')
-        .attr('cx', d => xScale(d.datetime))
-        .attr('cy', d => yScale(d.hourFrac))
-        .attr('r', 0)
-        .call(e => e.transition().attr('r', d => rScale(d.totalLines))),
-      update => update.call(u => u.transition()
-        .attr('cx', d => xScale(d.datetime))
-        .attr('cy', d => yScale(d.hourFrac))
-        .attr('r',  d => rScale(d.totalLines))),
-      exit => exit.call(e => e.transition().attr('r',0).remove())
-    );
+    const dl = d3.select('#overview-files').html('');
+    byFile.forEach(({file, count}) => {
+      dl.append('dt').text(file);
+      dl.append('dd')
+        .append('div')
+        .selectAll('span')
+        .data(d3.range(count))
+        .join('span')
+          .style('display','inline-block')
+          .style('width','6px')
+          .style('height','6px')
+          .style('margin','1px')
+          .style('border-radius','50%')
+          .style('background','steelblue');
+    });
   }
 
   function onOverviewSlider() {
     commitProgress = +overviewSlider.node().value;
-    const commitMaxTime = timeScale.invert(commitProgress);
+    commitMaxTime  = timeScale.invert(commitProgress);
 
     overviewDisplay.text(
       commitMaxTime.toLocaleDateString('en-US',{ month:'short', day:'numeric' })
@@ -313,14 +325,13 @@ function renderDailyItems(commits) {
       commitMaxTime.toLocaleTimeString('en-US',{ hour:'2-digit', minute:'2-digit' })
     );
 
-    filteredCommits = commits.filter(d => d.datetime <= commitMaxTime);
-    updateScatterPlot(filteredCommits);
+    renderOverviewScatter(commitMaxTime);
+    renderOverviewFiles (commitMaxTime);
   }
 
   overviewSlider.on('input', onOverviewSlider);
   onOverviewSlider();
   // ===== End Lab08 时间滑块映射逻辑 =====
-
 
   // 1) 渲染 Summary
   renderSummary(raw, commits);
