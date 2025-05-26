@@ -77,11 +77,12 @@ function renderCommitItems(slice, startIdx) {
       .html(narrativeCommit);
 }
 
-/* ---------- renderScatter（含 tooltip & 选择回调） ---------- */
+/* ---------- 第一组散点图 + Tooltip + Brush ---------- */
 function renderScatter(allCommits, slice) {
   const W = 1000, H = 600, m = { top:10, right:10, bottom:30, left:40 };
   const svg = d3.select('#chart').html('')
     .append('svg').attr('viewBox', `0 0 ${W} ${H}`).style('overflow','visible');
+
   const x = d3.scaleTime().domain(d3.extent(allCommits, d=>d.datetime)).range([m.left, W-m.right]).nice();
   const y = d3.scaleLinear().domain([0,24]).range([H-m.bottom, m.top]);
   const r = d3.scaleSqrt().domain(d3.extent(allCommits, d=>d.totalLines)).range([3,20]);
@@ -103,18 +104,21 @@ function renderScatter(allCommits, slice) {
 
   const brush = d3.brush().extent([[m.left,m.top],[W-m.right,H-m.bottom]])
     .on('start brush end', ({selection}) => {
-      dots.selectAll('circle').classed('selected', d => {
-        if (!selection) return false;
-        const [[x0,y0],[x1,y1]] = selection;
-        const cx = x(d.datetime), cy = y(d.hourFrac);
-        return x0<=cx&&cx<=x1&&y0<=cy&&cy<=y1;
-      });
+      dots.selectAll('circle')
+        .classed('selected', d => {
+          if (!selection) return false;
+          const [[x0,y0],[x1,y1]] = selection;
+          const cx = x(d.datetime), cy = y(d.hourFrac);
+          return x0<=cx&&cx<=x1&&y0<=cy&&cy<=y1;
+        });
+
       const selected = allCommits.filter(d => {
         if (!selection) return false;
         const [[x0,y0],[x1,y1]] = selection;
         const cx = x(d.datetime), cy = y(d.hourFrac);
         return x0<=cx&&cx<=x1&&y0<=cy&&cy<=y1;
       });
+
       d3.select('#selection-count').text(
         selected.length
           ? `${selected.length} commits selected`
@@ -123,6 +127,7 @@ function renderScatter(allCommits, slice) {
       renderLanguageBreakdown(selected);
       renderFiles(selected);
     });
+
   svg.append('g').call(brush);
   svg.selectAll('.dots, .overlay ~ *').raise();
 
@@ -153,7 +158,7 @@ function renderScatter(allCommits, slice) {
     });
 }
 
-/* ---------- renderScatterAt（仅画点 + brush） ---------- */
+/* ---------- 第二组简单散点 + Brush ---------- */
 function renderScatterAt(containerId, allCommits, slice) {
   const container = d3.select(containerId).html('');
   const W = container.node().clientWidth, H = container.node().clientHeight;
@@ -246,66 +251,51 @@ function renderDailyItems(commits) {
     .domain([
       d3.min(commits, d => d.datetime),
       d3.max(commits, d => d.datetime)
-    ]).range([0, 100]);
-  let commitMaxTime = timeScale.invert(commitProgress);
+    ])
+    .range([0, 100]);
+
+  let filteredCommits = commits;
 
   const overviewSlider  = d3.select('#overview-slider');
   const overviewDisplay = d3.select('#overview-time-display');
 
-  function renderOverviewScatter(maxDate) {
-    const data = commits.filter(d => d.datetime <= maxDate);
-    const container = d3.select('#overview-chart');
-    const W = container.node().clientWidth;
-    const H = container.node().clientHeight;
-    const m = { top:20, right:20, bottom:30, left:40 };
+  // Overview 已初始化 —— 参见上方
 
-    container.selectAll('*').remove();
-    const svg = container.append('svg')
-      .attr('width', W).attr('height', H);
+  function updateScatterPlot(data) {
+    xScale.domain(d3.extent(data, d => d.datetime));
+    rScale.domain(d3.extent(data, d => d.totalLines));
 
-    const x = d3.scaleTime()
-      .domain(d3.extent(commits, d=>d.datetime))
-      .range([m.left, W - m.right]);
-    const y = d3.scaleLinear()
-      .domain([0,24])
-      .range([H - m.bottom, m.top]);
-    const r = d3.scaleSqrt()
-      .domain(d3.extent(commits, d=>d.totalLines))
-      .range([3, 15]);
+    xAxisG.selectAll('*').remove();
+    xAxisG.call(d3.axisBottom(xScale));
 
-    svg.append('g')
-      .attr('transform', `translate(0,${H - m.bottom})`)
-      .call(d3.axisBottom(x));
-    svg.append('g')
-      .attr('transform', `translate(${m.left},0)`)
-      .call(d3.axisLeft(y).tickFormat(d => `${String(d).padStart(2,'0')}:00`));
+    yAxisG.selectAll('*').remove();
+    yAxisG.call(d3.axisLeft(yScale).tickFormat(d=>`${String(d).padStart(2,'0')}:00`));
 
-    svg.append('g')
-      .selectAll('circle')
-      .data(data)
-      .join('circle')
-        .attr('cx', d => x(d.datetime))
-        .attr('cy', d => y(d.hourFrac))
-        .attr('r',  d => r(d.totalLines))
+    const circles = dotsG.selectAll('circle').data(data, d=>d.id);
+    circles.join(
+      enter => enter.append('circle')
+        .attr('cx', d=>xScale(d.datetime))
+        .attr('cy', d=>yScale(d.hourFrac))
+        .attr('r', 0)
         .attr('fill','steelblue')
-        .attr('fill-opacity',0.7);
+        .attr('fill-opacity',0.7)
+        .call(e => e.transition().attr('r', d=>rScale(d.totalLines))),
+      update => update.call(u => u.transition()
+        .attr('cx', d=>xScale(d.datetime))
+        .attr('cy', d=>yScale(d.hourFrac))
+        .attr('r',  d=>rScale(d.totalLines))),
+      exit => exit.call(e => e.transition().attr('r',0).remove())
+    );
   }
 
-  function renderOverviewFiles(maxDate) {
-    const lines = commits
-      .filter(d => d.datetime <= maxDate)
-      .flatMap(c => c.lines);
-    const byFile = d3.groups(lines, d => d.file)
-      .map(([file, arr]) => ({ file, count: arr.length }));
-
+  function updateOverviewFiles(maxDate) {
+    const lines = commits.filter(d=>d.datetime<=maxDate).flatMap(c=>c.lines);
+    const byFile = d3.groups(lines, d=>d.file).map(([file,arr])=>({file,count:arr.length}));
     const dl = d3.select('#overview-files').html('');
-    byFile.forEach(({file, count}) => {
+    byFile.forEach(({file,count})=>{
       dl.append('dt').text(file);
-      dl.append('dd')
-        .append('div')
-        .selectAll('span')
-        .data(d3.range(count))
-        .join('span')
+      dl.append('dd').append('div')
+        .selectAll('span').data(d3.range(count)).join('span')
           .style('display','inline-block')
           .style('width','6px')
           .style('height','6px')
@@ -317,7 +307,7 @@ function renderDailyItems(commits) {
 
   function onOverviewSlider() {
     commitProgress = +overviewSlider.node().value;
-    commitMaxTime  = timeScale.invert(commitProgress);
+    const commitMaxTime = timeScale.invert(commitProgress);
 
     overviewDisplay.text(
       commitMaxTime.toLocaleDateString('en-US',{ month:'short', day:'numeric' })
@@ -325,8 +315,9 @@ function renderDailyItems(commits) {
       commitMaxTime.toLocaleTimeString('en-US',{ hour:'2-digit', minute:'2-digit' })
     );
 
-    renderOverviewScatter(commitMaxTime);
-    renderOverviewFiles (commitMaxTime);
+    filteredCommits = commits.filter(d => d.datetime <= commitMaxTime);
+    updateScatterPlot(filteredCommits);
+    updateOverviewFiles(commitMaxTime);
   }
 
   overviewSlider.on('input', onOverviewSlider);
@@ -347,13 +338,13 @@ function renderDailyItems(commits) {
     renderCommitItems(slice, idx);
     renderScatter(commits, slice);
     renderFiles(slice);
-    const dateStr = commits[idx].datetime.toLocaleDateString('en-US',{
+    const dateStr = commits[idx].datetime.toLocaleDateString('en-US', {
       weekday:'long',year:'numeric',month:'long',day:'numeric'
     });
     d3.select('#scroll-date').style('top',`${this.scrollTop}px`).text(dateStr);
   });
 
-  // 3) 第二组：Daily Scrolly
+  // 3) 第二组 Daily Scrolly
   renderDailyItems(commits);
   renderScatterAt('#daily-chart', commits, initialSlice);
   d3.select('#scroll-container2').on('scroll', function() {
