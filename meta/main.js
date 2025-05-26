@@ -223,6 +223,33 @@ function renderScatterAt(containerId, allCommits, slice) {
       .attr('fill','steelblue')
       .attr('fill-opacity',0.7);
 
+  const tooltip = d3.select('#commit-tooltip');
+  dots.selectAll('circle')
+    .on('mouseenter', function(event, d) {
+      d3.select('#tip-id')   .text(d.id.slice(0,7));
+      d3.select('#tip-date') .text(d.datetime.toLocaleDateString('en-US',{
+        weekday:'long', year:'numeric', month:'long', day:'numeric'
+      }));
+      d3.select('#tip-time') .text(d.datetime.toLocaleTimeString('en-US',{
+        hour:'numeric', minute:'2-digit'
+      }));
+      d3.select('#tip-author').text(d.author);
+      d3.select('#tip-lines') .text(d.totalLines);
+
+      tooltip
+        .classed('visible', true)
+        .style('left',  (event.clientX + 10) + 'px')
+        .style('top',   (event.clientY + 10) + 'px');
+    })
+    .on('mousemove', function(event) {
+      tooltip
+        .style('left',  (event.clientX + 10) + 'px')
+        .style('top',   (event.clientY + 10) + 'px');
+    })
+    .on('mouseleave', function() {
+      tooltip.classed('visible', false);
+    });
+
   const brush = d3.brush()
     .extent([[m.left,m.top],[W-m.right,H-m.bottom]])
     .on('start brush end', ({selection}) => {
