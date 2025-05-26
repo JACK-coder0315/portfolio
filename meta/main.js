@@ -1,7 +1,7 @@
 import * as d3 from 'https://cdn.jsdelivr.net/npm/d3@7.9.0/+esm';
 
 /* ---------- 常量 ---------- */
-const ITEM_HEIGHT    = 80;    // 与 CSS 中 .item/.item2 { height:80px } 保持一致
+const ITEM_HEIGHT    = 80;    // 与 CSS 中 .item/.item2 { height:80px }
 const VISIBLE_COUNT  = 10;
 const fileTypeColors = d3.scaleOrdinal(d3.schemeTableau10);
 
@@ -64,7 +64,6 @@ function narrativeCommit(c) {
     : 'my first commit, and it was glorious';
   return `<p>On ${dateStr}, I made <a href="${c.url}" target="_blank">${linkText}</a>. I edited <b>${c.totalLines}</b> lines.</p>`;
 }
-
 function renderCommitItems(slice, startIdx) {
   d3.select('#items-container1')
     .style('transform', `translateY(${startIdx * ITEM_HEIGHT}px)`);
@@ -240,69 +239,44 @@ function renderDailyItems(commits) {
   const raw     = await loadData();
   const commits = processCommits(raw);
 
-  // ===== Lab08 时间滑块映射逻辑 =====
-  let commitProgress = 100;
-  const timeScale = d3.scaleTime()
-    .domain([
-      d3.min(commits, d => d.datetime),
-      d3.max(commits, d => d.datetime)
-    ]).range([0, 100]);
-  let commitMaxTime = timeScale.invert(commitProgress);
+  // ===== Lab08 时间滑块映射逻辑 & 增量更新 =====
 
-  const overviewSlider  = d3.select('#overview-slider');
-  const overviewDisplay = d3.select('#overview-time-display');
-
-  function renderOverviewScatter(maxDate) {
-    const data = commits.filter(d => d.datetime <= maxDate);
-    const container = d3.select('#overview-chart');
-    const W = container.node().clientWidth;
-    const H = container.node().clientHeight;
-    const m = { top:20, right:20, bottom:30, left:40 };
-
-    container.selectAll('*').remove();
-    const svg = container.append('svg')
-      .attr('width', W).attr('height', H);
-
-    const x = d3.scaleTime()
-      .domain(d3.extent(commits, d=>d.datetime))
-      .range([m.left, W - m.right]);
-    const y = d3.scaleLinear()
-      .domain([0,24])
-      .range([H - m.bottom, m.top]);
-    const r = d3.scaleSqrt()
-      .domain(d3.extent(commits, d=>d.totalLines))
-      .range([3, 15]);
-
-    svg.append('g')
-      .attr('transform', `translate(0,${H - m.bottom})`)
-      .call(d3.axisBottom(x));
-    svg.append('g')
-      .attr('transform', `translate(${m.left},0)`)
-      .call(d3.axisLeft(y).tickFormat(d => `${String(d).padStart(2,'0')}:00`));
-
-    svg.append('g')
-      .selectAll('circle')
-      .data(data)
-      .join('circle')
-        .attr('cx', d => x(d.datetime))
-        .attr('cy', d => y(d.hourFrac))
-        .attr('r',  d => r(d.totalLines))
+  // 1) 定义增量更新函数
+  function updateScatterPlot(data) {
+    // 更新比例尺域
+    xScale.domain(d3.extent(data, d => d.datetime));
+    rScale.domain(d3.extent(data, d => d.totalLines));
+    // 更新坐标轴
+    xAxisG.selectAll('*').call(d3.axisBottom(xScale));
+    yAxisG.selectAll('*').call(d3.axisLeft(yScale)
+      .tickFormat(d => `${String(d).padStart(2,'0')}:00`));
+    // 平滑 enter/update/exit
+    const sorted = data.slice().sort((a,b)=>b.totalLines-a.totalLines);
+    const u = dotsG.selectAll('circle').data(sorted, d=>d.id);
+    u.join(
+      enter => enter.append('circle')
+        .attr('cx', d=>xScale(d.datetime))
+        .attr('cy', d=>yScale(d.hourFrac))
+        .attr('r', 0)
         .attr('fill','steelblue')
-        .attr('fill-opacity',0.7);
+        .attr('fill-opacity',0.7)
+        .call(e => e.transition().attr('r', d=>rScale(d.totalLines))),
+      update => update.call(u => u.transition()
+        .attr('cx', d=>xScale(d.datetime))
+        .attr('cy', d=>yScale(d.hourFrac))
+        .attr('r',  d=>rScale(d.totalLines))),
+      exit => exit.call(e => e.transition().attr('r',0).remove())
+    );
   }
 
-  function renderOverviewFiles(maxDate) {
-    const lines = commits
-      .filter(d => d.datetime <= maxDate)
-      .flatMap(c => c.lines);
-    const byFile = d3.groups(lines, d => d.file)
+  function updateFilesViz(data) {
+    const lines = data.flatMap(c=>c.lines);
+    const byFile = d3.groups(lines, d=>d.file)
       .map(([file, arr]) => ({ file, count: arr.length }));
-
     const dl = d3.select('#overview-files').html('');
-    byFile.forEach(({file, count}) => {
+    byFile.forEach(({file,count})=>{
       dl.append('dt').text(file);
-      dl.append('dd')
-        .append('div')
+      dl.append('dd').append('div')
         .selectAll('span')
         .data(d3.range(count))
         .join('span')
@@ -315,23 +289,59 @@ function renderDailyItems(commits) {
     });
   }
 
+  // 2) 初始化 overview-chart
+  const ovContainer = d3.select('#overview-chart');
+  const ovW = ovContainer.node().clientWidth;
+  const ovH = ovContainer.node().clientHeight;
+  const ovM = { top:20, right:20, bottom:30, left:40 };
+  ovContainer.selectAll('*').remove();
+  const ovSvg = ovContainer.append('svg')
+    .attr('width', ovW).attr('height', ovH);
+  let xScale = d3.scaleTime()
+    .domain(d3.extent(commits, d=>d.datetime))
+    .range([ovM.left, ovW-ovM.right]);
+  let yScale = d3.scaleLinear()
+    .domain([0,24])
+    .range([ovH-ovM.bottom, ovM.top]);
+  let rScale = d3.scaleSqrt()
+    .domain(d3.extent(commits, d=>d.totalLines))
+    .range([3,15]);
+  const xAxisG = ovSvg.append('g')
+    .attr('class','x-axis')
+    .attr('transform', `translate(0,${ovH-ovM.bottom})`)
+    .call(d3.axisBottom(xScale));
+  const yAxisG = ovSvg.append('g')
+    .attr('class','y-axis')
+    .attr('transform', `translate(${ovM.left},0)`)
+    .call(d3.axisLeft(yScale).tickFormat(d=>`${String(d).padStart(2,'0')}:00`));
+  const dotsG = ovSvg.append('g').attr('class','dots');
+  // 初次绘制
+  updateScatterPlot(commits);
+  updateFilesViz(commits);
+
+  // 3) 滑块 & 回调
+  let commitProgress = 100;
+  const sliderScale = d3.scaleTime()
+    .domain([
+      d3.min(commits, d=>d.datetime),
+      d3.max(commits, d=>d.datetime)
+    ])
+    .range([0,100]);
+  const overviewSlider  = d3.select('#overview-slider');
+  const overviewDisplay = d3.select('#overview-time-display');
   function onOverviewSlider() {
     commitProgress = +overviewSlider.node().value;
-    commitMaxTime  = timeScale.invert(commitProgress);
-
-    overviewDisplay.text(
-      commitMaxTime.toLocaleDateString('en-US',{ month:'short', day:'numeric' })
-      + ' ' +
-      commitMaxTime.toLocaleTimeString('en-US',{ hour:'2-digit', minute:'2-digit' })
-    );
-
-    renderOverviewScatter(commitMaxTime);
-    renderOverviewFiles (commitMaxTime);
+    const commitMaxTime = sliderScale.invert(commitProgress);
+    overviewDisplay.text(commitMaxTime.toLocaleString('en-US',{
+      dateStyle:'long', timeStyle:'short'
+    }));
+    const filtered = commits.filter(d=>d.datetime <= commitMaxTime);
+    updateScatterPlot(filtered);
+    updateFilesViz(filtered);
   }
-
   overviewSlider.on('input', onOverviewSlider);
   onOverviewSlider();
-  // ===== End Lab08 时间滑块映射逻辑 =====
+  // ===== End Lab08 时间滑块映射逻辑 & 增量更新 =====
 
   // 1) 渲染 Summary
   renderSummary(raw, commits);
