@@ -64,6 +64,7 @@ function narrativeCommit(c) {
     : 'my first commit, and it was glorious';
   return `<p>On ${dateStr}, I made <a href="${c.url}" target="_blank">${linkText}</a>. I edited <b>${c.totalLines}</b> lines.</p>`;
 }
+
 function renderCommitItems(slice, startIdx) {
   d3.select('#items-container1')
     .style('transform', `translateY(${startIdx * ITEM_HEIGHT}px)`);
@@ -84,10 +85,12 @@ function renderScatter(allCommits, slice) {
   const x = d3.scaleTime().domain(d3.extent(allCommits, d=>d.datetime)).range([m.left, W-m.right]).nice();
   const y = d3.scaleLinear().domain([0,24]).range([H-m.bottom, m.top]);
   const r = d3.scaleSqrt().domain(d3.extent(allCommits, d=>d.totalLines)).range([3,20]);
+
   svg.append('g').attr('transform', `translate(0,${H-m.bottom})`).call(d3.axisBottom(x));
   svg.append('g').attr('transform', `translate(${m.left},0)`).call(d3.axisLeft(y).tickFormat(d=>`${String(d%24).padStart(2,'0')}:00`));
   svg.append('g').attr('class','gridlines').attr('transform', `translate(${m.left},0)`)
      .call(d3.axisLeft(y).tickFormat('').tickSize(-(W-m.left-m.right)));
+
   const dots = svg.append('g').attr('class','dots');
   dots.selectAll('circle')
     .data(slice.slice().sort((a,b)=>b.totalLines-a.totalLines))
@@ -97,6 +100,7 @@ function renderScatter(allCommits, slice) {
       .attr('r' , d=>r(d.totalLines))
       .attr('fill','steelblue')
       .attr('fill-opacity',0.7);
+
   const brush = d3.brush().extent([[m.left,m.top],[W-m.right,H-m.bottom]])
     .on('start brush end', ({selection}) => {
       dots.selectAll('circle').classed('selected', d => {
@@ -108,7 +112,7 @@ function renderScatter(allCommits, slice) {
       const selected = allCommits.filter(d => {
         if (!selection) return false;
         const [[x0,y0],[x1,y1]] = selection;
-        const cx=x(d.datetime),cy=y(d.hourFrac);
+        const cx = x(d.datetime), cy = y(d.hourFrac);
         return x0<=cx&&cx<=x1&&y0<=cy&&cy<=y1;
       });
       d3.select('#selection-count').text(
@@ -121,6 +125,7 @@ function renderScatter(allCommits, slice) {
     });
   svg.append('g').call(brush);
   svg.selectAll('.dots, .overlay ~ *').raise();
+
   const tooltip = d3.select('#commit-tooltip');
   dots.selectAll('circle')
     .on('mouseenter', function(event,d){
@@ -157,10 +162,12 @@ function renderScatterAt(containerId, allCommits, slice) {
   const x = d3.scaleTime().domain(d3.extent(allCommits,d=>d.datetime)).range([m.left,W-m.right]).nice();
   const y = d3.scaleLinear().domain([0,24]).range([H-m.bottom,m.top]);
   const r = d3.scaleSqrt().domain(d3.extent(allCommits,d=>d.totalLines)).range([3,20]);
+
   svg.append('g').attr('transform',`translate(0,${H-m.bottom})`).call(d3.axisBottom(x));
   svg.append('g').attr('transform',`translate(${m.left},0)`).call(d3.axisLeft(y).tickFormat(d=>`${String(d%24).padStart(2,'0')}:00`));
   svg.append('g').attr('class','gridlines').attr('transform',`translate(${m.left},0)`)
      .call(d3.axisLeft(y).tickFormat('').tickSize(-(W-m.left-m.right)));
+
   const dots=svg.append('g').attr('class','dots');
   dots.selectAll('circle')
     .data(slice.slice().sort((a,b)=>b.totalLines-a.totalLines))
@@ -170,6 +177,7 @@ function renderScatterAt(containerId, allCommits, slice) {
       .attr('r' , d=>r(d.totalLines))
       .attr('fill','steelblue')
       .attr('fill-opacity',0.7);
+
   const brush = d3.brush().extent([[m.left,m.top],[W-m.right,H-m.bottom]])
     .on('start brush end', ({selection}) => {
       dots.selectAll('circle').classed('selected', d => {
@@ -201,15 +209,9 @@ function renderFiles(commits) {
     .map(([name, lines]) => ({ name, lines }))
     .sort((a,b)=>d3.descending(a.lines.length, b.lines.length));
   const dl   = d3.select('.files').html('');
-  const rows = dl.selectAll('div')
-    .data(files, d=>d.name)
-    .join('div');
-  rows.append('dt')
-    .html(d=>`<code>${d.name}</code><small>${d.lines.length} lines</small>`);
-  rows.append('dd')
-    .selectAll('div')
-    .data(d=>d.lines)
-    .join('div')
+  const rows = dl.selectAll('div').data(files, d=>d.name).join('div');
+  rows.append('dt').html(d=>`<code>${d.name}</code><small>${d.lines.length} lines</small>`);
+  rows.append('dd').selectAll('div').data(d=>d.lines).join('div')
       .attr('class','line')
       .style('background', d=>fileTypeColors(d.type));
 }
@@ -217,10 +219,7 @@ function renderFiles(commits) {
 /* ---------- 渲染第二个 Scrolly 文本 ---------- */
 function renderDailyItems(commits) {
   d3.select('#spacer2').style('height', `${commits.length * ITEM_HEIGHT}px`);
-  d3.select('#items-container2').html('')
-    .selectAll('div')
-    .data(commits)
-    .join('div')
+  d3.select('#items-container2').html('').selectAll('div').data(commits).join('div')
       .attr('class','item2')
       .style('position','absolute')
       .style('top',(d,i)=>`${i * ITEM_HEIGHT}px`)
@@ -241,10 +240,15 @@ function renderDailyItems(commits) {
   const raw     = await loadData();
   const commits = processCommits(raw);
 
-  // ===== Commit Timeline Overview =====
-  const overviewScale   = d3.scaleTime()
-    .domain(d3.extent(commits, d => d.datetime))
-    .range([0, 100]);
+  // ===== Lab08 时间滑块映射逻辑 =====
+  let commitProgress = 100;
+  const timeScale = d3.scaleTime()
+    .domain([
+      d3.min(commits, d => d.datetime),
+      d3.max(commits, d => d.datetime)
+    ]).range([0, 100]);
+  let commitMaxTime = timeScale.invert(commitProgress);
+
   const overviewSlider  = d3.select('#overview-slider');
   const overviewDisplay = d3.select('#overview-time-display');
 
@@ -254,32 +258,51 @@ function renderDailyItems(commits) {
     const W = container.node().clientWidth;
     const H = container.node().clientHeight;
     const m = { top:20, right:20, bottom:30, left:40 };
+
     container.selectAll('*').remove();
-    const svg = container.append('svg').attr('width', W).attr('height', H);
-    const x = d3.scaleTime().domain(d3.extent(commits, d=>d.datetime))
-      .range([m.left, W-m.right]);
-    const y = d3.scaleLinear().domain([0,24]).range([H-m.bottom, m.top]);
-    const r = d3.scaleSqrt().domain(d3.extent(commits, d=>d.totalLines)).range([3,15]);
-    svg.append('g').attr('transform',`translate(0,${H-m.bottom})`).call(d3.axisBottom(x));
-    svg.append('g').attr('transform',`translate(${m.left},0)`).call(d3.axisLeft(y).tickFormat(d=>`${String(d).padStart(2,'0')}:00`));
+    const svg = container.append('svg')
+      .attr('width', W).attr('height', H);
+
+    const x = d3.scaleTime()
+      .domain(d3.extent(commits, d=>d.datetime))
+      .range([m.left, W - m.right]);
+    const y = d3.scaleLinear()
+      .domain([0,24])
+      .range([H - m.bottom, m.top]);
+    const r = d3.scaleSqrt()
+      .domain(d3.extent(commits, d=>d.totalLines))
+      .range([3, 15]);
+
+    svg.append('g')
+      .attr('transform', `translate(0,${H - m.bottom})`)
+      .call(d3.axisBottom(x));
+    svg.append('g')
+      .attr('transform', `translate(${m.left},0)`)
+      .call(d3.axisLeft(y).tickFormat(d => `${String(d).padStart(2,'0')}:00`));
+
     svg.append('g')
       .selectAll('circle')
       .data(data)
       .join('circle')
-        .attr('cx', d=>x(d.datetime))
-        .attr('cy', d=>y(d.hourFrac))
-        .attr('r', d=>r(d.totalLines))
+        .attr('cx', d => x(d.datetime))
+        .attr('cy', d => y(d.hourFrac))
+        .attr('r',  d => r(d.totalLines))
         .attr('fill','steelblue')
         .attr('fill-opacity',0.7);
   }
 
   function renderOverviewFiles(maxDate) {
-    const lines = commits.filter(d=>d.datetime<=maxDate).flatMap(c=>c.lines);
-    const byFile = d3.groups(lines,d=>d.file).map(([file,arr])=>({file,count:arr.length}));
+    const lines = commits
+      .filter(d => d.datetime <= maxDate)
+      .flatMap(c => c.lines);
+    const byFile = d3.groups(lines, d => d.file)
+      .map(([file, arr]) => ({ file, count: arr.length }));
+
     const dl = d3.select('#overview-files').html('');
-    byFile.forEach(({file,count})=>{
+    byFile.forEach(({file, count}) => {
       dl.append('dt').text(file);
-      dl.append('dd').append('div')
+      dl.append('dd')
+        .append('div')
         .selectAll('span')
         .data(d3.range(count))
         .join('span')
@@ -293,24 +316,27 @@ function renderDailyItems(commits) {
   }
 
   function onOverviewSlider() {
-    const pct     = +overviewSlider.node().value;
-    const maxDate = overviewScale.invert(pct);
+    commitProgress = +overviewSlider.node().value;
+    commitMaxTime  = timeScale.invert(commitProgress);
+
     overviewDisplay.text(
-      maxDate.toLocaleDateString('en-US',{ month:'short', day:'numeric' })
-      + ' ' + maxDate.toLocaleTimeString('en-US',{ hour:'2-digit', minute:'2-digit' })
+      commitMaxTime.toLocaleDateString('en-US',{ month:'short', day:'numeric' })
+      + ' ' +
+      commitMaxTime.toLocaleTimeString('en-US',{ hour:'2-digit', minute:'2-digit' })
     );
-    renderOverviewScatter(maxDate);
-    renderOverviewFiles(maxDate);
+
+    renderOverviewScatter(commitMaxTime);
+    renderOverviewFiles (commitMaxTime);
   }
 
   overviewSlider.on('input', onOverviewSlider);
   onOverviewSlider();
-  // ===== End Overview =====
+  // ===== End Lab08 时间滑块映射逻辑 =====
 
   // 1) 渲染 Summary
   renderSummary(raw, commits);
 
-  // 2) 第一组：Scrolly + Scatter
+  // 2) 第一组 Scrolly + Scatter
   const initialSlice = commits.slice(0, VISIBLE_COUNT);
   renderCommitItems(initialSlice, 0);
   renderScatter(commits, initialSlice);
