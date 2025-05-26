@@ -187,9 +187,8 @@ function renderScatter(allCommits, slice) {
 }
 
 function renderScatterAt(containerId, allCommits, slice) {
-  // 1. 清空容器并创建 SVG
-  const container = d3.select(containerId);
-  container.html('');
+  // 清空容器并创建 SVG
+  const container = d3.select(containerId).html('');
   const W = container.node().clientWidth;
   const H = container.node().clientHeight;
   const m = { top:10, right:10, bottom:30, left:40 };
@@ -197,7 +196,7 @@ function renderScatterAt(containerId, allCommits, slice) {
     .attr('viewBox', `0 0 ${W} ${H}`)
     .style('overflow','visible');
 
-  // 2. 计算比例尺
+  // 比例尺
   const x = d3.scaleTime()
       .domain(d3.extent(allCommits, d=>d.datetime))
       .range([m.left, W-m.right]).nice();
@@ -208,7 +207,7 @@ function renderScatterAt(containerId, allCommits, slice) {
       .domain(d3.extent(allCommits, d=>d.totalLines))
       .range([3,20]);
 
-  // 3. 画坐标轴和网格线
+  // 坐标轴 & 网格
   svg.append('g')
      .attr('transform', `translate(0,${H-m.bottom})`)
      .call(d3.axisBottom(x));
@@ -220,7 +219,7 @@ function renderScatterAt(containerId, allCommits, slice) {
      .attr('transform', `translate(${m.left},0)`)
      .call(d3.axisLeft(y).tickFormat('').tickSize(-(W-m.left-m.right)));
 
-  // 4. 画点
+  // 画点
   const dots = svg.append('g').attr('class','dots');
   const circles = dots.selectAll('circle')
     .data(slice.slice().sort((a,b)=>b.totalLines - a.totalLines))
@@ -231,44 +230,46 @@ function renderScatterAt(containerId, allCommits, slice) {
       .attr('fill','steelblue')
       .attr('fill-opacity',0.7);
 
-  // 5. 绑定 tooltip 事件 —— 关键就在这里
+  // 绑定 tooltip 事件
   const tooltip = d3.select('#commit-tooltip');
   circles
     .on('mouseenter', function(event, d) {
-      d3.select('#tip-id')   .text(d.id.slice(0,7));
-      d3.select('#tip-date') .text(
+      // 填充内容
+      tooltip.select('#tip-id')   .text(d.id.slice(0,7));
+      tooltip.select('#tip-date') .text(
         d.datetime.toLocaleDateString('en-US',{
           weekday:'long', year:'numeric', month:'long', day:'numeric'
         })
       );
-      d3.select('#tip-time') .text(
+      tooltip.select('#tip-time') .text(
         d.datetime.toLocaleTimeString('en-US',{
           hour:'numeric', minute:'2-digit'
         })
       );
-      d3.select('#tip-author').text(d.author);
-      d3.select('#tip-lines') .text(d.totalLines);
+      tooltip.select('#tip-author').text(d.author);
+      tooltip.select('#tip-lines') .text(d.totalLines);
 
+      // 去掉 hidden 并显示
       tooltip
-        .classed('visible', true)
+        .attr('hidden', null)
         .style('left',  (event.clientX + 10) + 'px')
         .style('top',   (event.clientY + 10) + 'px');
     })
     .on('mousemove', function(event) {
+      // 跟随鼠标移动
       tooltip
         .style('left',  (event.clientX + 10) + 'px')
         .style('top',   (event.clientY + 10) + 'px');
     })
     .on('mouseleave', function() {
-      tooltip.classed('visible', false);
+      // 鼠标离开时重新隐藏
+      tooltip.attr('hidden', true);
     });
 
-  // 6. brush（不变）
+  // brush（可按需添加联动逻辑）
   const brush = d3.brush()
-    .extent([[m.left,m.top],[W-m.right,H-m.bottom]])
-    .on('start brush end', ({selection}) => {
-      // 可选：如果要联动选中效果，这里也能实现
-    });
+    .extent([[m.left, m.top], [W-m.right, H-m.bottom]])
+    .on('start brush end', () => {});
   svg.append('g').call(brush);
 }
 
