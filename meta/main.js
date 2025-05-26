@@ -1,7 +1,7 @@
 import * as d3 from 'https://cdn.jsdelivr.net/npm/d3@7.9.0/+esm';
 
 /* ---------- 常量 ---------- */
-const ITEM_HEIGHT    = 80;    // 与 CSS 中 .item/.item2 { height:80px } 保持一致
+const ITEM_HEIGHT    = 80;    // 与 CSS 中 .item/.item2 { height:80px }
 const VISIBLE_COUNT  = 10;
 const fileTypeColors = d3.scaleOrdinal(d3.schemeTableau10);
 
@@ -64,7 +64,6 @@ function narrativeCommit(c) {
     : 'my first commit, and it was glorious';
   return `<p>On ${dateStr}, I made <a href="${c.url}" target="_blank">${linkText}</a>. I edited <b>${c.totalLines}</b> lines.</p>`;
 }
-
 function renderCommitItems(slice, startIdx) {
   d3.select('#items-container1')
     .style('transform', `translateY(${startIdx * ITEM_HEIGHT}px)`);
@@ -104,21 +103,18 @@ function renderScatter(allCommits, slice) {
 
   const brush = d3.brush().extent([[m.left,m.top],[W-m.right,H-m.bottom]])
     .on('start brush end', ({selection}) => {
-      dots.selectAll('circle')
-        .classed('selected', d => {
-          if (!selection) return false;
-          const [[x0,y0],[x1,y1]] = selection;
-          const cx = x(d.datetime), cy = y(d.hourFrac);
-          return x0<=cx&&cx<=x1&&y0<=cy&&cy<=y1;
-        });
-
+      dots.selectAll('circle').classed('selected', d => {
+        if (!selection) return false;
+        const [[x0,y0],[x1,y1]] = selection;
+        const cx = x(d.datetime), cy = y(d.hourFrac);
+        return x0<=cx&&cx<=x1&&y0<=cy&&cy<=y1;
+      });
       const selected = allCommits.filter(d => {
         if (!selection) return false;
         const [[x0,y0],[x1,y1]] = selection;
         const cx = x(d.datetime), cy = y(d.hourFrac);
         return x0<=cx&&cx<=x1&&y0<=cy&&cy<=y1;
       });
-
       d3.select('#selection-count').text(
         selected.length
           ? `${selected.length} commits selected`
@@ -167,12 +163,10 @@ function renderScatterAt(containerId, allCommits, slice) {
   const x = d3.scaleTime().domain(d3.extent(allCommits,d=>d.datetime)).range([m.left,W-m.right]).nice();
   const y = d3.scaleLinear().domain([0,24]).range([H-m.bottom,m.top]);
   const r = d3.scaleSqrt().domain(d3.extent(allCommits,d=>d.totalLines)).range([3,20]);
-
   svg.append('g').attr('transform',`translate(0,${H-m.bottom})`).call(d3.axisBottom(x));
   svg.append('g').attr('transform',`translate(${m.left},0)`).call(d3.axisLeft(y).tickFormat(d=>`${String(d%24).padStart(2,'0')}:00`));
   svg.append('g').attr('class','gridlines').attr('transform',`translate(${m.left},0)`)
      .call(d3.axisLeft(y).tickFormat('').tickSize(-(W-m.left-m.right)));
-
   const dots=svg.append('g').attr('class','dots');
   dots.selectAll('circle')
     .data(slice.slice().sort((a,b)=>b.totalLines-a.totalLines))
@@ -182,7 +176,6 @@ function renderScatterAt(containerId, allCommits, slice) {
       .attr('r' , d=>r(d.totalLines))
       .attr('fill','steelblue')
       .attr('fill-opacity',0.7);
-
   const brush = d3.brush().extent([[m.left,m.top],[W-m.right,H-m.bottom]])
     .on('start brush end', ({selection}) => {
       dots.selectAll('circle').classed('selected', d => {
@@ -200,7 +193,7 @@ function renderLanguageBreakdown(selectedCommits) {
   const lines   = selectedCommits.flatMap(d=>d.lines);
   const summary = d3.rollup(lines, v=>v.length, d=>d.type);
   const total   = d3.sum(summary.values());
-  const dl = d3.select('#language-breakdown').html('');
+  const dl = d3.select('#selection-summary #language-breakdown').html('');
   if (total === 0) return;
   for (const [lang, cnt] of summary) {
     dl.append('dt').text(lang);
@@ -241,6 +234,7 @@ function renderDailyItems(commits) {
       });
 }
 
+/* ---------- 主程序 ---------- */
 (async () => {
   const raw     = await loadData();
   const commits = processCommits(raw);
@@ -259,7 +253,7 @@ function renderDailyItems(commits) {
   const overviewSlider  = d3.select('#overview-slider');
   const overviewDisplay = d3.select('#overview-time-display');
 
-  // Overview 已初始化 —— 参见上方
+  // 初始化 SVG、比例尺、轴组、点组 (见上方)
 
   function updateScatterPlot(data) {
     xScale.domain(d3.extent(data, d => d.datetime));
@@ -267,7 +261,6 @@ function renderDailyItems(commits) {
 
     xAxisG.selectAll('*').remove();
     xAxisG.call(d3.axisBottom(xScale));
-
     yAxisG.selectAll('*').remove();
     yAxisG.call(d3.axisLeft(yScale).tickFormat(d=>`${String(d).padStart(2,'0')}:00`));
 
@@ -338,13 +331,13 @@ function renderDailyItems(commits) {
     renderCommitItems(slice, idx);
     renderScatter(commits, slice);
     renderFiles(slice);
-    const dateStr = commits[idx].datetime.toLocaleDateString('en-US', {
+    const dateStr = commits[idx].datetime.toLocaleDateString('en-US',{
       weekday:'long',year:'numeric',month:'long',day:'numeric'
     });
     d3.select('#scroll-date').style('top',`${this.scrollTop}px`).text(dateStr);
   });
 
-  // 3) 第二组 Daily Scrolly
+  // 3) 第二组：Daily Scrolly
   renderDailyItems(commits);
   renderScatterAt('#daily-chart', commits, initialSlice);
   d3.select('#scroll-container2').on('scroll', function() {
