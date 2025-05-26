@@ -35,7 +35,7 @@ function processCommits(data) {
     .sort((a, b) => a.datetime - b.datetime);
 }
 
-/* ---------- 渲染摘要统计 (左上 Summary) ---------- */
+/* ---------- 渲染左上 Summary ---------- */
 function renderSummary(data, commits) {
   const dl = d3.select('#stats').html('')
     .append('dl').attr('class','stats');
@@ -51,15 +51,14 @@ function renderSummary(data, commits) {
   const byFile = d3.rollups(data, v=>v.length, d=>d.file).map(d=>d[1]);
   add('Average File Length (In Lines)', d3.mean(byFile).toFixed(0));
   const hourCounts = Array.from(
-    d3.rollup(commits, v=>v.length, c=>c.datetime.getHours())
-      .entries()
+    d3.rollup(commits, v=>v.length, c=>c.datetime.getHours()).entries()
   );
   const peakHour = d3.greatest(hourCounts, d=>d[1])[0];
   add('Peak Work Time', peakHour>=18||peakHour<6 ? 'At Night' : 'Daytime');
   add('Longest Line', d3.max(data, d=>d.length));
 }
 
-/* ---------- Overview 统计面板 (滑块下方那一排) ---------- */
+/* ---------- Overview 下方统计面板 ---------- */
 function updateOverviewStats(commits) {
   const commitCount = commits.length;
   const lines       = commits.flatMap(c => c.lines);
@@ -70,7 +69,7 @@ function updateOverviewStats(commits) {
   const maxLines    = d3.max(commits, c => c.totalLines);
 
   const dl = d3.select('#overview-stats').html('')
-    .append('dl').attr('class','stats');
+    .append('dl').attr('class','stats overview-stats');
   const add = (label, value) => {
     dl.append('dt').text(label);
     dl.append('dd').text(value);
@@ -91,7 +90,6 @@ function narrativeCommit(c) {
     : 'my first commit, and it was glorious';
   return `<p>On ${dateStr}, I made <a href="${c.url}" target="_blank">${linkText}</a>. I edited <b>${c.totalLines}</b> lines.</p>`;
 }
-
 function renderCommitItems(slice, startIdx) {
   d3.select('#items-container1')
     .style('transform', `translateY(${startIdx * ITEM_HEIGHT}px)`);
@@ -104,7 +102,7 @@ function renderCommitItems(slice, startIdx) {
       .html(narrativeCommit);
 }
 
-/* ---------- renderScatter（含 tooltip & 选择回调） ---------- */
+/* ---------- 第一组散点（Scrolly + Scatter） ---------- */
 function renderScatter(allCommits, slice) {
   const W = 1000, H = 600, m = { top:10, right:10, bottom:30, left:40 };
   const svg = d3.select('#chart').html('')
@@ -188,84 +186,11 @@ function renderScatter(allCommits, slice) {
     });
 }
 
-/* ---------- renderScatterAt（仅画点 + brush） ---------- */
-function renderScatterAt(containerId, allCommits, slice) {
-  const container = d3.select(containerId).html('');
-  const W = container.node().clientWidth, H = container.node().clientHeight;
-  const m = { top:10, right:10, bottom:30, left:40 };
-  const svg = container.append('svg')
-    .attr('viewBox', `0 0 ${W} ${H}`)
-    .style('overflow','visible');
-
-  const x = d3.scaleTime().domain(d3.extent(allCommits,d=>d.datetime)).range([m.left,W-m.right]).nice();
-  const y = d3.scaleLinear().domain([0,24]).range([H-m.bottom,m.top]);
-  const r = d3.scaleSqrt().domain(d3.extent(allCommits,d=>d.totalLines)).range([3,20]);
-
-  svg.append('g')
-    .attr('transform',`translate(0,${H-m.bottom})`)
-    .call(d3.axisBottom(x));
-  svg.append('g')
-    .attr('transform',`translate(${m.left},0)`)
-    .call(d3.axisLeft(y).tickFormat(d=>`${String(d%24).padStart(2,'0')}:00`));
-  svg.append('g')
-    .attr('class','gridlines')
-    .attr('transform',`translate(${m.left},0)`)
-    .call(d3.axisLeft(y).tickFormat('').tickSize(-(W-m.left-m.right)));
-
-  const dots=svg.append('g').attr('class','dots');
-  dots.selectAll('circle')
-    .data(slice.slice().sort((a,b)=>b.totalLines-a.totalLines))
-    .join('circle')
-      .attr('cx', d=>x(d.datetime))
-      .attr('cy', d=>y(d.hourFrac))
-      .attr('r' , d=>r(d.totalLines))
-      .attr('fill','steelblue')
-      .attr('fill-opacity',0.7);
-
-  const brush = d3.brush().extent([[m.left,m.top],[W-m.right,H-m.bottom]])
-    .on('start brush end', ({selection}) => {
-      dots.selectAll('circle').classed('selected', d => {
-        if (!selection) return false;
-        const [[x0,y0],[x1,y1]] = selection;
-        const cx=x(d.datetime),cy=y(d.hourFrac);
-        return x0<=cx&&cx<=x1&&y0<=cy&&cy<=y1;
-      });
-    });
-  svg.append('g').call(brush);
-}
-
-/* ---------- 渲染语言细分 ---------- */
-function renderLanguageBreakdown(selectedCommits) {
-  const lines   = selectedCommits.flatMap(d=>d.lines);
-  const summary = d3.rollup(lines, v=>v.length, d=>d.type);
-  const total   = d3.sum(summary.values());
-  const dl = d3.select('#language-breakdown').html('');
-  if (total === 0) return;
-  for (const [lang, cnt] of summary) {
-    dl.append('dt').text(lang);
-    dl.append('dd').text(`${cnt} lines (${d3.format('.1~%')(cnt/total)})`);
-  }
-}
-
-/* ---------- 渲染文件列表可视化（Scrolly1/Scrolly2） ---------- */
-function renderFiles(commits) {
-  const files = d3.groups(commits.flatMap(c=>c.lines), d=>d.file)
-    .map(([name, lines]) => ({ name, lines }))
-    .sort((a,b)=>d3.descending(a.lines.length, b.lines.length));
-
-  const dl = d3.select('.files').html('');
-  const rows = dl.selectAll('div').data(files, d=>d.name).join('div');
-  rows.append('dt')
-    .html(d=>`<code>${d.name}</code><small>${d.lines.length} lines</small>`);
-  rows.append('dd').selectAll('div').data(d=>d.lines).join('div')
-      .attr('class','line')
-      .style('background', d=>fileTypeColors(d.type));
-}
-
-/* ---------- 渲染第二个 Scrolly 文本 ---------- */
+/* ---------- 第二组 Scrolly 文本 ---------- */
 function renderDailyItems(commits) {
   d3.select('#spacer2').style('height', `${commits.length * ITEM_HEIGHT}px`);
-  d3.select('#items-container2').html('').selectAll('div').data(commits).join('div')
+  d3.select('#items-container2').html('')
+    .selectAll('div').data(commits).join('div')
       .attr('class','item2')
       .style('position','absolute')
       .style('top',(d,i)=>`${i * ITEM_HEIGHT}px`)
@@ -282,22 +207,74 @@ function renderDailyItems(commits) {
       });
 }
 
+/* ---------- Scrolly1/2 旁文件可视化 ---------- */
+function renderFiles(commits) {
+  const files = d3.groups(commits.flatMap(c=>c.lines), d=>d.file)
+    .map(([name, lines]) => ({ name, lines }))
+    .sort((a,b)=>d3.descending(a.lines.length, b.lines.length));
+
+  const dl = d3.select('.files').html('');
+  const rows = dl.selectAll('div').data(files, d=>d.name).join('div');
+  rows.append('dt').html(d=>`<code>${d.name}</code><small>${d.lines.length} lines</small>`);
+  rows.append('dd').selectAll('div').data(d=>d.lines).join('div')
+      .attr('class','line')
+      .style('background', d=>fileTypeColors(d.type));
+}
+
+/* ---------- Scrolly2 散点 ---------- */
+function renderScatterAt(containerId, allCommits, slice) {
+  const container = d3.select(containerId).html('');
+  const W = container.node().clientWidth, H = container.node().clientHeight;
+  const m = { top:10, right:10, bottom:30, left:40 };
+  const svg = container.append('svg')
+    .attr('viewBox', `0 0 ${W} ${H}`)
+    .style('overflow','visible');
+
+  const x = d3.scaleTime().domain(d3.extent(allCommits,d=>d.datetime)).range([m.left,W-m.right]).nice();
+  const y = d3.scaleLinear().domain([0,24]).range([H-m.bottom,m.top]);
+  const r = d3.scaleSqrt().domain(d3.extent(allCommits,d=>d.totalLines)).range([3,20]);
+
+  svg.append('g').attr('transform',`translate(0,${H-m.bottom})`).call(d3.axisBottom(x));
+  svg.append('g').attr('transform',`translate(${m.left},0)`).call(d3.axisLeft(y).tickFormat(d=>`${String(d%24).padStart(2,'0')}:00`));
+  svg.append('g').attr('class','gridlines').attr('transform',`translate(${m.left},0)`)
+     .call(d3.axisLeft(y).tickFormat('').tickSize(-(W-m.left-m.right)));
+
+  const dots=svg.append('g').attr('class','dots');
+  dots.selectAll('circle')
+    .data(slice.slice().sort((a,b)=>b.totalLines-a.totalLines))
+    .join('circle')
+      .attr('cx', d=>x(d.datetime))
+      .attr('cy', d=>y(d.hourFrac))
+      .attr('r' , d=>r(d.totalLines))
+      .attr('fill','steelblue')
+      .attr('fill-opacity',0.7);
+
+  const brush = d3.brush().extent([[m.left,m.top],[W-m.right,H-m.bottom]])
+    .on('start brush end', ({selection}) => {
+      dots.selectAll('circle').classed('selected', d => {
+        if (!selection) return false;
+        const [[x0,y0],[x1,y1]] = selection;
+        const cx=x(d.datetime), cy=y(d.hourFrac);
+        return x0<=cx&&cx<=x1&&y0<=cy&&cy<=y1;
+      });
+    });
+  svg.append('g').call(brush);
+}
+
 /* ---------- 主程序 ---------- */
 (async () => {
   const raw     = await loadData();
   const commits = processCommits(raw);
 
-  // ===== Lab08 时间滑块映射 & 单元可视化 =====
+  // ===== Lab08 滑块 + Overview 区域 =====
 
-  // 初始化 Overview 区域
-  const ovContainer = d3.select('#overview-chart');
-  const ovW = ovContainer.node().clientWidth;
-  const ovH = ovContainer.node().clientHeight;
-  const ovM = { top:20, right:20, bottom:30, left:40 };
-  ovContainer.selectAll('*').remove();
-  const ovSvg = ovContainer.append('svg')
-    .attr('width', ovW)
-    .attr('height', ovH);
+  // 初始化 Overview SVG、图层
+  const ovC  = d3.select('#overview-chart');
+  const ovW  = ovC.node().clientWidth;
+  const ovH  = ovC.node().clientHeight;
+  const ovM  = { top:20, right:20, bottom:30, left:40 };
+  ovC.selectAll('*').remove();
+  const ovSvg = ovC.append('svg').attr('width',ovW).attr('height',ovH);
 
   const xScale = d3.scaleTime()
     .domain(d3.extent(commits, d=>d.datetime))
@@ -311,13 +288,13 @@ function renderDailyItems(commits) {
 
   const xAxisG = ovSvg.append('g')
     .attr('class','x-axis')
-    .attr('transform', `translate(0,${ovH-ovM.bottom})`);
+    .attr('transform',`translate(0,${ovH-ovM.bottom})`);
   const yAxisG = ovSvg.append('g')
     .attr('class','y-axis')
-    .attr('transform', `translate(${ovM.left},0)`);
+    .attr('transform',`translate(${ovM.left},0)`);
   const dotsG  = ovSvg.append('g').attr('class','dots');
 
-  // 定义更新函数
+  // updateScatterPlot
   function updateScatterPlot(data) {
     xScale.domain(d3.extent(data, d=>d.datetime));
     rScale.domain(d3.extent(data, d=>d.totalLines));
@@ -327,54 +304,51 @@ function renderDailyItems(commits) {
     yAxisG.selectAll('*').remove();
     yAxisG.call(d3.axisLeft(yScale).tickFormat(d=>`${String(d).padStart(2,'0')}:00`));
 
-    const sorted = data.slice().sort((a,b)=>b.totalLines - a.totalLines);
+    const sorted = data.slice().sort((a,b)=>b.totalLines-a.totalLines);
     const u = dotsG.selectAll('circle').data(sorted, d=>d.id);
     u.join(
       enter => enter.append('circle')
         .attr('cx', d=>xScale(d.datetime))
         .attr('cy', d=>yScale(d.hourFrac))
-        .attr('r',  0)
+        .attr('r', 0)
         .attr('fill','steelblue')
         .attr('fill-opacity',0.7)
         .call(e => e.transition().attr('r', d=>rScale(d.totalLines))),
       update => update.call(u => u.transition()
         .attr('cx', d=>xScale(d.datetime))
         .attr('cy', d=>yScale(d.hourFrac))
-        .attr('r',  d=>rScale(d.totalLines))),
+        .attr('r', d=>rScale(d.totalLines))),
       exit => exit.call(e => e.transition().attr('r',0).remove())
     );
   }
 
+  // updateFileUnits
   function updateFileUnits(data) {
     const lines = data.flatMap(d => d.lines);
-    const files = d3.groups(lines, d => d.file)
-      .map(([name, lines]) => ({ name, lines }))
-      .sort((a,b) => b.lines.length - a.lines.length);
+    const files = d3.groups(lines, d=>d.file)
+      .map(([name,lines])=>({name,lines}))
+      .sort((a,b)=>b.lines.length-a.lines.length);
 
     const dl = d3.select('#overview-files').html('');
     const groups = dl.selectAll('div')
-      .data(files, d => d.name)
-      .join(
-        enter => enter.append('div').call(div => {
-          div.append('dt').append('code');
-          div.append('dd');
-        })
-      );
-
-    groups.select('dt code').text(d => d.name);
-
-    groups.select('dd').each(function(d) {
+      .data(files, d=>d.name)
+      .join(enter => enter.append('div').call(div=>{
+        div.append('dt').append('code');
+        div.append('dd');
+      }));
+    groups.select('dt code').text(d=>d.name);
+    groups.select('dd').each(function(d){
       const dd = d3.select(this);
       dd.selectAll('div.line').remove();
       dd.selectAll('div.line')
         .data(d.lines)
         .join('div')
           .attr('class','line')
-          .style('background', l => fileTypeColors(l.type));
+          .style('background', l=>fileTypeColors(l.type));
     });
   }
 
-  // 首次渲染 Overview
+  // 首次渲染
   updateScatterPlot(commits);
   updateFileUnits(commits);
   updateOverviewStats(commits);
@@ -384,51 +358,50 @@ function renderDailyItems(commits) {
   const overviewDisplay = d3.select('#overview-time-display');
   const sliderScale     = d3.scaleTime()
     .domain(d3.extent(commits, d=>d.datetime))
-    .range([0, 100]);
+    .range([0,100]);
 
-  overviewSlider.on('input', () => {
+  overviewSlider.on('input', ()=> {
     const pct    = +overviewSlider.node().value;
     const cutoff = sliderScale.invert(pct);
-
     overviewDisplay.text(
       cutoff.toLocaleString('en-US',{ dateStyle:'long', timeStyle:'short' })
     );
-
-    const filtered = commits.filter(d => d.datetime <= cutoff);
-
+    const filtered = commits.filter(d=>d.datetime<=cutoff);
     updateScatterPlot(filtered);
     updateFileUnits(filtered);
     updateOverviewStats(filtered);
   });
 
-  // ===== End Lab08 时间滑块 & 单元可视化 =====
+  // ===== End Overview =====
 
   // 渲染左上 Summary
   renderSummary(raw, commits);
 
-  // 第一组：Scrolly + Scatter
+  // 第一组 Scrolly + Scatter
   const initialSlice = commits.slice(0, VISIBLE_COUNT);
   renderCommitItems(initialSlice, 0);
   renderScatter(commits, initialSlice);
   renderFiles(initialSlice);
-  d3.select('#scroll-container1').on('scroll', function() {
-    const idx   = Math.floor(this.scrollTop / ITEM_HEIGHT);
-    const slice = commits.slice(idx, idx + VISIBLE_COUNT);
+  d3.select('#scroll-container1').on('scroll', function(){
+    const idx   = Math.floor(this.scrollTop/ITEM_HEIGHT);
+    const slice = commits.slice(idx, idx+VISIBLE_COUNT);
     renderCommitItems(slice, idx);
     renderScatter(commits, slice);
     renderFiles(slice);
     const dateStr = commits[idx].datetime.toLocaleDateString('en-US',{
       weekday:'long',year:'numeric',month:'long',day:'numeric'
     });
-    d3.select('#scroll-date').style('top',`${this.scrollTop}px`).text(dateStr);
+    d3.select('#scroll-date')
+      .style('top',`${this.scrollTop}px`)
+      .text(dateStr);
   });
 
-  // 第二组：Daily Scrolly
+  // 第二组 Daily Scrolly
   renderDailyItems(commits);
   renderScatterAt('#daily-chart', commits, initialSlice);
-  d3.select('#scroll-container2').on('scroll', function() {
-    const idx   = Math.floor(this.scrollTop / ITEM_HEIGHT);
-    const slice = commits.slice(idx, idx + VISIBLE_COUNT);
+  d3.select('#scroll-container2').on('scroll', function(){
+    const idx   = Math.floor(this.scrollTop/ITEM_HEIGHT);
+    const slice = commits.slice(idx, idx+VISIBLE_COUNT);
     renderScatterAt('#daily-chart', commits, slice);
   });
 
