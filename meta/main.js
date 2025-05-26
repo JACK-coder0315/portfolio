@@ -7,7 +7,7 @@ const fileTypeColors = d3.scaleOrdinal(d3.schemeTableau10);
 
 /* ---------- 数据加载 ---------- */
 async function loadData() {
-  return d3.csv('loc.csv?' + Date.now(), row => ({
+  return d3.csv(`loc.csv?${Date.now()}`, row => ({
     ...row,
     line     : +row.line,
     depth    : +row.depth,
@@ -53,7 +53,7 @@ function renderSummary(data, commits) {
   const byFile = d3.rollups(data, v=>v.length, d=>d.file).map(d=>d[1]);
   add('Average File Length (In Lines)', d3.mean(byFile).toFixed(0));
 
-  const hourCounts = d3.rollup(commits, v=>v.length, c=>c.datetime.getHours());
+  const hourCounts = Array.from(d3.rollup(commits, v=>v.length, c=>c.datetime.getHours()).entries());
   const peakHour   = d3.greatest(hourCounts, d=>d[1])[0];
   add('Peak Work Time', peakHour>=18||peakHour<6 ? 'At Night':'Daytime');
 
@@ -81,9 +81,10 @@ function renderCommitItems(slice, startIdx) {
       .html(narrativeCommit);
 }
 
-/* ---------- 原始 renderScatter（含 tooltip & 选择回调） ---------- */
+/* ---------- renderScatter（含 tooltip & 选择回调） ---------- */
 function renderScatter(allCommits, slice) {
-  const W = 1000, H = 600, m = { top:10, right:10, bottom:30, left:40 };
+  const W = 1000, H = 600;
+  const m = { top:10, right:10, bottom:30, left:40 };
   const svg = d3.select('#chart').html('')
     .append('svg')
       .attr('viewBox', `0 0 ${W} ${H}`)
@@ -154,7 +155,7 @@ function renderScatter(allCommits, slice) {
   // Tooltip
   const tooltip = d3.select('#commit-tooltip');
   dots.selectAll('circle')
-    .on('mouseenter', function(e,d){
+    .on('mouseenter', function(event,d){
       d3.select(this).attr('fill-opacity',1);
       d3.select('#tip-id').text(d.id.slice(0,7));
       d3.select('#tip-date').text(
@@ -172,13 +173,13 @@ function renderScatter(allCommits, slice) {
 
       tooltip
         .classed('visible',true)
-        .style('left', `${e.clientX+10}px`)
-        .style('top',  `${e.clientY+10}px`);
+        .style('left', `${event.clientX+10}px`)
+        .style('top',  `${event.clientY+10}px`);
     })
-    .on('mousemove', function(e){
+    .on('mousemove', function(event){
       tooltip
-        .style('left', `${e.clientX+10}px`)
-        .style('top',  `${e.clientY+10}px`);
+        .style('left', `${event.clientX+10}px`)
+        .style('top',  `${event.clientY+10}px`);
     })
     .on('mouseleave', function(){
       d3.select(this).attr('fill-opacity',0.7);
@@ -186,8 +187,8 @@ function renderScatter(allCommits, slice) {
     });
 }
 
+/* ---------- renderScatterAt（仅画点 + brush） ---------- */
 function renderScatterAt(containerId, allCommits, slice) {
-  // 清空容器并创建 SVG
   const container = d3.select(containerId).html('');
   const W = container.node().clientWidth;
   const H = container.node().clientHeight;
@@ -196,18 +197,11 @@ function renderScatterAt(containerId, allCommits, slice) {
     .attr('viewBox', `0 0 ${W} ${H}`)
     .style('overflow','visible');
 
-  // 比例尺
-  const x = d3.scaleTime()
-      .domain(d3.extent(allCommits, d=>d.datetime))
-      .range([m.left, W-m.right]).nice();
-  const y = d3.scaleLinear()
-      .domain([0,24])
-      .range([H-m.bottom, m.top]);
-  const r = d3.scaleSqrt()
-      .domain(d3.extent(allCommits, d=>d.totalLines))
-      .range([3,20]);
+  const x = d3.scaleTime().domain(d3.extent(allCommits, d=>d.datetime))
+              .range([m.left, W-m.right]).nice();
+  const y = d3.scaleLinear().domain([0,24]).range([H-m.bottom, m.top]);
+  const r = d3.scaleSqrt().domain(d3.extent(allCommits, d=>d.totalLines)).range([3,20]);
 
-  // 坐标轴 & 网格
   svg.append('g')
      .attr('transform', `translate(0,${H-m.bottom})`)
      .call(d3.axisBottom(x));
@@ -219,57 +213,28 @@ function renderScatterAt(containerId, allCommits, slice) {
      .attr('transform', `translate(${m.left},0)`)
      .call(d3.axisLeft(y).tickFormat('').tickSize(-(W-m.left-m.right)));
 
-  // 画点
   const dots = svg.append('g').attr('class','dots');
-  const circles = dots.selectAll('circle')
-    .data(slice.slice().sort((a,b)=>b.totalLines - a.totalLines))
+  dots.selectAll('circle')
+    .data(slice.slice().sort((a,b)=>b.totalLines-a.totalLines))
     .join('circle')
       .attr('cx', d=>x(d.datetime))
       .attr('cy', d=>y(d.hourFrac))
-      .attr('r' , d=>r(d.totalLines))
+      .attr('r',  d=>r(d.totalLines))
       .attr('fill','steelblue')
       .attr('fill-opacity',0.7);
 
-  // 绑定 tooltip 事件
-  const tooltip = d3.select('#commit-tooltip');
-  circles
-    .on('mouseenter', function(event, d) {
-      // 填充内容
-      tooltip.select('#tip-id')   .text(d.id.slice(0,7));
-      tooltip.select('#tip-date') .text(
-        d.datetime.toLocaleDateString('en-US',{
-          weekday:'long', year:'numeric', month:'long', day:'numeric'
-        })
-      );
-      tooltip.select('#tip-time') .text(
-        d.datetime.toLocaleTimeString('en-US',{
-          hour:'numeric', minute:'2-digit'
-        })
-      );
-      tooltip.select('#tip-author').text(d.author);
-      tooltip.select('#tip-lines') .text(d.totalLines);
-
-      // 去掉 hidden 并显示
-      tooltip
-        .attr('hidden', null)
-        .style('left',  (event.clientX + 10) + 'px')
-        .style('top',   (event.clientY + 10) + 'px');
-    })
-    .on('mousemove', function(event) {
-      // 跟随鼠标移动
-      tooltip
-        .style('left',  (event.clientX + 10) + 'px')
-        .style('top',   (event.clientY + 10) + 'px');
-    })
-    .on('mouseleave', function() {
-      // 鼠标离开时重新隐藏
-      tooltip.attr('hidden', true);
+  const brush = d3.brush()
+    .extent([[m.left,m.top],[W-m.right,H-m.bottom]])
+    .on('start brush end', ({selection}) => {
+      dots.selectAll('circle')
+        .classed('selected', d => {
+          if (!selection) return false;
+          const [[x0,y0],[x1,y1]] = selection;
+          const cx = x(d.datetime), cy = y(d.hourFrac);
+          return x0<=cx && cx<=x1 && y0<=cy && cy<=y1;
+        });
     });
 
-  // brush（可按需添加联动逻辑）
-  const brush = d3.brush()
-    .extent([[m.left, m.top], [W-m.right, H-m.bottom]])
-    .on('start brush end', () => {});
   svg.append('g').call(brush);
 }
 
@@ -301,7 +266,6 @@ function renderFiles(commits) {
 
   rows.append('dt')
     .html(d=>`<code>${d.name}</code><small>${d.lines.length} lines</small>`);
-
   rows.append('dd')
     .selectAll('div')
     .data(d=>d.lines)
@@ -310,7 +274,7 @@ function renderFiles(commits) {
       .style('background', d=>fileTypeColors(d.type));
 }
 
-/* ---------- 渲染 第二个 Scrolly 文本 ---------- */
+/* ---------- 渲染第二个 Scrolly 文本 ---------- */
 function renderDailyItems(commits) {
   d3.select('#spacer2')
     .style('height', `${commits.length * ITEM_HEIGHT}px`);
@@ -323,9 +287,7 @@ function renderDailyItems(commits) {
       .style('position','absolute')
       .style('top',(d,i)=>`${i * ITEM_HEIGHT}px`)
       .html(c => {
-        const dateStr = c.datetime.toLocaleDateString('en-US',{
-          month:'long', day:'numeric'
-        });
+        const dateStr = c.datetime.toLocaleDateString('en-US',{ month:'long', day:'numeric' });
         const file    = c.lines[0].file;
         const minLine = d3.min(c.lines, d=>d.line);
         const maxLine = d3.max(c.lines, d=>d.line);
@@ -333,13 +295,7 @@ function renderDailyItems(commits) {
         const period  = hour < 12
           ? 'it is early in the morning'
           : (hour < 13 ? 'it is around afternoon' : 'it is late in the evening');
-
-        return `
-          <p>
-            On ${dateStr}, modified <code>${file}</code> (lines ${minLine}–${maxLine}).<br/>
-            ${period}.
-          </p>
-        `;
+        return `<p>On ${dateStr}, modified <code>${file}</code> (lines ${minLine}–${maxLine}).<br/>${period}.</p>`;
       });
 }
 
@@ -354,7 +310,6 @@ function renderDailyItems(commits) {
   // 2) 第一组：初次渲染 + 滚动绑定
   const initialSlice = commits.slice(0, VISIBLE_COUNT);
   renderCommitItems(initialSlice, 0);
-  // ← 这里用原来的 renderScatter，保留 tooltip & 选择回调
   renderScatter(commits, initialSlice);
   renderFiles(initialSlice);
   d3.select('#scroll-container1').on('scroll', function() {
@@ -363,18 +318,16 @@ function renderDailyItems(commits) {
     renderCommitItems(slice, idx);
     renderScatter(commits, slice);
     renderFiles(slice);
-
     const dateStr = commits[idx].datetime.toLocaleDateString('en-US',{
-      weekday:'long',year:'numeric',month:'long',day:'numeric'
+      weekday:'long', year:'numeric', month:'long', day:'numeric'
     });
     d3.select('#scroll-date')
-      .style('top', this.scrollTop + 'px')
+      .style('top', `${this.scrollTop}px`)
       .text(dateStr);
   });
 
   // 3) 第二组：初次渲染文本 + 散点 + 滚动绑定
   renderDailyItems(commits);
-  // ← 这里第二幅图继续用 renderScatterAt
   renderScatterAt('#daily-chart', commits, initialSlice);
   d3.select('#scroll-container2').on('scroll', function() {
     const idx   = Math.floor(this.scrollTop / ITEM_HEIGHT);
