@@ -242,32 +242,40 @@ function renderDailyItems(commits) {
   // ===== Lab08 时间滑块映射逻辑 & 增量更新 =====
 
   // 1) 定义增量更新函数
-  function updateScatterPlot(data) {
-    // 更新比例尺域
-    xScale.domain(d3.extent(data, d => d.datetime));
-    rScale.domain(d3.extent(data, d => d.totalLines));
-    // 更新坐标轴
-    xAxisG.selectAll('*').call(d3.axisBottom(xScale));
-    yAxisG.selectAll('*').call(d3.axisLeft(yScale)
-      .tickFormat(d => `${String(d).padStart(2,'0')}:00`));
-    // 平滑 enter/update/exit
-    const sorted = data.slice().sort((a,b)=>b.totalLines-a.totalLines);
-    const u = dotsG.selectAll('circle').data(sorted, d=>d.id);
-    u.join(
-      enter => enter.append('circle')
-        .attr('cx', d=>xScale(d.datetime))
-        .attr('cy', d=>yScale(d.hourFrac))
-        .attr('r', 0)
-        .attr('fill','steelblue')
-        .attr('fill-opacity',0.7)
-        .call(e => e.transition().attr('r', d=>rScale(d.totalLines))),
-      update => update.call(u => u.transition()
-        .attr('cx', d=>xScale(d.datetime))
-        .attr('cy', d=>yScale(d.hourFrac))
-        .attr('r',  d=>rScale(d.totalLines))),
-      exit => exit.call(e => e.transition().attr('r',0).remove())
-    );
-  }
+ function updateScatterPlot(data) {
+  // 1) 更新比例尺
+  xScale.domain(d3.extent(data, d => d.datetime));
+  rScale.domain(d3.extent(data, d => d.totalLines));
+
+  // 2) 重绘坐标轴：改成先 clear() 再 g.call(axis)
+  xAxisG.selectAll('*').remove();
+  xAxisG.call(d3.axisBottom(xScale));
+
+  yAxisG.selectAll('*').remove();
+  yAxisG.call(
+    d3.axisLeft(yScale)
+      .tickFormat(d => `${String(d).padStart(2,'0')}:00`)
+  );
+
+  // 3) 更新圆点（unchanged）
+  const sorted = data.slice().sort((a,b)=>b.totalLines-a.totalLines);
+  const u = dotsG.selectAll('circle').data(sorted, d=>d.id);
+  u.join(
+    enter => enter.append('circle')
+      .attr('cx', d=>xScale(d.datetime))
+      .attr('cy', d=>yScale(d.hourFrac))
+      .attr('r', 0)
+      .attr('fill','steelblue')
+      .attr('fill-opacity',0.7)
+      .call(e => e.transition().attr('r', d=>rScale(d.totalLines))),
+    update => update.call(u => u.transition()
+      .attr('cx', d=>xScale(d.datetime))
+      .attr('cy', d=>yScale(d.hourFrac))
+      .attr('r',  d=>rScale(d.totalLines))),
+    exit => exit.call(e => e.transition().attr('r',0).remove())
+  );
+}
+
 
   function updateFilesViz(data) {
     const lines = data.flatMap(c=>c.lines);
