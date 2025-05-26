@@ -1,7 +1,7 @@
 import * as d3 from 'https://cdn.jsdelivr.net/npm/d3@7.9.0/+esm';
 
 /* ---------- 常量 ---------- */
-const ITEM_HEIGHT    = 80;    // 与 CSS 中 .item/.item2 { height:80px } 保持一致
+const ITEM_HEIGHT    = 80;
 const VISIBLE_COUNT  = 10;
 const fileTypeColors = d3.scaleOrdinal(d3.schemeTableau10);
 
@@ -16,7 +16,7 @@ async function loadData() {
   }));
 }
 
-/* ---------- 提取并按时间升序排序提交 ---------- */
+/* ---------- 提取提交 ---------- */
 function processCommits(data) {
   return d3.groups(data, d => d.commit)
     .map(([id, lines], idx) => {
@@ -26,16 +26,16 @@ function processCommits(data) {
         idx,
         author     : lines[0].author,
         datetime   : dt,
-        hourFrac   : dt.getHours() + dt.getMinutes() / 60,
+        hourFrac   : dt.getHours() + dt.getMinutes()/60,
         totalLines : lines.length,
         url        : `https://github.com/JACK-coder0315/portfolio/commit/${id}`,
         lines
       };
     })
-    .sort((a, b) => a.datetime - b.datetime);
+    .sort((a,b) => a.datetime - b.datetime);
 }
 
-/* ---------- 渲染左上 Summary ---------- */
+/* ---------- 左上 Summary ---------- */
 function renderSummary(data, commits) {
   const dl = d3.select('#stats').html('')
     .append('dl').attr('class','stats');
@@ -54,7 +54,7 @@ function renderSummary(data, commits) {
     d3.rollup(commits, v=>v.length, c=>c.datetime.getHours()).entries()
   );
   const peakHour = d3.greatest(hourCounts, d=>d[1])[0];
-  add('Peak Work Time', peakHour>=18||peakHour<6 ? 'At Night' : 'Daytime');
+  add('Peak Work Time', peakHour>=18||peakHour<6 ? 'At Night':'Daytime');
   add('Longest Line', d3.max(data, d=>d.length));
 }
 
@@ -82,10 +82,10 @@ function updateOverviewStats(commits) {
   add('MAX LINES',    maxLines);
 }
 
-/* ---------- 渲染 Commit 故事条目 ---------- */
+/* ---------- Narrative Commit （Scrolly1） ---------- */
 function narrativeCommit(c) {
-  const dateStr  = c.datetime.toLocaleString('en', { dateStyle:'full', timeStyle:'short' });
-  const linkText = c.idx
+  const dateStr = c.datetime.toLocaleString('en', { dateStyle:'full', timeStyle:'short' });
+  const linkText = c.idx 
     ? 'another glorious commit'
     : 'my first commit, and it was glorious';
   return `<p>On ${dateStr}, I made <a href="${c.url}" target="_blank">${linkText}</a>. I edited <b>${c.totalLines}</b> lines.</p>`;
@@ -98,38 +98,38 @@ function renderCommitItems(slice, startIdx) {
     .join('div')
       .attr('class','item')
       .style('position','absolute')
-      .style('top',(d,i)=>`${i * ITEM_HEIGHT}px`)
+      .style('top',(d,i)=>`${i*ITEM_HEIGHT}px`)
       .html(narrativeCommit);
 }
 
-/* ---------- 第一组散点（Scrolly + Scatter） ---------- */
+/* ---------- Scrolly1 散点 ---------- */
 function renderScatter(allCommits, slice) {
   const W = 1000, H = 600, m = { top:10, right:10, bottom:30, left:40 };
   const svg = d3.select('#chart').html('')
-    .append('svg').attr('viewBox', `0 0 ${W} ${H}`).style('overflow','visible');
+    .append('svg').attr('viewBox',`0 0 ${W} ${H}`).style('overflow','visible');
 
-  const x = d3.scaleTime().domain(d3.extent(allCommits, d=>d.datetime)).range([m.left, W-m.right]).nice();
-  const y = d3.scaleLinear().domain([0,24]).range([H-m.bottom, m.top]);
+  const x = d3.scaleTime().domain(d3.extent(allCommits, d=>d.datetime)).range([m.left,W-m.right]).nice();
+  const y = d3.scaleLinear().domain([0,24]).range([H-m.bottom,m.top]);
   const r = d3.scaleSqrt().domain(d3.extent(allCommits, d=>d.totalLines)).range([3,20]);
 
   svg.append('g')
-    .attr('transform', `translate(0,${H-m.bottom})`)
+    .attr('transform',`translate(0,${H-m.bottom})`)
     .call(d3.axisBottom(x));
   svg.append('g')
-    .attr('transform', `translate(${m.left},0)`)
+    .attr('transform',`translate(${m.left},0)`)
     .call(d3.axisLeft(y).tickFormat(d=>`${String(d%24).padStart(2,'0')}:00`));
   svg.append('g')
     .attr('class','gridlines')
-    .attr('transform', `translate(${m.left},0)`)
+    .attr('transform',`translate(${m.left},0)`)
     .call(d3.axisLeft(y).tickFormat('').tickSize(-(W-m.left-m.right)));
 
   const dots = svg.append('g').attr('class','dots');
   dots.selectAll('circle')
-    .data(slice.slice().sort((a,b)=>b.totalLines-a.totalLines))
+    .data(slice.slice().sort((a,b)=>b.totalLines - a.totalLines))
     .join('circle')
       .attr('cx', d=>x(d.datetime))
       .attr('cy', d=>y(d.hourFrac))
-      .attr('r' , d=>r(d.totalLines))
+      .attr('r',  d=>r(d.totalLines))
       .attr('fill','steelblue')
       .attr('fill-opacity',0.7);
 
@@ -186,14 +186,14 @@ function renderScatter(allCommits, slice) {
     });
 }
 
-/* ---------- 第二组 Scrolly 文本 ---------- */
+/* ---------- Scrolly2 文本 ---------- */
 function renderDailyItems(commits) {
-  d3.select('#spacer2').style('height', `${commits.length * ITEM_HEIGHT}px`);
+  d3.select('#spacer2').style('height',`${commits.length*ITEM_HEIGHT}px`);
   d3.select('#items-container2').html('')
     .selectAll('div').data(commits).join('div')
       .attr('class','item2')
       .style('position','absolute')
-      .style('top',(d,i)=>`${i * ITEM_HEIGHT}px`)
+      .style('top',(d,i)=>`${i*ITEM_HEIGHT}px`)
       .html(c => {
         const dateStr = c.datetime.toLocaleDateString('en-US',{ month:'long', day:'numeric' });
         const file    = c.lines[0].file;
@@ -202,7 +202,7 @@ function renderDailyItems(commits) {
         const hour    = c.datetime.getHours();
         const period  = hour < 12
           ? 'it is early in the morning'
-          : (hour < 13 ? 'it is around afternoon' : 'it is late in the evening');
+          : (hour<13 ? 'it is around afternoon' : 'it is late in the evening');
         return `<p>On ${dateStr}, modified <code>${file}</code> (lines ${minLine}–${maxLine}).<br/>${period}.</p>`;
       });
 }
@@ -210,13 +210,15 @@ function renderDailyItems(commits) {
 /* ---------- Scrolly1/2 旁文件可视化 ---------- */
 function renderFiles(commits) {
   const files = d3.groups(commits.flatMap(c=>c.lines), d=>d.file)
-    .map(([name, lines]) => ({ name, lines }))
-    .sort((a,b)=>d3.descending(a.lines.length, b.lines.length));
+    .map(([name,lines])=>({name,lines}))
+    .sort((a,b)=>d3.descending(a.lines.length,b.lines.length));
 
   const dl = d3.select('.files').html('');
   const rows = dl.selectAll('div').data(files, d=>d.name).join('div');
-  rows.append('dt').html(d=>`<code>${d.name}</code><small>${d.lines.length} lines</small>`);
-  rows.append('dd').selectAll('div').data(d=>d.lines).join('div')
+  rows.append('dt')
+    .html(d=>`<code>${d.name}</code><small>${d.lines.length} lines</small>`);
+  rows.append('dd')
+    .selectAll('div').data(d=>d.lines).join('div')
       .attr('class','line')
       .style('background', d=>fileTypeColors(d.type));
 }
@@ -227,7 +229,7 @@ function renderScatterAt(containerId, allCommits, slice) {
   const W = container.node().clientWidth, H = container.node().clientHeight;
   const m = { top:10, right:10, bottom:30, left:40 };
   const svg = container.append('svg')
-    .attr('viewBox', `0 0 ${W} ${H}`)
+    .attr('viewBox',`0 0 ${W} ${H}`)
     .style('overflow','visible');
 
   const x = d3.scaleTime().domain(d3.extent(allCommits,d=>d.datetime)).range([m.left,W-m.right]).nice();
@@ -239,13 +241,13 @@ function renderScatterAt(containerId, allCommits, slice) {
   svg.append('g').attr('class','gridlines').attr('transform',`translate(${m.left},0)`)
      .call(d3.axisLeft(y).tickFormat('').tickSize(-(W-m.left-m.right)));
 
-  const dots=svg.append('g').attr('class','dots');
+  const dots = svg.append('g').attr('class','dots');
   dots.selectAll('circle')
     .data(slice.slice().sort((a,b)=>b.totalLines-a.totalLines))
     .join('circle')
       .attr('cx', d=>x(d.datetime))
       .attr('cy', d=>y(d.hourFrac))
-      .attr('r' , d=>r(d.totalLines))
+      .attr('r',  d=>r(d.totalLines))
       .attr('fill','steelblue')
       .attr('fill-opacity',0.7);
 
@@ -266,9 +268,7 @@ function renderScatterAt(containerId, allCommits, slice) {
   const raw     = await loadData();
   const commits = processCommits(raw);
 
-  // ===== Lab08 滑块 + Overview 区域 =====
-
-  // 初始化 Overview SVG、图层
+  // ==== Overview 区域 初始化 ====
   const ovC  = d3.select('#overview-chart');
   const ovW  = ovC.node().clientWidth;
   const ovH  = ovC.node().clientHeight;
@@ -277,13 +277,13 @@ function renderScatterAt(containerId, allCommits, slice) {
   const ovSvg = ovC.append('svg').attr('width',ovW).attr('height',ovH);
 
   const xScale = d3.scaleTime()
-    .domain(d3.extent(commits, d=>d.datetime))
-    .range([ovM.left, ovW-ovM.right]);
+    .domain(d3.extent(commits,d=>d.datetime))
+    .range([ovM.left,ovW-ovM.right]);
   const yScale = d3.scaleLinear()
     .domain([0,24])
-    .range([ovH-ovM.bottom, ovM.top]);
+    .range([ovH-ovM.bottom,ovM.top]);
   const rScale = d3.scaleSqrt()
-    .domain(d3.extent(commits, d=>d.totalLines))
+    .domain(d3.extent(commits,d=>d.totalLines))
     .range([3,15]);
 
   const xAxisG = ovSvg.append('g')
@@ -296,8 +296,8 @@ function renderScatterAt(containerId, allCommits, slice) {
 
   // updateScatterPlot
   function updateScatterPlot(data) {
-    xScale.domain(d3.extent(data, d=>d.datetime));
-    rScale.domain(d3.extent(data, d=>d.totalLines));
+    xScale.domain(d3.extent(data,d=>d.datetime));
+    rScale.domain(d3.extent(data,d=>d.totalLines));
 
     xAxisG.selectAll('*').remove();
     xAxisG.call(d3.axisBottom(xScale));
@@ -305,7 +305,7 @@ function renderScatterAt(containerId, allCommits, slice) {
     yAxisG.call(d3.axisLeft(yScale).tickFormat(d=>`${String(d).padStart(2,'0')}:00`));
 
     const sorted = data.slice().sort((a,b)=>b.totalLines-a.totalLines);
-    const u = dotsG.selectAll('circle').data(sorted, d=>d.id);
+    const u = dotsG.selectAll('circle').data(sorted,d=>d.id);
     u.join(
       enter => enter.append('circle')
         .attr('cx', d=>xScale(d.datetime))
@@ -324,15 +324,15 @@ function renderScatterAt(containerId, allCommits, slice) {
 
   // updateFileUnits
   function updateFileUnits(data) {
-    const lines = data.flatMap(d => d.lines);
-    const files = d3.groups(lines, d=>d.file)
+    const lines = data.flatMap(d=>d.lines);
+    const files = d3.groups(lines,d=>d.file)
       .map(([name,lines])=>({name,lines}))
       .sort((a,b)=>b.lines.length-a.lines.length);
 
     const dl = d3.select('#overview-files').html('');
     const groups = dl.selectAll('div')
-      .data(files, d=>d.name)
-      .join(enter => enter.append('div').call(div=>{
+      .data(files,d=>d.name)
+      .join(enter=>enter.append('div').call(div=>{
         div.append('dt').append('code');
         div.append('dd');
       }));
@@ -344,11 +344,11 @@ function renderScatterAt(containerId, allCommits, slice) {
         .data(d.lines)
         .join('div')
           .attr('class','line')
-          .style('background', l=>fileTypeColors(l.type));
+          .style('background',l=>fileTypeColors(l.type));
     });
   }
 
-  // 首次渲染
+  // 首次渲染 Overview 区域
   updateScatterPlot(commits);
   updateFileUnits(commits);
   updateOverviewStats(commits);
@@ -357,10 +357,10 @@ function renderScatterAt(containerId, allCommits, slice) {
   const overviewSlider  = d3.select('#overview-slider');
   const overviewDisplay = d3.select('#overview-time-display');
   const sliderScale     = d3.scaleTime()
-    .domain(d3.extent(commits, d=>d.datetime))
+    .domain(d3.extent(commits,d=>d.datetime))
     .range([0,100]);
 
-  overviewSlider.on('input', ()=> {
+  overviewSlider.on('input',()=>{
     const pct    = +overviewSlider.node().value;
     const cutoff = sliderScale.invert(pct);
     overviewDisplay.text(
@@ -372,21 +372,21 @@ function renderScatterAt(containerId, allCommits, slice) {
     updateOverviewStats(filtered);
   });
 
-  // ===== End Overview =====
+  // ==== End Overview ====
 
-  // 渲染左上 Summary
+  // 左上 Summary
   renderSummary(raw, commits);
 
-  // 第一组 Scrolly + Scatter
-  const initialSlice = commits.slice(0, VISIBLE_COUNT);
-  renderCommitItems(initialSlice, 0);
+  // Scrolly1
+  const initialSlice = commits.slice(0,VISIBLE_COUNT);
+  renderCommitItems(initialSlice,0);
   renderScatter(commits, initialSlice);
   renderFiles(initialSlice);
-  d3.select('#scroll-container1').on('scroll', function(){
+  d3.select('#scroll-container1').on('scroll',function(){
     const idx   = Math.floor(this.scrollTop/ITEM_HEIGHT);
-    const slice = commits.slice(idx, idx+VISIBLE_COUNT);
-    renderCommitItems(slice, idx);
-    renderScatter(commits, slice);
+    const slice = commits.slice(idx,idx+VISIBLE_COUNT);
+    renderCommitItems(slice,idx);
+    renderScatter(commits,slice);
     renderFiles(slice);
     const dateStr = commits[idx].datetime.toLocaleDateString('en-US',{
       weekday:'long',year:'numeric',month:'long',day:'numeric'
@@ -396,13 +396,13 @@ function renderScatterAt(containerId, allCommits, slice) {
       .text(dateStr);
   });
 
-  // 第二组 Daily Scrolly
+  // Scrolly2
   renderDailyItems(commits);
-  renderScatterAt('#daily-chart', commits, initialSlice);
-  d3.select('#scroll-container2').on('scroll', function(){
+  renderScatterAt('#daily-chart',commits,initialSlice);
+  d3.select('#scroll-container2').on('scroll',function(){
     const idx   = Math.floor(this.scrollTop/ITEM_HEIGHT);
-    const slice = commits.slice(idx, idx+VISIBLE_COUNT);
-    renderScatterAt('#daily-chart', commits, slice);
+    const slice = commits.slice(idx,idx+VISIBLE_COUNT);
+    renderScatterAt('#daily-chart',commits,slice);
   });
 
 })();
